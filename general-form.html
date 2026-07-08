@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แบบฟอร์มบันทึกข้อความ — โรงเรียน</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1a3a6e;
+      --accent:  #2563eb;
+      --bg:      #f1f5f9;
+      --white:   #ffffff;
+      --text:    #1e293b;
+      --muted:   #64748b;
+      --border:  #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background: var(--bg);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: linear-gradient(135deg, #1a3a6e 0%, #2563eb 100%);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .header-icon { font-size: 2rem; line-height: 1; }
+    .header-text h1 { font-size: 1.05rem; font-weight: 700; }
+    .header-text p  { font-size: 0.78rem; opacity: 0.85; }
+    .back-btn {
+      margin-left: auto;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-family: 'Sarabun', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: background .15s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.25); }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      padding: 40px 24px;
+      max-width: 860px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .page-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+    .page-sub {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    /* ── Form cards ── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .form-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 24px;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color .2s, box-shadow .2s, transform .15s;
+      cursor: pointer;
+    }
+    .form-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 8px 24px rgba(37,99,235,0.13);
+      transform: translateY(-3px);
+    }
+    .form-card:active { transform: translateY(0); }
+    .card-icon {
+      font-size: 2.6rem;
+      line-height: 1;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.35;
+    }
+    .card-desc {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .card-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      width: fit-content;
+      margin-top: auto;
+    }
+    .tag-general { background: #eff6ff; color: var(--accent); }
+    .tag-travel  { background: #f0fdf4; color: #16a34a; }
+
+    .card-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+    .arrow-icon { color: var(--accent); font-size: 1.2rem; }
+
+    @media (max-width: 480px) {
+      .main { padding: 24px 16px; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script src="auth-guard.js"></script>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">📋</div>
+  <div class="header-text">
+    <h1>แบบฟอร์มบันทึกข้อความ</h1>
+    <p>เลือกประเภทแบบฟอร์มที่ต้องการ</p>
+  </div>
+  <a href="index.html" class="back-btn">← กลับหน้าหลัก</a>
+</div>
+
+<div class="main">
+  <div class="page-title">เลือกประเภทบันทึกข้อความ</div>
+  <div class="page-sub">กรอกข้อมูลและดาวน์โหลดเป็นไฟล์ Word (.docx) พร้อมพิมพ์</div>
+
+  <div class="form-grid">
+
+    <!-- บันทึกข้อความทั่วไป -->
+    <a class="form-card" href="memo-form.html">
+      <div class="card-icon">📝</div>
+      <div class="card-title">บันทึกข้อความ<br>ทั่วไป</div>
+      <div class="card-desc">ใช้สำหรับการติดต่อราชการภายใน เสนอเรื่อง แจ้งเวียน หรือขออนุมัติทั่วไป</div>
+      <div class="card-arrow">
+        <span class="card-tag tag-general">📄 Word / Print</span>
+        <span class="arrow-icon">→</span>
+      </div>
+    </a>
+
+    <!-- บันทึกขออนุมัติเดินทาง -->
+    <a class="form-card" href="travel-form.html">
+      <div class="card-icon">🚗</div>
+      <div class="card-title">บันทึกข้อความ<br>ขออนุมัติเดินทางไปราชการ</div>
+      <div class="card-desc">ใช้สำหรับขออนุมัติเดินทางไปราชการ ระบุพาหนะ วันที่ สถานที่ และผู้เดินทาง</div>
+      <div class="card-arrow">
+        <span class="card-tag tag-travel">🚗 Word / Print</span>
+        <span class="arrow-icon">→</span>
+      </div>
+    </a>
+
+  </div>
+</div>
+
+</body>
+</html>
