@@ -218,6 +218,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="auth-guard.js"></script>
+<script src="staff.js"></script>
 </head>
 <body>
 
@@ -323,13 +324,15 @@
       </div>
 
       <div class="card" id="reviewCard">
-        <div class="section-title">📤 ส่งตรวจเอกสาร</div>
+        <div class="section-title">📤 ส่งเอกสารเข้าระบบ Workflow</div>
         <div class="field">
-          <label>ชื่อเจ้าหน้าที่ธุรการผู้ตรวจ</label>
-          <input type="text" id="reviewerName" placeholder="ชื่อ-สกุล เจ้าหน้าที่ธุรการ">
+          <label>ขั้นตอนการตรวจสอบ (เรียงลำดับ)</label>
+          <div id="workflowSteps" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+          <button type="button" id="addStepBtn" style="font-size:.8rem;padding:5px 12px;border-radius:7px;border:1.5px dashed var(--border);background:#fff;cursor:pointer;color:var(--accent);">+ เพิ่มขั้นตอน</button>
         </div>
-        <div class="form-actions" style="margin-top:4px;">
-          <button type="button" id="sendReviewBtn" class="btn-primary">📤 ส่งให้ธุรการตรวจสอบ</button>
+        <div class="form-actions" style="margin-top:8px;">
+          <button type="button" id="sendWorkflowBtn" class="btn-primary">📤 ส่งเข้าระบบตรวจสอบ</button>
+          <a href="document-inbox.html" class="btn-danger" style="padding:8px 16px;border-radius:8px;background:#fff;color:var(--accent);border:1.5px solid var(--accent);text-decoration:none;font-size:.88rem;display:inline-flex;align-items:center;gap:4px;">📥 กล่องเอกสาร</a>
         </div>
         <div id="reviewStatus" style="margin-top:10px;font-size:.84rem;min-height:1.2em;"></div>
       </div>
@@ -645,63 +648,94 @@ function collectFormData() {
   return v;
 }
 
-document.getElementById('sendReviewBtn').addEventListener('click', async () => {
-  const btn = document.getElementById('sendReviewBtn');
-  const statusEl = document.getElementById('reviewStatus');
-  const reviewerName = document.getElementById('reviewerName').value.trim();
+/* ── Workflow step builder ── */
+let workflowStepList = [];
 
+function renderWorkflowSteps() {
+  const container = document.getElementById('workflowSteps');
+  if (!workflowStepList.length) {
+    container.innerHTML = '<div style="font-size:.8rem;color:var(--muted);padding:4px 0;">ยังไม่มีขั้นตอน — กด + เพิ่มขั้นตอน</div>';
+    return;
+  }
+  container.innerHTML = workflowStepList.map((step, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);">
+      <span style="color:var(--muted);font-size:.8rem;font-weight:700;">${i+1}.</span>
+      <select onchange="workflowStepList[${i}]=JSON.parse(this.value)" style="flex:1;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:'Sarabun',sans-serif;font-size:.85rem;">
+        ${STAFF_LIST.map(s => `<option value='${JSON.stringify({name:s.name,email:s.email,role:s.role==='director'?'signer':'approver',status:'pending'})}' ${step.email===s.email?'selected':''}>${s.name} (${s.role==='director'?'ลงนาม':'ตรวจสอบ'})</option>`).join('')}
+      </select>
+      <button onclick="workflowStepList.splice(${i},1);renderWorkflowSteps()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1rem;">✕</button>
+    </div>`).join('');
+}
+
+document.getElementById('addStepBtn').addEventListener('click', () => {
+  const first = STAFF_LIST[0];
+  workflowStepList.push({ name: first.name, email: first.email, role: first.role==='director'?'signer':'approver', status: 'pending' });
+  renderWorkflowSteps();
+});
+
+// init default steps on load
+firebase.auth().onAuthStateChanged(u => {
+  if (u && !workflowStepList.length) {
+    // default: first admin then director
+    const admin = STAFF_LIST.find(s=>s.role==='admin');
+    const dir = STAFF_LIST.find(s=>s.role==='director');
+    if (admin) workflowStepList.push({name:admin.name,email:admin.email,role:'approver',status:'pending'});
+    if (dir)   workflowStepList.push({name:dir.name,email:dir.email,role:'signer',status:'pending'});
+    renderWorkflowSteps();
+  }
+});
+
+document.getElementById('sendWorkflowBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('sendWorkflowBtn');
+  const statusEl = document.getElementById('reviewStatus');
   const user = firebase.auth().currentUser;
   if (!user) { statusEl.textContent = '❌ กรุณา login ก่อน'; return; }
-
   const เรื่อง = getVal('เรื่อง');
-  if (!เรื่อง) { statusEl.textContent = '❌ กรุณากรอก "เรื่อง" ก่อนส่งตรวจ'; return; }
+  if (!เรื่อง) { statusEl.textContent = '❌ กรุณากรอก "เรื่อง" ก่อน'; return; }
+  if (!workflowStepList.length) { statusEl.textContent = '❌ กรุณาเพิ่มขั้นตอนอย่างน้อย 1 ขั้น'; return; }
 
-  btn.disabled = true;
-  statusEl.textContent = 'กำลังส่ง...';
-
+  btn.disabled = true; statusEl.textContent = 'กำลังส่ง...';
   try {
     const db = getDb();
     const docRef = _currentMemoId
-      ? db.collection('memos').doc(_currentMemoId)
-      : db.collection('memos').doc();
+      ? db.collection('documents').doc(_currentMemoId)
+      : db.collection('documents').doc();
 
-    await docRef.set({
-      ownerUid:     user.uid,
-      ownerEmail:   user.email,
-      ownerName:    user.displayName || user.email,
-      reviewerName: reviewerName || 'ธุรการ',
-      status:       'pending',
-      เรื่อง,
-      createdAt:    firebase.firestore.FieldValue.serverTimestamp(),
-      verifiedAt:   null,
-      verifiedBy:   null,
-      formData:     collectFormData(),
-    }, { merge: true });
-
+    const payload = {
+      type: 'memo',
+      subject: เรื่อง,
+      createdBy: { uid: user.uid, email: user.email, name: user.displayName || user.email },
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      status: 'pending',
+      currentStep: 0,
+      workflow: workflowStepList.map(s => ({...s, status:'pending'})),
+      formData: collectFormData(),
+      annotations: [],
+    };
+    await docRef.set(payload, { merge: true });
     _currentMemoId = docRef.id;
-    startReviewListener(_currentMemoId);
-    statusEl.innerHTML = `<span style="color:var(--accent);">⏳ รอการตรวจสอบ — ID: <code>${_currentMemoId.slice(0,8)}…</code></span>`;
+
+    // Add submitted history
+    await docRef.collection('history').add({
+      action: 'submitted',
+      byUid: user.uid, byEmail: user.email, byName: user.displayName || user.email,
+      at: firebase.firestore.FieldValue.serverTimestamp(),
+      comment: '', hasAnnot: false, hasSig: false, signatureData: null,
+    });
+
+    // Email first step
+    const first = workflowStepList[0];
+    const mailBody = `เรียน ${first.name}\n\nมีเอกสาร "${เรื่อง}" รอการตรวจสอบจากท่าน\n\nผู้เสนอ: ${user.displayName||user.email}\n\nดูเอกสาร: ${SYSTEM_BASE_URL}/document-review.html?id=${docRef.id}`;
+    window.open(`mailto:${first.email}?subject=${encodeURIComponent('[รอตรวจสอบ] '+เรื่อง)}&body=${encodeURIComponent(mailBody)}`,'_blank');
+
+    statusEl.innerHTML = `<span style="color:var(--success);">✅ ส่งเข้าระบบแล้ว — <a href="document-review.html?id=${docRef.id}" target="_blank">ดูเอกสาร</a></span>`;
+    btn.textContent = '📤 ส่งอีกครั้ง';
   } catch(err) {
     console.error(err);
-    statusEl.textContent = '❌ เกิดข้อผิดพลาด: ' + err.message;
+    statusEl.textContent = '❌ ' + err.message;
   }
   btn.disabled = false;
 });
-
-function startReviewListener(memoId) {
-  if (_unsubReview) _unsubReview();
-  _unsubReview = getDb().collection('memos').doc(memoId).onSnapshot(snap => {
-    if (!snap.exists) return;
-    const d = snap.data();
-    const statusEl = document.getElementById('reviewStatus');
-    if (d.status === 'verified') {
-      statusEl.innerHTML = `<span style="color:var(--success);">✅ ตรวจสอบแล้ว โดย ${escHtml(d.verifiedBy||'ธุรการ')} เมื่อ ${d.verifiedAt?.toDate?.()?.toLocaleString('th-TH')||''}</span>`;
-      document.getElementById('sendReviewBtn').textContent = '📤 ส่งตรวจอีกครั้ง';
-    } else if (d.status === 'pending') {
-      statusEl.innerHTML = `<span style="color:#b45309;">⏳ รอการตรวจสอบจาก ${escHtml(d.reviewerName||'ธุรการ')}</span>`;
-    }
-  });
-}
 
 /* ── Attach documents ── */
 let attachedFiles = [];
