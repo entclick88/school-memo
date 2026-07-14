@@ -586,6 +586,7 @@
         <div style="margin-top:3em; font-size:.82em; line-height:1.6; border-top:1px solid #ccc; padding-top:6px;">
           <span style="font-weight:700;">หมายเหตุ</span>
           โปรดส่งแบบตอบรับกลับคืนงานแนะแนว โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี<br>
+          "<span id="pv2-หมายเหตุ-ชื่อเรื่อง" style="color:#bbb;">หนังสือตอบรับ...</span>"<br>
           โทร 08 4557 9229 กด 4 (งานแนะแนว)<br>
           หรือทาง E-mail : guidancewit.06@gmail.com<br>
           ขอความอนุเคราะห์ส่งแบบตอบรับ ภายในวันที่
@@ -736,6 +737,7 @@ function updatePreview(){
     else     { el.textContent = placeholder; el.style.color = '#bbb'; }
   };
   pv2set('pv2-ชื่อเรื่อง', v['ตอบรับ-ชื่อเรื่อง'], 'หนังสือตอบรับ...');
+  pv2set('pv2-หมายเหตุ-ชื่อเรื่อง', v['ตอบรับ-ชื่อเรื่อง'], 'หนังสือตอบรับ...');
   pv2set('pv2-เลขที่',     v['เลขที่'],             ' มอ.ว.สฎ........./.........');
   pv2set('pv2-วันที่',     tMonthYear,              '.............................');
   pv2set('pv2-เรื่อง',    v['ตอบรับ-เรื่อง'],      ' ของความอนุเคราะห์...');
