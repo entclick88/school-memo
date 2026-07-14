@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ขออนุญาตพานักเรียนออกนอกสถานศึกษา — มอ. วิทยานุสรณ์</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#1a73c0;--accent2:#1558a0;--bg:#f3f6fa;--card:#fff;
+  --border:#dfe6ee;--text:#1f2a37;--muted:#667788;
+  --danger:#c0392b;--green:#166534;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+.topbar{background:var(--accent);color:#fff;padding:12px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.topbar a.back{color:rgba(255,255,255,.85);text-decoration:none;font-size:.88rem;}
+.topbar h1{font-size:1rem;font-weight:700;}
+.save-badge{font-size:.78rem;background:rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;display:flex;align-items:center;gap:5px;}
+.save-badge .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;}
+.save-badge.unsaved .dot{background:#fbbf24;}
+
+.main{display:grid;grid-template-columns:1fr 1fr;gap:0;
+  max-width:1500px;margin:0 auto;min-height:calc(100vh - 52px);}
+
+.form-side{padding:20px;overflow-y:auto;border-right:1px solid var(--border);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:18px 20px;box-shadow:0 1px 6px rgba(20,40,80,.05);margin-bottom:14px;}
+.section-title{font-weight:700;font-size:.92rem;color:var(--accent);
+  margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid #e8f0fb;
+  display:flex;align-items:center;gap:6px;}
+label{display:block;font-size:.82rem;font-weight:600;margin-bottom:4px;color:#445566;}
+.field{margin-bottom:12px;}
+.field:last-child{margin-bottom:0;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+input[type=text],input[type=date],textarea,select{
+  width:100%;padding:8px 11px;border:1.5px solid var(--border);
+  border-radius:8px;font-family:'Sarabun',sans-serif;font-size:.88rem;
+  background:#fbfcfe;color:var(--text);transition:border-color .15s;}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);background:#fff;}
+textarea{resize:vertical;min-height:64px;line-height:1.6;}
+.hint{font-size:.73rem;color:#8a97a8;margin-top:2px;}
+
+/* dynamic lists */
+.list-entry{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;}
+.list-entry input{flex:1;}
+.list-entry .num{min-width:22px;height:34px;display:flex;align-items:center;font-size:.82rem;color:var(--muted);font-weight:700;}
+.btn-rm{background:#fee2e2;color:var(--danger);border:none;border-radius:6px;
+  width:30px;height:30px;cursor:pointer;font-size:1rem;flex-shrink:0;margin-top:2px;}
+.btn-add{background:#eff6ff;color:var(--accent);border:1.5px solid #bfdbfe;
+  border-radius:8px;padding:7px 14px;font-family:'Sarabun',sans-serif;
+  font-size:.84rem;font-weight:600;cursor:pointer;margin-top:4px;}
+.btn-add:hover{background:#dbeafe;}
+
+.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
+button.btn-primary{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:600;
+  padding:10px 18px;border-radius:10px;border:none;cursor:pointer;
+  background:var(--accent);color:#fff;transition:background .15s;}
+button.btn-print{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:600;
+  padding:10px 18px;border-radius:10px;border:1.5px solid #bbf7d0;cursor:pointer;
+  background:#f0fdf4;color:var(--green);}
+button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:600;
+  padding:10px 18px;border-radius:10px;border:1.5px solid #fecaca;cursor:pointer;
+  background:#fef2f2;color:var(--danger);}
+
+/* ── Preview ── */
+.preview-side{padding:16px 16px 24px;background:#f0f2f5;
+  overflow-y:auto;position:sticky;top:52px;height:calc(100vh - 52px);}
+.preview-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.preview-header h2{font-size:.88rem;color:var(--muted);font-weight:600;}
+.page-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.page-tab{font-family:'Sarabun',sans-serif;font-size:.76rem;font-weight:600;
+  padding:5px 12px;border-radius:20px;border:1.5px solid var(--border);
+  background:#fff;cursor:pointer;color:var(--muted);transition:.15s;}
+.page-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.doc-page{display:none;}
+.doc-page.active{display:block;}
+
+/* ── Doc styles ── */
+.doc-wrap{width:100%;background:#fff;border:1px solid #c8d4e3;
+  box-shadow:0 4px 24px rgba(0,0,0,.12);border-radius:4px;}
+.doc-inner{padding:6% 7% 6% 11%;
+  font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
+  font-size:15px;line-height:1.5;color:#111;}
+
+.doc-field{display:flex;align-items:baseline;gap:.3em;flex-wrap:wrap;margin-bottom:2px;}
+.doc-field-lbl{white-space:nowrap;font-weight:700;flex-shrink:0;}
+.doc-field-val{flex:1;border-bottom:1px dotted #aaa;min-width:3em;
+  padding-bottom:1px;min-height:1.2em;word-break:break-word;}
+.doc-field-val.empty{color:#bbb;}
+.doc-field-val:not(.empty){border-bottom-color:transparent;}
+
+.doc-para{text-indent:2.54cm;text-align:justify;white-space:pre-wrap;
+  word-break:break-word;line-height:1.5;font-size:1em;min-height:1.6em;}
+.doc-para.filled{color:#111;}
+.doc-para.ph{color:#ccc;}
+
+.doc-sign-r{margin-top:3.5em;display:flex;justify-content:flex-end;padding-right:5%;}
+.doc-sign-block{text-align:center;line-height:1.8;min-width:220px;}
+
+.preview-note{font-size:.7rem;color:var(--muted);text-align:center;margin-top:8px;}
+
+/* letterhead */
+.lh-wrap{display:flex;align-items:flex-start;gap:.8em;margin-bottom:.4em;}
+.lh-logo{height:4em;flex-shrink:0;}
+.lh-info{flex:1;line-height:1.5;font-size:.88em;}
+.lh-school{font-weight:700;font-size:1em;}
+
+/* tear-off */
+.tearoff{border-top:2px dashed #888;margin-top:1.5em;padding-top:.6em;font-size:.85em;}
+.tearoff-title{text-align:center;font-weight:700;font-size:.95em;margin-bottom:.4em;}
+.scissors{text-align:center;font-size:.9em;color:#666;letter-spacing:.2em;margin-bottom:.3em;}
+
+@media(max-width:900px){
+  .main{grid-template-columns:1fr;}
+  .preview-side{position:static;height:auto;border-top:1px solid var(--border);}
+  .form-side{border-right:none;}
+}
+
+@media print{
+  .topbar,.form-side,.preview-header,.page-tabs,.preview-note,.form-actions{display:none!important;}
+  .main{display:block;max-width:100%;}
+  .preview-side{padding:0;background:#fff;height:auto;position:static;}
+  .doc-page{display:block!important;}
+  .doc-wrap{box-shadow:none;border:none;width:210mm;min-height:297mm;page-break-after:always;}
+  .doc-inner{padding:15mm 20mm 15mm 30mm;font-size:15pt;line-height:1.5;overflow:visible;}
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="auth-guard.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back" href="./index.html">← กลับ</a>
+    <h1>🏫 ขออนุญาตพานักเรียนออกนอกสถานศึกษา</h1>
+  </div>
+  <div class="save-badge" id="saveBadge">
+    <span class="dot"></span>
+    <span id="saveText">บันทึกอัตโนมัติ</span>
+  </div>
+</div>
+
+<div class="main">
+<!-- ═══════════════ FORM SIDE ═══════════════ -->
+<div class="form-side">
+
+  <!-- 1. ข้อมูลกิจกรรม (ใช้ร่วมกันทุกเอกสาร) -->
+  <div class="card">
+    <div class="section-title">🎯 ข้อมูลกิจกรรม (ใช้ร่วมกันทุกเอกสาร)</div>
+    <div class="field">
+      <label>ชื่อกิจกรรม / โครงการ *</label>
+      <input type="text" id="ชื่อกิจกรรม" placeholder="เช่น ค่ายวิทยาศาสตร์ มอ. วิทยานุสรณ์ ครั้งที่ 1">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>วันที่เดินทางไป</label>
+        <input type="date" id="วันเดินทางไป">
+      </div>
+      <div class="field">
+        <label>วันที่เดินทางกลับ</label>
+        <input type="date" id="วันเดินทางกลับ">
+      </div>
+    </div>
+    <div class="field">
+      <label>สถานที่จัดกิจกรรม</label>
+      <input type="text" id="สถานที่" placeholder="เช่น มหาวิทยาลัยสงขลานครินทร์ วิทยาเขตหาดใหญ่">
+    </div>
+    <div class="field">
+      <label>ยานพาหนะ</label>
+      <input type="text" id="ยานพาหนะ" placeholder="เช่น รถโดยสารปรับอากาศ">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>ประเภทการพักค้าง</label>
+        <select id="ประเภทพัก">
+          <option value="0">ไม่พักค้างแรม</option>
+          <option value="1">พักค้างแรม</option>
+          <option value="2">ออกนอกราชอาณาจักร</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>วันหยุด/เสาร์-อาทิตย์?</label>
+        <select id="วันหยุด">
+          <option value="0">ไม่ใช่ (ขอเวลาเรียน)</option>
+          <option value="1">ใช่ (ไม่ต้องขอเวลาเรียน)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. อ้างถึงหนังสือ -->
+  <div class="card">
+    <div class="section-title">📎 อ้างถึงหนังสือ / เอกสารเชิญ</div>
+    <div class="row2">
+      <div class="field">
+        <label>เลขที่หนังสือที่อ้างถึง</label>
+        <input type="text" id="อ้างเลขที่" placeholder="เช่น ศธ 0514.8/พิเศษ 123">
+      </div>
+      <div class="field">
+        <label>ลงวันที่</label>
+        <input type="date" id="อ้างวันที่">
+      </div>
+    </div>
+    <div class="field">
+      <label>เรื่อง (ของหนังสือที่อ้าง)</label>
+      <input type="text" id="อ้างเรื่อง" placeholder="เช่น ขอเชิญนักเรียนเข้าร่วมกิจกรรม...">
+      <div class="hint">หากไม่มีหนังสืออ้าง เว้นว่างไว้ได้</div>
+    </div>
+  </div>
+
+  <!-- 3. รายชื่อนักเรียน -->
+  <div class="card">
+    <div class="section-title">🎒 รายชื่อนักเรียน</div>
+    <div id="studentList"></div>
+    <button class="btn-add" onclick="addStudent()">+ เพิ่มนักเรียน</button>
+  </div>
+
+  <!-- 4. รายชื่อครูผู้ควบคุม -->
+  <div class="card">
+    <div class="section-title">👩‍🏫 รายชื่อครูผู้ควบคุมดูแล</div>
+    <div id="teacherList"></div>
+    <button class="btn-add" onclick="addTeacher()">+ เพิ่มครูผู้ควบคุม</button>
+  </div>
+
+  <!-- 5. บันทึกข้อความ -->
+  <div class="card">
+    <div class="section-title">📝 บันทึกข้อความ</div>
+    <div class="row2">
+      <div class="field">
+        <label>ส่วนงาน/ฝ่าย (เจ้าของเรื่อง)</label>
+        <input type="text" id="ส่วนงาน" placeholder="เช่น ฝ่ายวิชาการ">
+      </div>
+      <div class="field">
+        <label>เลขที่บันทึก</label>
+        <input type="text" id="เลขที่บันทึก" placeholder="เช่น 001/2569">
+      </div>
+    </div>
+    <div class="field">
+      <label>วันที่บันทึก</label>
+      <input type="date" id="วันที่บันทึก">
+    </div>
+    <div class="field">
+      <label>ชื่อ-สกุล ผู้ลงนามบันทึก</label>
+      <input type="text" id="ผู้ลงนามบันทึก" placeholder="ชื่อเต็ม">
+    </div>
+    <div class="field">
+      <label>ตำแหน่ง</label>
+      <input type="text" id="ตำแหน่งบันทึก" placeholder="เช่น ครู คศ.1">
+    </div>
+  </div>
+
+  <!-- 6. คำสั่งโรงเรียน -->
+  <div class="card">
+    <div class="section-title">📋 คำสั่งโรงเรียน</div>
+    <div class="row2">
+      <div class="field">
+        <label>เลขที่คำสั่ง</label>
+        <input type="text" id="เลขที่คำสั่ง" placeholder="เช่น 001">
+      </div>
+      <div class="field">
+        <label>วันที่สั่ง</label>
+        <input type="date" id="วันที่สั่ง">
+      </div>
+    </div>
+    <div class="field">
+      <label>ภาคเหตุ (เนื้อหาคำสั่ง)</label>
+      <textarea id="ภาคเหตุคำสั่ง" placeholder="ด้วย [ชื่อหน่วยงาน] ได้จัดกิจกรรม..."></textarea>
+    </div>
+    <div class="field">
+      <label>ชื่อ-สกุล ผู้ลงนามคำสั่ง</label>
+      <input type="text" id="ผู้ลงนามคำสั่ง" placeholder="ชื่อเต็ม">
+    </div>
+    <div class="field">
+      <label>ตำแหน่ง</label>
+      <input type="text" id="ตำแหน่งคำสั่ง" placeholder="ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>ผู้รับรองสำเนา</label>
+        <input type="text" id="ผู้รับรองสำเนา" placeholder="ชื่อเต็ม">
+      </div>
+      <div class="field">
+        <label>ตำแหน่งผู้รับรอง</label>
+        <input type="text" id="ตำแหน่งผู้รับรอง" placeholder="ตำแหน่ง">
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>ผู้ร่าง</label><input type="text" id="ผู้ร่าง" placeholder="ชื่อย่อ"></div>
+      <div class="field"><label>ผู้ทาน</label><input type="text" id="ผู้ทาน" placeholder="ชื่อย่อ"></div>
+    </div>
+  </div>
+
+  <!-- 7. หนังสือภายนอก -->
+  <div class="card">
+    <div class="section-title">📨 หนังสือภายนอก (ถึงผู้ปกครอง)</div>
+    <div class="row2">
+      <div class="field">
+        <label>เลขที่หนังสือ</label>
+        <input type="text" id="เลขที่หนังสือ" placeholder="เช่น 001/2569">
+      </div>
+      <div class="field">
+        <label>วันที่หนังสือ</label>
+        <input type="date" id="วันที่หนังสือ">
+      </div>
+    </div>
+    <div class="field">
+      <label>ชื่อ-สกุล ผู้ลงนามหนังสือ</label>
+      <input type="text" id="ผู้ลงนามหนังสือ" placeholder="ชื่อเต็ม">
+    </div>
+    <div class="field">
+      <label>ตำแหน่ง</label>
+      <input type="text" id="ตำแหน่งหนังสือ" placeholder="ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">
+    </div>
+    <div class="field">
+      <label>ส่วนงาน/ฝ่าย (footer)</label>
+      <input type="text" id="footer-ส่วนงาน" placeholder="เช่น ฝ่ายวิชาการ">
+    </div>
+    <div class="field">
+      <label>โทรศัพท์ติดต่อ (footer)</label>
+      <input type="text" id="footer-โทร" placeholder="เช่น 08-4557-9229 กด 1">
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="card">
+    <div class="form-actions">
+      <button class="btn-print" onclick="window.print()">🖨️ พิมพ์ทุกหน้า</button>
+      <button class="btn-danger" onclick="clearAll()">🗑️ ล้างข้อมูล</button>
+    </div>
+  </div>
+
+</div><!-- /form-side -->
+
+<!-- ═══════════════ PREVIEW SIDE ═══════════════ -->
+<div class="preview-side">
+  <div class="preview-header">
+    <h2>ตัวอย่างเอกสาร</h2>
+    <span style="font-size:.7rem;background:#e8f0fb;color:var(--accent);padding:3px 9px;border-radius:20px;font-weight:600;">Live Preview</span>
+  </div>
+  <div class="page-tabs">
+    <button class="page-tab active" onclick="showPage(0)">📝 บันทึก</button>
+    <button class="page-tab" onclick="showPage(1)">📋 รายชื่อ</button>
+    <button class="page-tab" onclick="showPage(2)">📌 คำสั่ง</button>
+    <button class="page-tab" onclick="showPage(3)">📄 สำเนาคำสั่ง</button>
+    <button class="page-tab" onclick="showPage(4)">📨 หนังสือผู้ปกครอง</button>
+  </div>
+
+  <!-- ── หน้า 1: บันทึกข้อความ ── -->
+  <div class="doc-page active" id="page0">
+  <div class="doc-wrap"><div class="doc-inner">
+
+    <div style="text-align:center;font-weight:700;font-size:1.75em;margin-bottom:.4em;">บันทึกข้อความ</div>
+    <div style="text-align:center;font-size:.82em;color:#555;margin-bottom:.6em;">กิจกรรมจัดโดยฝ่ายใด ออกเลขฝ่ายนั้น</div>
+
+    <div class="doc-field">
+      <span class="doc-field-lbl">ส่วนงาน / ฝ่าย</span>
+      <span class="doc-field-val empty" id="p1-ส่วนงาน"></span>
+      <span> โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</span>
+    </div>
+    <div style="display:flex;gap:1em;flex-wrap:wrap;margin-bottom:4px;">
+      <div class="doc-field" style="flex:1;">
+        <span class="doc-field-lbl">ที่</span>
+        <span class="doc-field-val empty" id="p1-เลขที่"></span>
+      </div>
+      <div class="doc-field" style="flex:1;">
+        <span class="doc-field-lbl">วันที่</span>
+        <span class="doc-field-val empty" id="p1-วันที่"></span>
+      </div>
+    </div>
+    <div class="doc-field" style="margin-bottom:.3em;">
+      <span class="doc-field-lbl">เรื่อง</span>
+      <span class="doc-field-val empty" id="p1-เรื่อง"></span>
+    </div>
+
+    <hr style="border:none;border-top:1px solid #333;margin:.3em 0 .5em;">
+
+    <div class="doc-field" style="margin-bottom:.3em;">
+      <span class="doc-field-lbl">เรียน</span>
+      <span id="p1-เรียน" style="font-size:1em;">ผู้อำนวยการ (กรณีไม่พักค้างแรม) / ผู้ลงนามแทน ฯ (กรณีพักค้างแรม และออกนอกราชอาณาจักร)</span>
+    </div>
+
+    <div style="margin-top:.5em;font-size:.92em;line-height:1.6;">
+      <span style="text-indent:2.54cm;display:block;">
+        อ้างถึงหนังสือเลขที่ <span id="p1-อ้างเลขที่" style="color:#bbb;">...........</span>
+        หรือ เลขที่ในหนังสือสื่อ ลงวันที่ <span id="p1-อ้างวันที่" style="color:#bbb;">.............................</span>
+      </span>
+      <div class="doc-field">
+        <span class="doc-field-lbl">เรื่อง</span>
+        <span class="doc-field-val empty" id="p1-อ้างเรื่อง"></span>
+      </div>
+      <span style="text-indent:2.54cm;display:block;">
+        เข้าร่วมกิจกรรม <span id="p1-กิจกรรม1" style="color:#bbb;">[ชื่อกิจกรรม]</span>
+      </span>
+      <span style="text-indent:2.54cm;display:block;">
+        ในวันที่ <span id="p1-วันไป" style="color:#bbb;">............</span>
+        ถึง วันที่ <span id="p1-วันกลับ" style="color:#bbb;">............</span>
+        ณ <span id="p1-สถานที่" style="color:#bbb;">[สถานที่]</span> นั้น
+      </span>
+    </div>
+
+    <div class="doc-para ph" id="p1-body" style="margin-top:.4em;"></div>
+
+    <div style="margin-top:.5em;font-size:.9em;line-height:1.8;">
+      <div style="text-indent:2.54cm;">รายชื่อนักเรียนและคุณครูผู้ควบคุมดูแลนักเรียน ในการออกนอกสถานศึกษา ดังนี้</div>
+      <div style="padding-left:2.54cm;">
+        <div>1. รายชื่อนักเรียนและคุณครูผู้ควบคุมดูแลนักเรียน ในการออกนอกสถานศึกษา</div>
+        <div>2. คำสั่งแต่งตั้งผู้ควบคุมดูแลนักเรียน</div>
+        <div>3. ใบอนุญาตผู้ปกครอง</div>
+        <div>4. สำเนากรมธรรม์ประกันภัยของนักเรียน</div>
+        <div>5. กำหนดการเดินทางและตารางกิจกรรม</div>
+        <div>6. แผนที่แสดงการเดินทาง พร้อมมาตรยานพาหนะ</div>
+      </div>
+      <div style="text-indent:2.54cm;">จึงเรียนมาเพื่อโปรดพิจารณา</div>
+    </div>
+
+    <div class="doc-sign-r">
+      <div class="doc-sign-block">
+        <div>(<span id="p1-ลงชื่อ" style="color:#bbb;">ชื่อ - สกุล เต็ม</span>)</div>
+        <div id="p1-ตำแหน่ง" style="color:#bbb;">ระบุตำแหน่ง</div>
+      </div>
+    </div>
+
+    <div style="margin-top:1.5em;font-size:.8em;line-height:1.7;border-top:1px solid #aaa;padding-top:.4em;">
+      <strong>หมายเหตุ</strong>
+      <div>1. ให้หัวหน้าฝ่าย หรือหัวหน้ากลุ่มสาระ ลงชื่อด้ายท้ายทุกครั้ง (ขึ้นอยู่กับกิจกรรม)</div>
+      <div>2. กรณีพักค้างแรม และออกนอกราชอาณาจักร ฯ มอ. ลงชื่อด้วย ก่อนเสนอผู้งานนำแทนฯ ทุกครั้ง</div>
+      <div>3. กรณีพาออกนอกสถานศึกษาในวันเสาร์ - อาทิตย์ หรือ วันหยุด ไม่ต้องขอความอนุเคราะห์เวลาเรียน</div>
+      <div>4. สำหรับโรงเรียนโครงการ วมว. ทำหนังสือขอความอนุเคราะห์เวลาเรียนไปยังคณะศิลปศาสตร์ ฯ</div>
+    </div>
+
+  </div></div>
+  </div><!-- /page0 -->
+
+  <!-- ── หน้า 2: รายชื่อนักเรียนและครู ── -->
+  <div class="doc-page" id="page1">
+  <div class="doc-wrap"><div class="doc-inner">
+
+    <div style="text-align:center;font-weight:700;font-size:1em;margin-bottom:.4em;">
+      รายชื่อนักเรียนและคุณครูผู้ควบคุมดูแลนักเรียน ในกิจกรรม
+      <span id="p2-กิจกรรม" style="color:#bbb;">[ชื่อกิจกรรม]</span>
+    </div>
+    <div style="font-size:.95em;margin-bottom:.6em;">
+      ในวันที่ <span id="p2-วันไป" style="color:#bbb;">............</span>
+      ถึง วันที่ <span id="p2-วันกลับ" style="color:#bbb;">............</span>
+      ณ <span id="p2-สถานที่" style="color:#bbb;">[สถานที่]</span>
+    </div>
+
+    <div style="font-weight:700;margin-bottom:.3em;">รายชื่อนักเรียน</div>
+    <div id="p2-นักเรียน" style="font-size:.95em;line-height:1.8;margin-bottom:.8em;">
+      <div style="color:#bbb;">1. ชื่อ - สกุล ระดับชั้น ...</div>
+    </div>
+
+    <div style="font-weight:700;margin-bottom:.3em;">รายชื่อคุณครูผู้ควบคุม</div>
+    <div id="p2-ครู" style="font-size:.95em;line-height:1.8;margin-bottom:1em;">
+      <div style="color:#bbb;">1. ชื่อ - สกุล ครูประจำการวิชา ...</div>
+    </div>
+
+    <div style="font-size:.88em;border-top:1px solid #aaa;padding-top:.4em;">
+      <strong>หมายเหตุ</strong>
+      <span style="text-indent:2.54cm;display:block;">
+        นักเรียนเดินทางไป-กลับ โดย <span id="p2-ยานพาหนะ" style="color:#bbb;">[ยานพาหนะ]</span> พร้อมคุณครูผู้ดูแล
+      </span>
+    </div>
+
+  </div></div>
+  </div><!-- /page1 -->
+
+  <!-- ── หน้า 3: คำสั่งโรงเรียน ── -->
+  <div class="doc-page" id="page2">
+  <div class="doc-wrap"><div class="doc-inner">
+
+    <div style="text-align:center;font-weight:700;font-size:1.75em;line-height:1.2;margin-bottom:.1em;">
+      คำสั่งโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี
+    </div>
+    <div style="text-align:center;font-size:1em;margin-bottom:.2em;">
+      ที่ <span id="p3-เลขที่" style="color:#bbb;">...........</span> / 2569
+    </div>
+    <div style="text-align:center;font-size:.95em;margin-bottom:.1em;">
+      เรื่อง แต่งตั้งผู้ควบคุมดูแลนักเรียนออกนอกสถานศึกษา เพื่อเข้าร่วมกิจกรรม
+      <span id="p3-เรื่องกิจกรรม" style="color:#bbb;">[ชื่อกิจกรรม]</span>
+    </div>
+    <div style="text-align:center;border-bottom:1px solid #555;width:60%;margin:.2em auto .5em;padding-bottom:2px;">
+      <span id="p3-ชื่อกิจกรรม" style="color:#bbb;">[ระบุชื่อกิจกรรม]</span>
+    </div>
+    <div style="border-top:1px solid #555;margin:.2em 20% .5em 20%;"></div>
+
+    <div class="doc-para ph" id="p3-ภาคเหตุ">กรอกภาคเหตุคำสั่งทางซ้าย...</div>
+
+    <div style="margin-top:.5em;font-size:.95em;line-height:1.8;">
+      <div style="text-indent:2.54cm;">
+        เพื่อให้การนำนักเรียนเข้าร่วมกิจกรรมกล่าว จึงแต่งตั้งให้
+        <span id="p3-ครูผู้ควบคุม" style="color:#bbb;">[รายชื่อครูผู้ควบคุม]</span>
+        เป็นผู้ควบคุมดูแลนักเรียน
+      </div>
+      <div style="text-indent:2.54cm;">
+        ทั้งนี้ ตั้งแต่วันที่ <span id="p3-วันไป" style="color:#bbb;">............</span>
+        พ.ศ. 2569 ถึงวันที่ <span id="p3-วันกลับ" style="color:#bbb;">............</span>
+        พ.ศ. 2569 เป็นต้นไป
+      </div>
+      <div style="text-indent:2.54cm;">
+        สั่ง ณ วันที่
+        <span id="p3-วันที่สั่ง" style="color:#bbb;">.......................................</span>
+        พ.ศ. <span id="p3-ปีสั่ง" style="color:#bbb;">.........</span>
+      </div>
+    </div>
+
+    <div class="doc-sign-r">
+      <div class="doc-sign-block">
+        <div>(<span id="p3-ลงชื่อ" style="color:#bbb;">.......................................</span>)</div>
+        <div id="p3-ตำแหน่ง" style="color:#bbb;">ระบุตำแหน่ง</div>
+      </div>
+    </div>
+
+  </div></div>
+  </div><!-- /page2 -->
+
+  <!-- ── หน้า 4: คำสั่ง (สำเนา) ── -->
+  <div class="doc-page" id="page3">
+  <div class="doc-wrap"><div class="doc-inner">
+
+    <div style="text-align:center;font-size:1em;margin-bottom:1.5em;">(สำเนา)</div>
+
+    <div style="text-align:center;font-weight:700;font-size:1.75em;line-height:1.2;margin-bottom:.1em;">
+      คำสั่งโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี
+    </div>
+    <div style="text-align:center;font-size:1em;margin-bottom:.2em;">
+      ที่ <span id="p4-เลขที่" style="color:#bbb;">...........</span> / 2569
+    </div>
+    <div style="text-align:center;font-size:.95em;margin-bottom:.1em;">
+      เรื่อง แต่งตั้งผู้ควบคุมดูแลนักเรียนออกนอกสถานศึกษา เพื่อเข้าร่วมกิจกรรม
+      <span id="p4-เรื่องกิจกรรม" style="color:#bbb;">[ชื่อกิจกรรม]</span>
+    </div>
+    <div style="text-align:center;border-bottom:1px solid #555;width:60%;margin:.2em auto .5em;padding-bottom:2px;">
+      <span id="p4-ชื่อกิจกรรม" style="color:#bbb;">[ระบุชื่อกิจกรรม]</span>
+    </div>
+    <div style="border-top:1px solid #555;margin:.2em 20% .5em 20%;"></div>
+
+    <div class="doc-para ph" id="p4-ภาคเหตุ">กรอกภาคเหตุคำสั่งทางซ้าย...</div>
+
+    <div style="margin-top:.5em;font-size:.95em;line-height:1.8;">
+      <div style="text-indent:2.54cm;">
+        เพื่อให้การนำนักเรียนเข้าร่วมกิจกรรมกล่าว จึงแต่งตั้งให้
+        <span id="p4-ครูผู้ควบคุม" style="color:#bbb;">[รายชื่อครูผู้ควบคุม]</span>
+        เป็นผู้ควบคุมดูแลนักเรียน
+      </div>
+      <div style="text-indent:2.54cm;">
+        ทั้งนี้ ตั้งแต่วันที่ <span id="p4-วันไป" style="color:#bbb;">............</span>
+        พ.ศ. 2569 ถึงวันที่ <span id="p4-วันกลับ" style="color:#bbb;">............</span>
+        พ.ศ. 2569 เป็นต้นไป
+      </div>
+      <div style="text-indent:2.54cm;">
+        สั่ง ณ วันที่
+        <span id="p4-วันที่สั่ง" style="color:#bbb;">.......................................</span>
+        พ.ศ. <span id="p4-ปีสั่ง" style="color:#bbb;">.........</span>
+      </div>
+    </div>
+
+    <!-- ลงชื่อเต็ม + วงเล็บ (สำเนา) -->
+    <div style="margin-top:3em;display:flex;justify-content:flex-end;padding-right:5%;">
+      <div class="doc-sign-block">
+        <div id="p4-ชื่อเต็ม" style="color:#bbb;">ชื่อ-สกุล</div>
+        <div>(<span id="p4-ลงชื่อ" style="color:#bbb;">.......................................</span>)</div>
+        <div id="p4-ตำแหน่ง" style="color:#bbb;">ระบุตำแหน่ง</div>
+      </div>
+    </div>
+
+    <!-- สำเนาถูกต้อง -->
+    <div style="margin-top:4em;display:flex;justify-content:space-between;align-items:flex-end;font-size:.88em;">
+      <div>
+        <div style="margin-bottom:2.5em;">สำเนาถูกต้อง</div>
+        <div>(<span id="p4-สำเนา-ลงชื่อ" style="color:#bbb;">.......................................</span>)</div>
+        <div>(<span id="p4-สำเนา-ตำแหน่ง" style="color:#bbb;">ระบุตำแหน่ง</span>)</div>
+      </div>
+      <div style="text-align:right;font-size:.85em;line-height:2.2;">
+        <div><span id="p4-ผู้ร่าง" style="color:#bbb;">.........</span> / ร่าง / พิมพ์</div>
+        <div><span id="p4-ผู้ทาน" style="color:#bbb;">.........</span> / ทาน</div>
+      </div>
+    </div>
+
+  </div></div>
+  </div><!-- /page3 -->
+
+  <!-- ── หน้า 5: หนังสือภายนอก (ถึงผู้ปกครอง) ── -->
+  <div class="doc-page" id="page4">
+  <div class="doc-wrap"><div class="doc-inner">
+
+    <!-- letterhead -->
+    <div class="lh-wrap">
+      <img src="logo.png" alt="ตราโรงเรียน" class="lh-logo">
+      <div class="lh-info">
+        <div class="lh-school">โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</div>
+        <div>PSU.WITTAYANUSORN SURAT THANI SCHOOL</div>
+        <div>31 หมู่ 6 ถนนสุราษฎร์นี-นาสาร ซอยพิเศข ตำบลมะขามเตี้ย อำเภอเมืองสุราษฎร์ธานี</div>
+        <div>จังหวัดสุราษฎร์ธานี 84000 โทรศัพท์ 08-4557-9229</div>
+      </div>
+    </div>
+
+    <!-- ที่ + วันที่ -->
+    <div class="doc-field" style="margin-bottom:2px;">
+      <span class="doc-field-lbl">ที่ มอ.ว.สฎ.</span>
+      <span class="doc-field-val empty" id="p5-เลขที่"></span>
+    </div>
+    <div style="text-align:center;margin:.3em 0 .4em;font-size:.95em;">
+      <span id="p5-เดือนปี" style="color:#bbb;">เดือน ปี</span>
+    </div>
+
+    <div class="doc-field" style="margin-bottom:2px;">
+      <span class="doc-field-lbl">เรื่อง</span>
+      <span class="doc-field-val empty" id="p5-เรื่อง"></span>
+    </div>
+    <div class="doc-field" style="margin-bottom:2px;">
+      <span class="doc-field-lbl">เรียน</span>
+      <span>ผู้ปกครองนักเรียน</span>
+    </div>
+    <div style="font-size:.9em;margin-bottom:.4em;">
+      <div>สิ่งที่ส่งมาด้วย &nbsp; 1. รายชื่อนักเรียน &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; จำนวน 1 ฉบับ</div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2. กำหนดการเข้าร่วมกิจกรรม &nbsp; จำนวน 1 ฉบับ</div>
+    </div>
+
+    <div style="font-size:.92em;line-height:1.7;">
+      <div style="text-indent:2.54cm;">
+        อ้างถึงหนังสือเลขที่ <span id="p5-อ้างเลขที่" style="color:#bbb;">............</span>
+        ลงวันที่ <span id="p5-อ้างวันที่" style="color:#bbb;">............</span>
+      </div>
+      <div class="doc-field">
+        <span class="doc-field-lbl">เรื่อง</span>
+        <span class="doc-field-val empty" id="p5-อ้างเรื่อง"></span>
+      </div>
+      <div style="text-indent:2.54cm;">
+        เข้าร่วมกิจกรรม <span id="p5-กิจกรรม" style="color:#bbb;">[ชื่อกิจกรรม]</span>
+      </div>
+      <div style="text-indent:2.54cm;">
+        ในวันที่ <span id="p5-วันไป" style="color:#bbb;">............</span>
+        ถึง วันที่ <span id="p5-วันกลับ" style="color:#bbb;">............</span>
+        ณ <span id="p5-สถานที่" style="color:#bbb;">[สถานที่]</span> นั้น
+      </div>
+      <div style="text-indent:2.54cm;">
+        ในการนี้ จึงขออนุญาตให้นักเรียนเข้าร่วมกิจกรรมในวันและเวลาดังกล่าว รายชื่อนักเรียนและกำหนดการ ดังสิ่งที่ส่งมาด้วย โดยมีคุณครู
+        <span id="p5-ครูผู้ควบคุม" style="color:#bbb;">[รายชื่อครู]</span>
+        เป็นผู้ควบคุมดูแลการเข้าร่วมกิจกรรมในครั้งนี้
+      </div>
+      <div style="text-indent:2.54cm;">
+        จึงเรียนมาเพื่อทราบและพิจารณาให้นักเรียนเข้าร่วมด้วย จักขอบคุณยิ่ง
+      </div>
+    </div>
+
+    <!-- ขอแสดงความนับถือ + ลายเซ็น -->
+    <div style="margin-top:1em;display:flex;justify-content:flex-end;padding-right:5%;">
+      <div class="doc-sign-block">
+        <div style="margin-bottom:3em;">ขอแสดงความนับถือ</div>
+        <div>(<span id="p5-ลงชื่อ" style="color:#bbb;">.......................................</span>)</div>
+        <div id="p5-ตำแหน่ง" style="color:#bbb;">ระบุตำแหน่ง</div>
+      </div>
+    </div>
+
+    <!-- footer -->
+    <div style="margin-top:1em;font-size:.82em;line-height:1.8;border-top:1px solid #ccc;padding-top:4px;">
+      <div style="display:flex;gap:.3em;">
+        <span style="font-weight:700;">ส่วนงาน/ฝ่าย</span>
+        <span class="doc-field-val empty" id="p5-footer-ส่วนงาน"></span>
+      </div>
+      <div style="display:flex;gap:.3em;">
+        <span style="font-weight:700;">โทร.</span>
+        <span class="doc-field-val empty" id="p5-footer-โทร"></span>
+      </div>
+    </div>
+
+    <!-- ✂ แบบตอบรับ -->
+    <div class="tearoff">
+      <div class="scissors">✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂</div>
+      <div class="tearoff-title">
+        แบบตอบรับการอนุญาตนักเรียนเข้าร่วมกิจกรรม
+        <span id="p5-tr-กิจกรรม" style="color:#bbb;">[ชื่อกิจกรรม]</span>
+      </div>
+      <div style="margin-bottom:.4em;">
+        ในวันที่ <span id="p5-tr-วันไป" style="color:#bbb;">............</span>
+        ถึง วันที่ <span id="p5-tr-วันกลับ" style="color:#bbb;">............</span>
+      </div>
+      <div style="margin-bottom:.3em;">
+        ณ <span id="p5-tr-สถานที่" style="color:#bbb;">[สถานที่]</span>
+      </div>
+      <div>
+        ข้าพเจ้า <span class="doc-field-val empty" style="min-width:8em;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        หมายเลขโทรศัพท์ <span class="doc-field-val empty" style="min-width:6em;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      </div>
+      <div>
+        ผู้ปกครองของ ดช./ด.ญ./นาย/น.ส. <span class="doc-field-val empty" style="min-width:8em;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        ซึ่งเป็นนักเรียน ชั้น ม. <span class="doc-field-val empty" style="min-width:2em;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      </div>
+      <div style="margin:.4em 0;">
+        ☐ อนุญาต &nbsp;&nbsp; ☐ ไม่อนุญาต &nbsp; ให้นักเรียนออกนอกสถานศึกษา
+      </div>
+      <div style="display:flex;justify-content:flex-end;padding-right:5%;margin-top:.5em;">
+        <div style="text-align:center;min-width:200px;">
+          <div>ลงชื่อ <span class="doc-field-val empty" style="min-width:6em;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></div>
+          <div>(<span class="doc-field-val empty" style="min-width:6em;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>)</div>
+        </div>
+      </div>
+      <div style="text-align:center;font-style:italic;font-size:.82em;margin-top:.6em;font-weight:700;">
+        "ประโยชน์ของเพื่อนมนุษย์เป็นกิจที่หนึ่ง Our Soul is for the Benefit of Mankind"
+      </div>
+    </div>
+
+  </div></div>
+  </div><!-- /page4 -->
+
+  <div class="preview-note">ตัวอย่างแสดงโครงสร้างเท่านั้น</div>
+</div><!-- /preview-side -->
+</div><!-- /main -->
+
+<script>
+const STORAGE_KEY = 'fieldtripFormData_v1';
+const MONTHS=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+              'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+function thaiDate(iso){
+  if(!iso) return '';
+  const [y,m,d]=iso.split('-').map(Number);
+  return `${d} ${MONTHS[m]} ${y+543}`;
+}
+function thaiMonthYear(iso){
+  if(!iso) return '';
+  const [y,m]=iso.split('-').map(Number);
+  return `${MONTHS[m]} ${y+543}`;
+}
+function thaiDateNoYear(iso){
+  if(!iso) return '';
+  const [y,m,d]=iso.split('-').map(Number);
+  return `${d} ${MONTHS[m]}`;
+}
+
+/* ── Dynamic student/teacher lists ── */
+let students=[{name:'',level:''}];
+let teachers=[{name:'',subject:''}];
+
+function renderStudents(){
+  const div=document.getElementById('studentList');
+  div.innerHTML=students.map((s,i)=>`
+    <div class="list-entry">
+      <span class="num">${i+1}.</span>
+      <input type="text" placeholder="ชื่อ-สกุล" value="${escAttr(s.name)}"
+        oninput="students[${i}].name=this.value;markUnsaved()">
+      <input type="text" placeholder="ระดับชั้น เช่น ม.4/1" style="max-width:140px" value="${escAttr(s.level)}"
+        oninput="students[${i}].level=this.value;markUnsaved()">
+      ${students.length>1?`<button class="btn-rm" onclick="removeStudent(${i})">×</button>`:''}
+    </div>`).join('');
+}
+function addStudent(){students.push({name:'',level:''});renderStudents();markUnsaved();}
+function removeStudent(i){students.splice(i,1);if(!students.length)students=[{name:'',level:''}];renderStudents();markUnsaved();}
+
+function renderTeachers(){
+  const div=document.getElementById('teacherList');
+  div.innerHTML=teachers.map((t,i)=>`
+    <div class="list-entry">
+      <span class="num">${i+1}.</span>
+      <input type="text" placeholder="ชื่อ-สกุล" value="${escAttr(t.name)}"
+        oninput="teachers[${i}].name=this.value;markUnsaved()">
+      <input type="text" placeholder="รายวิชา / กลุ่มสาระ" style="max-width:180px" value="${escAttr(t.subject)}"
+        oninput="teachers[${i}].subject=this.value;markUnsaved()">
+      ${teachers.length>1?`<button class="btn-rm" onclick="removeTeacher(${i})">×</button>`:''}
+    </div>`).join('');
+}
+function addTeacher(){teachers.push({name:'',subject:''});renderTeachers();markUnsaved();}
+function removeTeacher(i){teachers.splice(i,1);if(!teachers.length)teachers=[{name:'',subject:''}];renderTeachers();markUnsaved();}
+
+function escAttr(s){return (s||'').replace(/"/g,'&quot;');}
+
+/* ── Tabs ── */
+function showPage(n){
+  document.querySelectorAll('.doc-page').forEach((p,i)=>p.classList.toggle('active',i===n));
+  document.querySelectorAll('.page-tab').forEach((b,i)=>b.classList.toggle('active',i===n));
+}
+
+/* ── Save/load ── */
+const SCALAR_FIELDS=[
+  'ชื่อกิจกรรม','วันเดินทางไป','วันเดินทางกลับ','สถานที่','ยานพาหนะ',
+  'ประเภทพัก','วันหยุด',
+  'อ้างเลขที่','อ้างวันที่','อ้างเรื่อง',
+  'ส่วนงาน','เลขที่บันทึก','วันที่บันทึก','ผู้ลงนามบันทึก','ตำแหน่งบันทึก',
+  'เลขที่คำสั่ง','วันที่สั่ง','ภาคเหตุคำสั่ง','ผู้ลงนามคำสั่ง','ตำแหน่งคำสั่ง',
+  'ผู้รับรองสำเนา','ตำแหน่งผู้รับรอง','ผู้ร่าง','ผู้ทาน',
+  'เลขที่หนังสือ','วันที่หนังสือ','ผู้ลงนามหนังสือ','ตำแหน่งหนังสือ',
+  'footer-ส่วนงาน','footer-โทร',
+];
+let saveTimer;
+function markUnsaved(){
+  document.getElementById('saveBadge').classList.add('unsaved');
+  document.getElementById('saveText').textContent='มีการแก้ไข...';
+  clearTimeout(saveTimer);saveTimer=setTimeout(saveAll,800);
+}
+function saveAll(){
+  const v={};
+  SCALAR_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)v[id]=el.value;});
+  v._students=students;
+  v._teachers=teachers;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(v));
+  document.getElementById('saveBadge').classList.remove('unsaved');
+  document.getElementById('saveText').textContent='บันทึกอัตโนมัติ';
+  updatePreview();
+}
+function loadAll(){
+  try{
+    const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+    SCALAR_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el&&v[id]!==undefined)el.value=v[id];});
+    if(v._students&&v._students.length){students=v._students;}
+    if(v._teachers&&v._teachers.length){teachers=v._teachers;}
+  }catch(e){}
+  renderStudents();renderTeachers();updatePreview();
+}
+function clearAll(){
+  if(!confirm('ล้างข้อมูลทั้งหมด?'))return;
+  SCALAR_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  students=[{name:'',level:''}];teachers=[{name:'',subject:''}];
+  localStorage.removeItem(STORAGE_KEY);
+  renderStudents();renderTeachers();updatePreview();
+}
+
+/* ── Helpers ── */
+function pvSet(id,val,ph=''){
+  const el=document.getElementById(id);if(!el)return;
+  if(val){el.textContent=val;el.style.color='';el.classList.remove('empty');}
+  else{el.textContent=ph;el.style.color='#bbb';el.classList.add('empty');}
+}
+function pvHTML(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
+
+/* ── Update preview ── */
+function updatePreview(){
+  const g=id=>(document.getElementById(id)||{}).value||'';
+  const activity=g('ชื่อกิจกรรม');
+  const dGo=g('วันเดินทางไป'), dBack=g('วันเดินทางกลับ');
+  const place=g('สถานที่'), vehicle=g('ยานพาหนะ');
+  const refNo=g('อ้างเลขที่'), refDate=g('อ้างวันที่'), refSubject=g('อ้างเรื่อง');
+
+  const thGo=thaiDate(dGo), thBack=thaiDate(dBack);
+  const thNoYrGo=thaiDateNoYear(dGo);
+
+  // teacher names list
+  const tcNames=teachers.filter(t=>t.name).map(t=>t.name).join(', ');
+
+  /* ── หน้า 1: บันทึก ── */
+  pvSet('p1-ส่วนงาน',g('ส่วนงาน'));
+  pvSet('p1-เลขที่',g('เลขที่บันทึก'),'...........');
+  pvSet('p1-วันที่',g('วันที่บันทึก')?thaiDate(g('วันที่บันทึก')):'','วัน เดือน ปี');
+  // เรื่อง
+  const isHoliday=g('วันหยุด')==='1';
+  const subj=isHoliday
+    ?`ขออนุญาตพานักเรียนออกนอกสถานศึกษา เพื่อเข้าร่วมกิจกรรม${activity||''}`
+    :`ขออนุญาตพานักเรียนออกนอกสถานศึกษา และขอความอนุเคราะห์เวลาเรียนให้แก่นักเรียนเพื่อเข้าร่วมกิจกรรม${activity?'':' ...'}`;
+  pvSet('p1-เรื่อง',activity?subj:'','ขออนุญาตพานักเรียนออกนอกสถานศึกษา ...');
+
+  const ptype=parseInt(g('ประเภทพัก')||'0');
+  const rearnText=ptype===0
+    ?'ผู้อำนวยการ (กรณีไม่พักค้างแรม)'
+    :ptype===1?'ผู้ลงนามแทน ฯ (กรณีพักค้างแรม)'
+    :'ผู้ลงนามแทน ฯ (กรณีออกนอกราชอาณาจักร)';
+  document.getElementById('p1-เรียน').textContent=rearnText;
+
+  pvSet('p1-อ้างเลขที่',refNo,'...........');
+  pvSet('p1-อ้างวันที่',refDate?thaiDate(refDate):'','.............................');
+  pvSet('p1-อ้างเรื่อง',refSubject||activity,'');
+  pvSet('p1-กิจกรรม1',activity,'[ชื่อกิจกรรม]');
+  pvSet('p1-วันไป',thGo,'............');
+  pvSet('p1-วันกลับ',thBack,'............');
+  pvSet('p1-สถานที่',place,'[สถานที่]');
+
+  // body paragraph
+  const nSt=students.filter(s=>s.name).length||'...';
+  const nTc=teachers.filter(t=>t.name).length||'...';
+  const bodyText=`ในการนี้ ข้าพเจ้าจึงขออนุญาตพานักเรียนออกนอกสถานศึกษา${isHoliday?'':' และขอความอนุเคราะห์เวลาเรียนให้แก่นักเรียน'} จำนวน ${nSt} คน โดยมีคุณครูผู้ควบคุมดูแลนักเรียน จำนวน ${nTc} คน ได้แก่ คุณครู ${tcNames||'[รายชื่อครู]'} เพื่อเข้าร่วมกิจกรรมกล่าว โดยออกเดินทางในวันที่ ${thGo||'...'} และเดินทางกลับถึงโรงเรียนในวันที่ ${thBack||'...'} โดย${vehicle||'[ยานพาหนะ]'}`;
+  const bodyEl=document.getElementById('p1-body');
+  bodyEl.textContent=bodyText;
+  bodyEl.className='doc-para '+(activity?'filled':'ph');
+
+  pvSet('p1-ลงชื่อ',g('ผู้ลงนามบันทึก'),'ชื่อ - สกุล เต็ม');
+  pvSet('p1-ตำแหน่ง',g('ตำแหน่งบันทึก'),'ระบุตำแหน่ง');
+
+  /* ── หน้า 2: รายชื่อ ── */
+  pvSet('p2-กิจกรรม',activity,'[ชื่อกิจกรรม]');
+  pvSet('p2-วันไป',thGo,'............');
+  pvSet('p2-วันกลับ',thBack,'............');
+  pvSet('p2-สถานที่',place,'[สถานที่]');
+  pvSet('p2-ยานพาหนะ',vehicle,'[ยานพาหนะ]');
+
+  const stList=students.filter(s=>s.name);
+  pvHTML('p2-นักเรียน',stList.length
+    ?stList.map((s,i)=>`<div>${i+1}. ${s.name}${s.level?' '+s.level:''}</div>`).join('')
+    :'<div style="color:#bbb">1. ชื่อ - สกุล ระดับชั้น ...</div>');
+  const tcList=teachers.filter(t=>t.name);
+  pvHTML('p2-ครู',tcList.length
+    ?tcList.map((t,i)=>`<div>${i+1}. ${t.name}${t.subject?' ครูประจำการวิชา '+t.subject:''}</div>`).join('')
+    :'<div style="color:#bbb">1. ชื่อ - สกุล ครูประจำการวิชา ...</div>');
+
+  /* ── หน้า 3 & 4: คำสั่ง ── */
+  const orderNo=g('เลขที่คำสั่ง');
+  const orderDate=g('วันที่สั่ง');
+  const ภาคเหตุ=g('ภาคเหตุคำสั่ง');
+  const thOrderDate=orderDate?thaiDateNoYear(orderDate):'';
+  const thOrderYear=orderDate?String(parseInt(orderDate.split('-')[0])+543):'';
+
+  ['p3','p4'].forEach(px=>{
+    pvSet(`${px}-เลขที่`,orderNo,'...........');
+    pvSet(`${px}-เรื่องกิจกรรม`,activity,'[ชื่อกิจกรรม]');
+    pvSet(`${px}-ชื่อกิจกรรม`,activity,'[ระบุชื่อกิจกรรม]');
+    const elH=document.getElementById(`${px}-ภาคเหตุ`);
+    if(elH){elH.textContent=ภาคเหตุ||'กรอกภาคเหตุคำสั่งทางซ้าย...';elH.className='doc-para '+(ภาคเหตุ?'filled':'ph');}
+    pvSet(`${px}-ครูผู้ควบคุม`,tcNames,'[รายชื่อครูผู้ควบคุม]');
+    pvSet(`${px}-วันไป`,thGo,'............');
+    pvSet(`${px}-วันกลับ`,thBack,'............');
+    pvSet(`${px}-วันที่สั่ง`,thOrderDate,'...............................');
+    pvSet(`${px}-ปีสั่ง`,thOrderYear,'.........');
+    pvSet(`${px}-ลงชื่อ`,g('ผู้ลงนามคำสั่ง'),'...............................');
+    pvSet(`${px}-ตำแหน่ง`,g('ตำแหน่งคำสั่ง'),'ระบุตำแหน่ง');
+  });
+  pvSet('p4-ชื่อเต็ม',g('ผู้ลงนามคำสั่ง'),'ชื่อ-สกุล');
+  pvSet('p4-สำเนา-ลงชื่อ',g('ผู้รับรองสำเนา'),'...............................');
+  pvSet('p4-สำเนา-ตำแหน่ง',g('ตำแหน่งผู้รับรอง'),'ระบุตำแหน่ง');
+  pvSet('p4-ผู้ร่าง',g('ผู้ร่าง'),'.........');
+  pvSet('p4-ผู้ทาน',g('ผู้ทาน'),'.........');
+
+  /* ── หน้า 5: หนังสือภายนอก ── */
+  pvSet('p5-เลขที่',g('เลขที่หนังสือ'),'');
+  pvSet('p5-เดือนปี',g('วันที่หนังสือ')?thaiMonthYear(g('วันที่หนังสือ')):'','เดือน ปี');
+  pvSet('p5-เรื่อง',activity?`ขออนุญาตให้นักเรียนเข้ากิจกรรม${activity}`:'','ขออนุญาตให้นักเรียนเข้ากิจกรรม...');
+  pvSet('p5-อ้างเลขที่',refNo,'............');
+  pvSet('p5-อ้างวันที่',refDate?thaiDate(refDate):'','............');
+  pvSet('p5-อ้างเรื่อง',refSubject||activity,'');
+  pvSet('p5-กิจกรรม',activity,'[ชื่อกิจกรรม]');
+  pvSet('p5-วันไป',thGo,'............');
+  pvSet('p5-วันกลับ',thBack,'............');
+  pvSet('p5-สถานที่',place,'[สถานที่]');
+  pvSet('p5-ครูผู้ควบคุม',tcNames,'[รายชื่อครู]');
+  pvSet('p5-ลงชื่อ',g('ผู้ลงนามหนังสือ'),'...............................');
+  pvSet('p5-ตำแหน่ง',g('ตำแหน่งหนังสือ'),'ระบุตำแหน่ง');
+  pvSet('p5-footer-ส่วนงาน',g('footer-ส่วนงาน'));
+  pvSet('p5-footer-โทร',g('footer-โทร'));
+  // แบบตอบรับ
+  pvSet('p5-tr-กิจกรรม',activity,'[ชื่อกิจกรรม]');
+  pvSet('p5-tr-วันไป',thGo,'............');
+  pvSet('p5-tr-วันกลับ',thBack,'............');
+  pvSet('p5-tr-สถานที่',place,'[สถานที่]');
+}
+
+/* ── Listen ── */
+SCALAR_FIELDS.forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('input',markUnsaved);
+});
+
+loadAll();
+</script>
+</body>
+</html>
