@@ -325,11 +325,47 @@
 
       <div class="card" id="reviewCard">
         <div class="section-title">📤 ส่งเอกสารเข้าระบบ Workflow</div>
+
+        <!-- ── การตั้งค่า workflow ── -->
         <div class="field">
-          <label>ขั้นตอนการตรวจสอบ (เรียงลำดับ)</label>
-          <div id="workflowSteps" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
-          <button type="button" id="addStepBtn" style="font-size:.8rem;padding:5px 12px;border-radius:7px;border:1.5px dashed var(--border);background:#fff;cursor:pointer;color:var(--accent);">+ เพิ่มขั้นตอน</button>
+          <label>ประเภทเอกสาร <span class="req">*</span></label>
+          <select id="wf-docType">
+            <option value="memo">📝 บันทึกข้อความ (หนังสือภายใน)</option>
+            <option value="external">📨 หนังสือภายนอก</option>
+            <option value="order">📋 คำสั่ง</option>
+            <option value="announce">📢 ประกาศ</option>
+          </select>
         </div>
+
+        <div class="field" id="wf-finance-row">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <input type="checkbox" id="wf-isFinance" style="width:16px;height:16px;cursor:pointer;">
+            <span>เอกสารเกี่ยวข้องกับการเงิน (เพิ่มขั้นตอนเจ้าหน้าที่การเงินตรวจสอบ)</span>
+          </label>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>หัวหน้าฝ่าย / กลุ่มสาระที่รับผิดชอบ</label>
+            <select id="wf-headEmail">
+              <option value="">— เลือกหัวหน้าฝ่าย —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>เสนอถึง</label>
+            <select id="wf-toDirector">
+              <option value="director">ผู้อำนวยการโรงเรียน</option>
+              <option value="authorized">ผู้ลงนามแทน / ผู้รับใบอนุญาต</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>ขั้นตอนการตรวจสอบ (สร้างอัตโนมัติตาม flow chart ของโรงเรียน)</label>
+          <div id="workflowSteps" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+          <button type="button" id="addStepBtn" style="font-size:.8rem;padding:5px 12px;border-radius:7px;border:1.5px dashed var(--border);background:#fff;cursor:pointer;color:var(--accent);">+ เพิ่มขั้นตอนเอง</button>
+        </div>
+
         <div class="form-actions" style="margin-top:8px;">
           <button type="button" id="sendWorkflowBtn" class="btn-primary">📤 ส่งเข้าระบบตรวจสอบ</button>
           <a href="document-inbox.html" class="btn-danger" style="padding:8px 16px;border-radius:8px;background:#fff;color:var(--accent);border:1.5px solid var(--accent);text-decoration:none;font-size:.88rem;display:inline-flex;align-items:center;gap:4px;">📥 กล่องเอกสาร</a>
@@ -651,37 +687,70 @@ function collectFormData() {
 /* ── Workflow step builder ── */
 let workflowStepList = [];
 
+// Role label for display
+const ROLE_LABELS = {
+  head_sign: 'ลงนามผ่าน', approver: 'ตรวจสอบ', finance_check: 'ตรวจสอบ(การเงิน)',
+  saraban_check: 'ตรวจสอบ(สารบรรณ)', saraban_register: 'ออกเลข', signer: 'ลงนาม',
+};
+
 function renderWorkflowSteps() {
   const container = document.getElementById('workflowSteps');
   if (!workflowStepList.length) {
-    container.innerHTML = '<div style="font-size:.8rem;color:var(--muted);padding:4px 0;">ยังไม่มีขั้นตอน — กด + เพิ่มขั้นตอน</div>';
+    container.innerHTML = '<div style="font-size:.8rem;color:var(--muted);padding:4px 0;">ยังไม่มีขั้นตอน</div>';
     return;
   }
   container.innerHTML = workflowStepList.map((step, i) => `
-    <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);">
-      <span style="color:var(--muted);font-size:.8rem;font-weight:700;">${i+1}.</span>
-      <select onchange="workflowStepList[${i}]=JSON.parse(this.value)" style="flex:1;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:'Sarabun',sans-serif;font-size:.85rem;">
-        ${STAFF_LIST.map(s => `<option value='${JSON.stringify({name:s.name,email:s.email,role:s.role==='director'?'signer':'approver',status:'pending'})}' ${step.email===s.email?'selected':''}>${s.name} (${s.role==='director'?'ลงนาม':'ตรวจสอบ'})</option>`).join('')}
-      </select>
-      <button onclick="workflowStepList.splice(${i},1);renderWorkflowSteps()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1rem;">✕</button>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);">
+      <span style="color:var(--accent);font-size:.85rem;font-weight:700;min-width:22px;">${i+1}.</span>
+      <span style="flex:1;">
+        <span style="font-weight:600;font-size:.88rem;">${step.name||step.email}</span>
+        <span style="margin-left:6px;font-size:.73rem;background:#e8f0fb;color:var(--accent);padding:1px 7px;border-radius:10px;font-weight:600;">${ROLE_LABELS[step.role]||step.role}</span>
+        ${step.label ? `<span style="display:block;font-size:.75rem;color:var(--muted);">${step.label}</span>` : ''}
+      </span>
+      <button onclick="workflowStepList.splice(${i},1);renderWorkflowSteps()" title="ลบขั้นตอน" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.1rem;line-height:1;">✕</button>
     </div>`).join('');
 }
 
+// Auto-build workflow from selectors
+function rebuildWorkflow() {
+  const docType    = document.getElementById('wf-docType')?.value || 'memo';
+  const isFinance  = document.getElementById('wf-isFinance')?.checked || false;
+  const toDirector = (document.getElementById('wf-toDirector')?.value || 'director') === 'director';
+  const headEmail  = document.getElementById('wf-headEmail')?.value || '';
+  // Show/hide finance checkbox (only relevant for memo)
+  const finRow = document.getElementById('wf-finance-row');
+  if (finRow) finRow.style.display = docType === 'memo' ? '' : 'none';
+  workflowStepList = buildWorkflow({ docType, isFinance, toDirector, headEmail });
+  renderWorkflowSteps();
+}
+
+// Populate head dept dropdown
+function populateHeadDropdown() {
+  const sel = document.getElementById('wf-headEmail');
+  if (!sel) return;
+  const heads = STAFF_LIST.filter(s => s.role === 'head_dept');
+  heads.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.email; opt.textContent = s.name;
+    sel.appendChild(opt);
+  });
+}
+
+['wf-docType','wf-isFinance','wf-headEmail','wf-toDirector'].forEach(id => {
+  document.getElementById(id)?.addEventListener('change', rebuildWorkflow);
+});
+
 document.getElementById('addStepBtn').addEventListener('click', () => {
   const first = STAFF_LIST[0];
-  workflowStepList.push({ name: first.name, email: first.email, role: first.role==='director'?'signer':'approver', status: 'pending' });
+  workflowStepList.push({ name: first.name, email: first.email, role: 'approver', label: '', status: 'pending' });
   renderWorkflowSteps();
 });
 
-// init default steps on load
+// init on load
 firebase.auth().onAuthStateChanged(u => {
   if (u && !workflowStepList.length) {
-    // default: first admin then director
-    const admin = STAFF_LIST.find(s=>s.role==='admin');
-    const dir = STAFF_LIST.find(s=>s.role==='director');
-    if (admin) workflowStepList.push({name:admin.name,email:admin.email,role:'approver',status:'pending'});
-    if (dir)   workflowStepList.push({name:dir.name,email:dir.email,role:'signer',status:'pending'});
-    renderWorkflowSteps();
+    populateHeadDropdown();
+    rebuildWorkflow();
   }
 });
 
@@ -702,7 +771,7 @@ document.getElementById('sendWorkflowBtn').addEventListener('click', async () =>
       : db.collection('documents').doc();
 
     const payload = {
-      type: 'memo',
+      type: document.getElementById('wf-docType')?.value || 'memo',
       subject: เรื่อง,
       createdBy: { uid: user.uid, email: user.email, name: user.displayName || user.email },
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
