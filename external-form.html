@@ -391,16 +391,14 @@
 
         <hr class="doc-thin-rule">
 
-        <!-- ที่ + วันที่ -->
-        <div class="doc-row2" style="margin-top:6px;">
-          <div class="doc-field">
-            <span class="doc-field-lbl">ที่</span>
-            <span class="doc-field-val empty" id="pv-เลขที่"></span>
-          </div>
-          <div class="doc-field">
-            <span class="doc-field-lbl">วันที่</span>
-            <span class="doc-field-val empty" id="pv-วันที่"></span>
-          </div>
+        <!-- ที่ (แถวเดียว) -->
+        <div class="doc-field" style="margin-top:6px;">
+          <span class="doc-field-lbl">ที่</span>
+          <span class="doc-field-val empty" id="pv-เลขที่"></span>
+        </div>
+        <!-- วันที่ — แสดงแค่ เดือน ปี จัดกึ่งกลาง -->
+        <div style="text-align:center; margin:4px 0 2px; font-size:1em;" id="pv-วันที่-row">
+          <span id="pv-วันที่" style="color:#bbb;">เดือน ปี</span>
         </div>
 
         <!-- เรื่อง -->
@@ -466,12 +464,17 @@ const FIELDS = [
   'ส่วนงาน','โทร',
 ];
 
+const MONTHS = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
 function thaiDate(iso){
   if(!iso) return '';
   const [y,m,d] = iso.split('-').map(Number);
-  const months=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
-                'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
-  return `${d} ${months[m]} ${y+543}`;
+  return `${d} ${MONTHS[m]} ${y+543}`;
+}
+function thaiMonthYear(iso){
+  if(!iso) return '';
+  const [y,m] = iso.split('-').map(Number);
+  return `${MONTHS[m]} ${y+543}`;
 }
 function getVal(id){ const el=document.getElementById(id); return el?el.value:''; }
 function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -515,10 +518,13 @@ function updatePreview(){
   FIELDS.forEach(f=>{v[f]=getVal(f);});
 
   const tDate=thaiDate(v['วันที่']);
+  const tMonthYear=thaiMonthYear(v['วันที่']);
   document.getElementById('thaiDatePreview').textContent = tDate||'— วันที่จะแสดงที่นี่ —';
 
   pvSet('pv-เลขที่', v['เลขที่']);
-  pvSet('pv-วันที่', tDate);
+  const pvDate=document.getElementById('pv-วันที่');
+  if(tMonthYear){ pvDate.textContent=tMonthYear; pvDate.style.color=''; }
+  else          { pvDate.textContent='เดือน ปี'; pvDate.style.color='#bbb'; }
   const เรื่องFull = [v['เรื่อง'],v['เรื่อง2']].filter(Boolean).join('\n');
   pvSet('pv-เรื่อง', เรื่องFull);
   pvSet('pv-เรียน', v['เรียน']);
