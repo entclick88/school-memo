@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>กล่องเอกสาร — ระบบเอกสาร</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1a73c0;--accent2:#1558a0;--bg:#f3f6fa;--card:#fff;
+    --border:#dfe6ee;--text:#1f2a37;--muted:#667788;
+    --success:#1e7d3c;--danger:#c0392b;--warn:#b45309;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+  .topbar{
+    background:var(--accent);color:#fff;padding:12px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  .topbar-left{display:flex;align-items:center;gap:12px;}
+  .topbar a.back{color:rgba(255,255,255,.85);text-decoration:none;font-size:.88rem;}
+  .topbar h1{font-size:1.1rem;font-weight:700;}
+
+  .container{max-width:960px;margin:0 auto;padding:24px 20px;}
+
+  .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+  .tab{
+    padding:8px 18px;border-radius:8px;cursor:pointer;font-weight:600;
+    border:1.5px solid var(--border);background:#fff;
+    font-family:'Sarabun',sans-serif;font-size:.9rem;transition:all .15s;
+  }
+  .tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+  .doc-list{display:flex;flex-direction:column;gap:10px;}
+  .doc-card{
+    background:#fff;border:1px solid var(--border);border-radius:12px;
+    padding:16px 20px;box-shadow:0 1px 6px rgba(20,40,80,.05);
+    display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;
+  }
+  .doc-card:hover{box-shadow:0 4px 16px rgba(26,115,192,.1);}
+  .doc-subject{font-weight:700;font-size:.95rem;margin-bottom:4px;}
+  .doc-meta{font-size:.78rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 14px;}
+  .doc-actions{display:flex;gap:8px;flex-shrink:0;}
+
+  .badge{font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+  .badge-draft{background:#f1f5f9;color:#64748b;}
+  .badge-pending{background:#fef3c7;color:var(--warn);}
+  .badge-waiting-me{background:#dbeafe;color:#1d4ed8;}
+  .badge-approved{background:#dcfce7;color:var(--success);}
+  .badge-rejected{background:#fee2e2;color:var(--danger);}
+  .badge-revision{background:#ffedd5;color:#c2410c;}
+
+  .btn{
+    padding:7px 16px;border-radius:8px;border:none;cursor:pointer;
+    font-family:'Sarabun',sans-serif;font-size:.85rem;font-weight:600;
+    text-decoration:none;display:inline-flex;align-items:center;gap:5px;
+    transition:background .15s;
+  }
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent2);}
+  .btn-outline{background:#fff;color:var(--accent);border:1.5px solid var(--accent);}
+  .btn-outline:hover{background:#eff6ff;}
+
+  .empty{text-align:center;color:var(--muted);padding:48px 0;font-size:.9rem;}
+  .loading{text-align:center;color:var(--muted);padding:32px 0;}
+  .step-chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+  .step-chip{
+    font-size:.68rem;padding:2px 8px;border-radius:12px;font-weight:600;
+    background:#f1f5f9;color:#475569;
+  }
+  .step-chip.done{background:#dcfce7;color:var(--success);}
+  .step-chip.active{background:#dbeafe;color:#1d4ed8;}
+  .step-chip.rejected{background:#fee2e2;color:var(--danger);}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="auth-guard.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back" href="./index.html">← กลับ</a>
+    <h1>📥 กล่องเอกสาร</h1>
+  </div>
+  <a class="btn btn-outline" href="./index.html" style="color:#fff;border-color:rgba(255,255,255,.5);">+ สร้างเอกสาร</a>
+</div>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('waiting')">รอฉันดำเนินการ <span id="cnt-waiting"></span></button>
+    <button class="tab" onclick="setTab('mine')">เอกสารของฉัน</button>
+    <button class="tab" onclick="setTab('all')">ทั้งหมด</button>
+  </div>
+  <div class="doc-list" id="docList"><div class="loading">กำลังโหลด...</div></div>
+</div>
+
+<script src="staff.js"></script>
+<script>
+let allDocs = [];
+let currentTab = 'waiting';
+let currentUser = null;
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDT(ts){ if(!ts) return '—'; const d=ts.toDate?ts.toDate():new Date(ts); return d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}); }
+
+function badgeFor(doc) {
+  const s = doc.status;
+  if (s==='draft')    return '<span class="badge badge-draft">ร่าง</span>';
+  if (s==='approved') return '<span class="badge badge-approved">✅ อนุมัติแล้ว</span>';
+  if (s==='rejected') return '<span class="badge badge-rejected">❌ ไม่อนุมัติ</span>';
+  if (s==='needs_revision') return '<span class="badge badge-revision">🔄 แก้ไข</span>';
+  // pending — check if waiting on me
+  const step = (doc.workflow||[])[doc.currentStep||0];
+  if (step && step.email === currentUser?.email) return '<span class="badge badge-waiting-me">⏳ รอฉัน</span>';
+  return '<span class="badge badge-pending">⏳ รอดำเนินการ</span>';
+}
+
+function stepChips(doc) {
+  return (doc.workflow||[]).map((s,i)=>{
+    let cls='step-chip';
+    if (s.status==='approved'||s.status==='signed') cls+=' done';
+    else if (i===doc.currentStep) cls+=' active';
+    else if (s.status==='rejected') cls+=' rejected';
+    return `<span class="${cls}">${esc(s.name||s.email)}</span>`;
+  }).join('');
+}
+
+function isWaitingMe(doc) {
+  if (!currentUser || doc.status==='approved'||doc.status==='rejected') return false;
+  const step = (doc.workflow||[])[doc.currentStep||0];
+  return step && step.email === currentUser.email;
+}
+
+function setTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',[' waiting','mine','all'][i]===(' '+tab)));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab')[['waiting','mine','all'].indexOf(tab)].classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  let docs = allDocs;
+  if (currentTab==='waiting') docs = allDocs.filter(isWaitingMe);
+  else if (currentTab==='mine') docs = allDocs.filter(d=>d.createdBy?.email===currentUser?.email);
+
+  const cnt = allDocs.filter(isWaitingMe).length;
+  document.getElementById('cnt-waiting').textContent = cnt ? `(${cnt})` : '';
+
+  const el = document.getElementById('docList');
+  if (!docs.length) { el.innerHTML='<div class="empty">ไม่มีเอกสาร</div>'; return; }
+
+  el.innerHTML = docs.map(doc => `
+    <div class="doc-card">
+      <div>
+        <div class="doc-subject">${esc(doc.subject||'(ไม่มีชื่อเรื่อง)')}</div>
+        <div class="doc-meta">
+          <span>📝 ${esc(doc.createdBy?.name||doc.createdBy?.email)}</span>
+          <span>🗓️ ${fmtDT(doc.createdAt)}</span>
+          <span>ประเภท: ${doc.type==='travel'?'🚗 เดินทาง':'📄 บันทึก'}</span>
+        </div>
+        <div class="step-chips" style="margin-top:6px;">${stepChips(doc)}</div>
+      </div>
+      <div class="doc-actions">
+        ${badgeFor(doc)}
+        <a href="document-review.html?id=${doc.id}" class="btn ${isWaitingMe(doc)?'btn-primary':'btn-outline'}">
+          ${isWaitingMe(doc)?'✍️ ดำเนินการ':'👁️ ดู'}
+        </a>
+      </div>
+    </div>
+  `).join('');
+}
+
+firebase.auth().onAuthStateChanged(user => {
+  if (!user) return;
+  currentUser = user;
+  firebase.firestore().collection('documents')
+    .orderBy('createdAt','desc')
+    .onSnapshot(snap => {
+      // show only docs where user is creator or in workflow
+      allDocs = snap.docs
+        .map(d=>({id:d.id,...d.data()}))
+        .filter(d => {
+          if (d.createdBy?.uid === user.uid) return true;
+          return (d.workflow||[]).some(s=>s.email===user.email);
+        });
+      renderList();
+    });
+});
+</script>
+</body>
+</html>

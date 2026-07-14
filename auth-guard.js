@@ -9,20 +9,17 @@
  *   <script src="auth-guard.js"></script>
  */
 
-// ─── Firebase config — TODO: แทนด้วย config จาก Firebase project ใหม่ ──────
-// (Firebase Console → school-memo project → Project settings → Your apps → Web app)
 const _FIREBASE_CONFIG = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT.firebaseapp.com",
-  projectId:         "YOUR_PROJECT",
-  storageBucket:     "YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey:            "AIzaSyAM1iGG5pTvVanGhigSoQxoTUUuc-vxv-w",
+  authDomain:        "school-info-bot.firebaseapp.com",
+  projectId:         "school-info-bot",
+  storageBucket:     "school-info-bot.firebasestorage.app",
+  messagingSenderId: "358286494817",
+  appId:             "1:358286494817:web:df01a7c65c8ceac4a02c21"
 };
-// ──────────────────────────────────────────────────────────────────────────
 
 (function () {
-  const IS_CONFIGURED = _FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
+  const IS_CONFIGURED = true;
 
   // ถ้ายังไม่ได้ตั้งค่า Firebase ให้ข้าม guard (dev mode)
   if (!IS_CONFIGURED) {

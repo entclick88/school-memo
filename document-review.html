@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ตรวจสอบเอกสาร — ระบบเอกสาร</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1a73c0;--accent2:#1558a0;--bg:#f3f6fa;--card:#fff;
+    --border:#dfe6ee;--text:#1f2a37;--muted:#667788;
+    --success:#1e7d3c;--danger:#c0392b;--warn:#b45309;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+  .topbar{
+    background:var(--accent);color:#fff;padding:10px 16px;
+    display:flex;align-items:center;gap:12px;
+    position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.2);
+  }
+  .topbar a.back{color:rgba(255,255,255,.85);text-decoration:none;font-size:.88rem;flex-shrink:0;}
+  .topbar h1{font-size:1rem;font-weight:700;flex:1;}
+
+  .layout{display:grid;grid-template-columns:1fr 360px;min-height:calc(100vh - 48px);}
+  @media(max-width:900px){.layout{grid-template-columns:1fr;}}
+
+  /* ── Document preview (left) ── */
+  .doc-side{padding:20px;overflow-y:auto;background:#e8ecf0;}
+  .doc-page{
+    background:#fff;border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,.12);
+    padding:10% 11% 8% 15%;
+    font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;font-size:14px;line-height:1.85;
+    position:relative;
+  }
+  .doc-title-row{text-align:center;margin-bottom:4px;font-weight:700;font-size:1.8em;}
+  .doc-field{display:flex;align-items:baseline;gap:.3em;flex-wrap:wrap;line-height:1.85;}
+  .doc-field b{white-space:nowrap;flex-shrink:0;}
+  .doc-val{flex:1;border-bottom:1px solid #999;min-width:3em;min-height:1.1em;}
+  .doc-val.filled{border-bottom-color:transparent;}
+  .doc-divider{border:none;border-top:1px solid #222;margin:3px 0 2px;}
+  .doc-para{text-indent:2.5em;text-align:justify;margin:2px 0;}
+  .doc-row2{display:flex;gap:1em;}
+  .doc-row2 .doc-field{flex:1;}
+  .doc-sign-area{display:flex;justify-content:flex-end;padding-right:4%;margin-top:1.5em;}
+  .doc-sign-block{font-size:.9em;line-height:1.85;min-width:220px;text-align:left;}
+  .doc-sign-center{text-align:center;display:block;}
+  .doc-ph{color:#bbb;}
+
+  /* annotation canvas overlay */
+  #annotCanvas{
+    position:absolute;inset:0;cursor:crosshair;touch-action:none;
+    display:none;border-radius:4px;
+  }
+  #annotCanvas.active{display:block;}
+
+  /* ── Right panel ── */
+  .panel{
+    background:#fff;border-left:1px solid var(--border);
+    display:flex;flex-direction:column;overflow-y:auto;
+  }
+  .panel-section{padding:16px;border-bottom:1px solid var(--border);}
+  .panel-title{font-weight:700;color:var(--accent);font-size:.9rem;margin-bottom:10px;}
+
+  /* workflow steps */
+  .step-list{display:flex;flex-direction:column;gap:6px;}
+  .step-item{display:flex;align-items:center;gap:10px;font-size:.84rem;padding:8px 10px;border-radius:8px;border:1px solid var(--border);}
+  .step-item.active{background:#eff6ff;border-color:var(--accent);}
+  .step-item.done{background:#f0fdf4;border-color:#86efac;}
+  .step-item.rejected{background:#fef2f2;border-color:#fca5a5;}
+  .step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;flex-shrink:0;background:#e2e8f0;color:#475569;}
+  .step-item.active .step-num{background:var(--accent);color:#fff;}
+  .step-item.done .step-num{background:var(--success);color:#fff;}
+  .step-item.rejected .step-num{background:var(--danger);color:#fff;}
+
+  /* annotation toolbar */
+  .annot-toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+  .tool-btn{
+    padding:6px 12px;border-radius:8px;border:1.5px solid var(--border);
+    background:#fff;cursor:pointer;font-size:.8rem;font-family:'Sarabun',sans-serif;
+    transition:all .15s;
+  }
+  .tool-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .color-dot{width:18px;height:18px;border-radius:50%;border:2px solid #ddd;cursor:pointer;flex-shrink:0;}
+  .color-dot.active{border-color:#333;transform:scale(1.2);}
+  input[type=range]{width:80px;}
+
+  /* signature pad */
+  #sigCanvas{
+    border:1.5px solid var(--border);border-radius:8px;background:#fafafa;
+    touch-action:none;cursor:crosshair;width:100%;display:block;
+  }
+
+  /* comment */
+  textarea{
+    width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;
+    font-family:'Sarabun',sans-serif;font-size:.9rem;resize:vertical;min-height:80px;
+  }
+  textarea:focus{outline:none;border-color:var(--accent);}
+
+  /* action buttons */
+  .action-bar{padding:14px 16px;display:flex;flex-direction:column;gap:8px;background:#f8fafc;border-top:1px solid var(--border);}
+  .btn{
+    width:100%;padding:11px;border-radius:10px;border:none;cursor:pointer;
+    font-family:'Sarabun',sans-serif;font-size:.95rem;font-weight:700;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    transition:background .15s;
+  }
+  .btn-approve{background:var(--success);color:#fff;}
+  .btn-approve:hover{background:#166534;}
+  .btn-revision{background:#f59e0b;color:#fff;}
+  .btn-revision:hover{background:#d97706;}
+  .btn-reject{background:#fff;color:var(--danger);border:1.5px solid var(--danger);}
+  .btn-reject:hover{background:#fef2f2;}
+  .btn-disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed;}
+
+  #actionMsg{font-size:.82rem;text-align:center;min-height:1.2em;padding:4px 0;}
+
+  /* history */
+  .hist-item{padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:.8rem;}
+  .hist-item:last-child{border:none;}
+  .hist-who{font-weight:600;color:var(--text);}
+  .hist-action{color:var(--muted);}
+  .hist-comment{color:var(--text);margin-top:2px;font-style:italic;}
+  .has-annot{display:inline-block;font-size:.68rem;background:#eff6ff;color:var(--accent);padding:1px 6px;border-radius:8px;margin-left:4px;}
+
+  /* not-your-turn overlay */
+  #notYourTurn{
+    display:none;background:#fffbeb;border:1.5px solid #fde68a;border-radius:10px;
+    padding:12px 14px;font-size:.85rem;color:#92400e;margin-bottom:8px;
+  }
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="auth-guard.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="document-inbox.html">← กล่องเอกสาร</a>
+  <h1 id="topTitle">ตรวจสอบเอกสาร</h1>
+</div>
+
+<div class="layout">
+
+  <!-- ── Document preview + annotation canvas ── -->
+  <div class="doc-side">
+    <div class="doc-page" id="docPage">
+      <canvas id="annotCanvas"></canvas>
+      <div id="docContent"><div style="color:#aaa;text-align:center;padding:40px;">กำลังโหลด...</div></div>
+    </div>
+  </div>
+
+  <!-- ── Right panel ── -->
+  <div class="panel">
+
+    <!-- Workflow steps -->
+    <div class="panel-section">
+      <div class="panel-title">🔄 สถานะ Workflow</div>
+      <div class="step-list" id="stepList"></div>
+    </div>
+
+    <!-- Annotation tools -->
+    <div class="panel-section" id="annotSection">
+      <div class="panel-title">✏️ เขียนหมายเหตุบนเอกสาร (iPad)</div>
+      <div class="annot-toolbar">
+        <button class="tool-btn active" id="toolPen" onclick="setTool('pen')">✏️ ปากกา</button>
+        <button class="tool-btn" id="toolEraser" onclick="setTool('eraser')">🧹 ลบ</button>
+        <button class="tool-btn" onclick="clearAnnot()">🗑️ ล้าง</button>
+        <div class="color-dot active" style="background:#e53e3e;" onclick="setColor('#e53e3e',this)" title="แดง"></div>
+        <div class="color-dot" style="background:#2563eb;" onclick="setColor('#2563eb',this)" title="น้ำเงิน"></div>
+        <div class="color-dot" style="background:#16a34a;" onclick="setColor('#16a34a',this)" title="เขียว"></div>
+        <div class="color-dot" style="background:#111;" onclick="setColor('#111',this)" title="ดำ"></div>
+        <input type="range" min="1" max="8" value="2" id="penSize" title="ขนาดปากกา">
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+        <button class="tool-btn" id="annotToggle" onclick="toggleAnnotMode()" style="flex:1;">
+          🖊️ เปิดโหมดเขียน
+        </button>
+        <span style="font-size:.75rem;color:var(--muted);">สลับเพื่อเลื่อน/เขียน</span>
+      </div>
+    </div>
+
+    <!-- Signature -->
+    <div class="panel-section" id="sigSection">
+      <div class="panel-title">🖊️ ลงลายมือชื่อ</div>
+      <canvas id="sigCanvas" width="320" height="100"></canvas>
+      <div style="display:flex;gap:8px;margin-top:6px;">
+        <button class="tool-btn" onclick="clearSig()" style="flex:1;">🗑️ ล้าง</button>
+        <span id="sigStatus" style="font-size:.75rem;color:var(--muted);align-self:center;"></span>
+      </div>
+    </div>
+
+    <!-- Comment -->
+    <div class="panel-section">
+      <div class="panel-title">💬 ความเห็น / หมายเหตุ</div>
+      <textarea id="commentBox" placeholder="พิมพ์ความเห็น หรือข้อแนะนำ (ถ้ามี)"></textarea>
+    </div>
+
+    <!-- History -->
+    <div class="panel-section">
+      <div class="panel-title">📜 ประวัติการดำเนินการ</div>
+      <div id="histList"><div style="color:var(--muted);font-size:.8rem;">ยังไม่มีประวัติ</div></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="action-bar">
+      <div id="notYourTurn">⚠️ ไม่ใช่คิวของคุณ — รอให้ผู้ก่อนหน้าดำเนินการก่อน</div>
+      <button class="btn btn-approve" id="btnApprove" onclick="submitAction('approved')">✅ อนุมัติ / ผ่านการตรวจ</button>
+      <button class="btn btn-revision" id="btnRevision" onclick="submitAction('needs_revision')">🔄 ส่งกลับให้แก้ไข</button>
+      <button class="btn btn-reject" id="btnReject" onclick="submitAction('rejected')">❌ ไม่อนุมัติ</button>
+      <div id="actionMsg"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="staff.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const DOC_ID = params.get('id');
+let docData = null;
+let currentUser = null;
+let myStepIndex = -1;
+let isMyTurn = false;
+
+// ── Firestore ──
+const db = () => firebase.firestore();
+
+// ── Load document ──
+firebase.auth().onAuthStateChanged(user => {
+  if (!user || !DOC_ID) return;
+  currentUser = user;
+  db().collection('documents').doc(DOC_ID).onSnapshot(snap => {
+    if (!snap.exists) { document.getElementById('docContent').innerHTML='<div style="color:var(--danger);padding:20px;">ไม่พบเอกสาร</div>'; return; }
+    docData = { id: snap.id, ...snap.data() };
+    renderAll();
+  });
+  db().collection('documents').doc(DOC_ID).collection('history').orderBy('at','asc').onSnapshot(snap => {
+    renderHistory(snap.docs.map(d=>({id:d.id,...d.data()})));
+  });
+});
+
+function renderAll() {
+  document.getElementById('topTitle').textContent = docData.subject || 'ตรวจสอบเอกสาร';
+  renderDocPreview();
+  renderWorkflow();
+  checkMyTurn();
+}
+
+// ── Render document content ──
+function renderDocPreview() {
+  const f = docData.formData || {};
+  const thaiMonths = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  function thaiDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-').map(Number); return `${d} ${thaiMonths[m]} พ.ศ. ${y+543}`; }
+  function v(key){ return esc(f[key]||''); }
+  function val(key,ph){ const x=f[key]; return x?`<span>${esc(x)}</span>`:`<span class="doc-ph">${ph}</span>`; }
+
+  let html = `
+    <div class="doc-title-row">บันทึกข้อความ</div>
+    <div class="doc-field"><b>ส่วนงานจัดการศึกษา</b><span class="doc-val ${f['ฝ่าย']?'filled':''}">${v('ฝ่าย')}</span></div>
+    <div class="doc-row2">
+      <div class="doc-field"><b>ที่</b><span class="doc-val ${f['เลขที่']?'filled':''}">${v('เลขที่')}</span></div>
+      <div class="doc-field"><b>วันที่</b><span class="doc-val ${f['วันที่']?'filled':''}">${esc(thaiDate(f['วันที่']))}</span></div>
+    </div>
+    <hr class="doc-divider">
+    <div class="doc-field"><b>เรื่อง</b><span class="doc-val filled">${v('เรื่อง')||v('subject')}</span></div>
+    <div class="doc-field"><b>เรียน</b><span class="doc-val ${f['เรียน']?'filled':''}">${v('เรียน')}</span></div>`;
+
+  if (docData.type === 'memo') {
+    ['ภาคเหตุ','ภาคเหตุ2','ภาคเหตุ3','ภาคเหตุ4','ภาคความประสงค์','ภาคความประสงค์2','ภาคความประสงค์3','ภาคความประสงค์4','ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4'].forEach(k=>{
+      if (f[k]) html += `<div class="doc-para">${esc(f[k])}</div>`;
+    });
+    if (f['จึงเรียนมาเพื่อ...']) html += `<div class="doc-para">${esc(f['จึงเรียนมาเพื่อ...'])}</div>`;
+  } else {
+    // travel
+    const paras = [
+      f['ผู้ขอ'] ? `ด้วย ${f['ผู้ขอ']} ตำแหน่ง ${f['ตำแหน่ง']||''} มีความประสงค์ขออนุมัติเดินทางไปราชการ ณ ${f['สถานที่']||''} จังหวัด${f['จังหวัด']||''}` : '',
+      f['เพื่อ'] ? `เพื่อ${f['เพื่อ']}` : '',
+      f['วันเริ่ม'] ? `ตั้งแต่วันที่ ${thaiDate(f['วันเริ่ม'])} ถึงวันที่ ${thaiDate(f['วันสิ้นสุด'])}` : '',
+      'จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ',
+    ];
+    paras.filter(Boolean).forEach(p => { html += `<div class="doc-para">${esc(p)}</div>`; });
+  }
+
+  html += `
+    <div class="doc-sign-area"><div class="doc-sign-block">
+      <div>ลงชื่อ</div>
+      <div class="doc-sign-center">(${v('ลงชื่อ1')||v('ลงชื่อ')||'....................'})</div>
+      <div class="doc-sign-center">(${v('ตำแหน่ง1')||v('ตำแหน่งลงนาม')||'...........'})</div>
+    </div></div>`;
+
+  // Show annotations from history
+  const annotLayers = (docData.annotations || []);
+  document.getElementById('docContent').innerHTML = html;
+  resizeAnnotCanvas();
+
+  // Redraw saved annotations
+  if (annotLayers.length) {
+    const canvas = document.getElementById('annotCanvas');
+    canvas.style.display = 'block';
+    const ctx = canvas.getContext('2d');
+    annotLayers.forEach(layer => drawPaths(ctx, layer.paths));
+  }
+}
+
+// ── Workflow ──
+function renderWorkflow() {
+  const steps = docData.workflow || [];
+  const cur = docData.currentStep || 0;
+  document.getElementById('stepList').innerHTML = steps.map((s,i) => {
+    let cls = '';
+    if (s.status==='approved'||s.status==='signed') cls='done';
+    else if (s.status==='rejected') cls='rejected';
+    else if (i===cur) cls='active';
+    const icon = cls==='done'?'✅':cls==='rejected'?'❌':cls==='active'?'⏳':'○';
+    return `<div class="step-item ${cls}">
+      <div class="step-num">${i+1}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:.85rem;">${esc(s.name||s.email)}</div>
+        <div style="font-size:.72rem;color:var(--muted);">${esc(s.role==='signer'?'ผู้ลงนาม':s.role==='approver'?'ผู้อนุมัติ':'ผู้ตรวจสอบ')}</div>
+      </div>
+      <span>${icon}</span>
+    </div>`;
+  }).join('');
+}
+
+function checkMyTurn() {
+  const steps = docData.workflow || [];
+  const cur = docData.currentStep || 0;
+  myStepIndex = steps.findIndex(s => s.email === currentUser?.email);
+  isMyTurn = myStepIndex === cur && docData.status !== 'approved' && docData.status !== 'rejected';
+
+  document.getElementById('notYourTurn').style.display = (myStepIndex >= 0 && !isMyTurn) ? 'block' : 'none';
+  ['btnApprove','btnRevision','btnReject'].forEach(id => {
+    const btn = document.getElementById(id);
+    btn.disabled = !isMyTurn;
+    btn.classList.toggle('btn-disabled', !isMyTurn);
+  });
+
+  // Show/hide sig section based on role
+  const myStep = steps[myStepIndex];
+  document.getElementById('sigSection').style.display = (myStep?.role === 'signer') ? 'block' : 'none';
+  document.getElementById('btnApprove').textContent = (myStep?.role === 'signer') ? '🖊️ ลงนาม & อนุมัติ' : '✅ อนุมัติ / ผ่านการตรวจ';
+}
+
+// ── History ──
+function renderHistory(items) {
+  const el = document.getElementById('histList');
+  if (!items.length) { el.innerHTML='<div style="color:var(--muted);font-size:.8rem;">ยังไม่มีประวัติ</div>'; return; }
+  const actionLabel = {submitted:'ส่งเอกสาร',approved:'อนุมัติ',needs_revision:'ส่งกลับแก้ไข',rejected:'ไม่อนุมัติ',signed:'ลงนาม'};
+  el.innerHTML = items.reverse().map(h => `
+    <div class="hist-item">
+      <span class="hist-who">${esc(h.byName||h.byEmail)}</span>
+      <span class="hist-action"> — ${esc(actionLabel[h.action]||h.action)}</span>
+      ${h.hasAnnot?'<span class="has-annot">มีหมายเหตุ</span>':''}
+      <div style="color:var(--muted);font-size:.72rem;">${fmtDT(h.at)}</div>
+      ${h.comment?`<div class="hist-comment">"${esc(h.comment)}"</div>`:''}
+    </div>`).join('');
+}
+
+function fmtDT(ts){ if(!ts) return ''; const d=ts.toDate?ts.toDate():new Date(ts); return d.toLocaleDateString('th-TH',{day:'numeric',month:'short'})+' '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}); }
+
+// ── Submit action ──
+async function submitAction(action) {
+  if (!isMyTurn) return;
+  const msg = document.getElementById('actionMsg');
+  const comment = document.getElementById('commentBox').value.trim();
+  ['btnApprove','btnRevision','btnReject'].forEach(id => document.getElementById(id).disabled=true);
+  msg.textContent = 'กำลังบันทึก...'; msg.style.color='var(--muted)';
+
+  try {
+    const annotData = getAnnotData();
+    const sigData = getSigData();
+    const workflow = [...(docData.workflow||[])];
+    const cur = docData.currentStep || 0;
+    workflow[cur] = { ...workflow[cur], status: action, completedAt: new Date().toISOString(), note: comment };
+
+    // Determine next step or final status
+    const nextStep = cur + 1;
+    let newStatus = action;
+    let newCurrent = cur;
+    if (action === 'approved' || action === 'signed') {
+      if (nextStep < workflow.length) { newStatus = 'pending'; newCurrent = nextStep; }
+      else { newStatus = 'approved'; }
+    }
+
+    const batch = db().batch();
+    const docRef = db().collection('documents').doc(DOC_ID);
+
+    // Save annotation layer
+    if (annotData) {
+      const existing = docData.annotations || [];
+      batch.update(docRef, { annotations: [...existing, { byEmail: currentUser.email, byName: currentUser.displayName||currentUser.email, at: new Date().toISOString(), paths: annotData }] });
+    }
+
+    batch.update(docRef, {
+      workflow,
+      currentStep: newCurrent,
+      status: newStatus,
+    });
+
+    // History record
+    const histRef = docRef.collection('history').doc();
+    batch.set(histRef, {
+      action,
+      byUid: currentUser.uid,
+      byEmail: currentUser.email,
+      byName: currentUser.displayName || currentUser.email,
+      at: firebase.firestore.FieldValue.serverTimestamp(),
+      comment,
+      hasAnnot: !!annotData,
+      hasSig: !!sigData,
+      signatureData: sigData || null,
+    });
+
+    await batch.commit();
+
+    // Send email notification
+    if (action !== 'approved' || newStatus === 'approved') {
+      sendEmailNotification(action, newStatus, workflow, newCurrent, comment);
+    }
+
+    msg.textContent = action==='approved'?'✅ อนุมัติสำเร็จ':action==='needs_revision'?'🔄 ส่งกลับแก้ไขแล้ว':'❌ บันทึกไม่อนุมัติแล้ว';
+    msg.style.color = action==='approved'?'var(--success)':action==='needs_revision'?'var(--warn)':'var(--danger)';
+    setTimeout(()=>location.href='document-inbox.html',1800);
+  } catch(err) {
+    console.error(err);
+    msg.textContent = '❌ '+err.message; msg.style.color='var(--danger)';
+    checkMyTurn();
+  }
+}
+
+// ── Email via mailto ──
+function sendEmailNotification(action, finalStatus, workflow, nextStep, comment) {
+  try {
+    let toEmail, subject, body;
+    if (action === 'needs_revision') {
+      toEmail = docData.createdBy?.email;
+      subject = `[แก้ไข] ${docData.subject||'เอกสาร'}`;
+      body = `เรียน ${docData.createdBy?.name||'ผู้เสนอ'}\n\nเอกสาร "${docData.subject}" ได้รับการขอให้แก้ไขโดย ${currentUser.displayName||currentUser.email}\n\nความเห็น: ${comment||'-'}\n\nดูเอกสาร: ${SYSTEM_BASE_URL}/document-review.html?id=${DOC_ID}`;
+    } else if (finalStatus === 'pending' && workflow[nextStep]) {
+      toEmail = workflow[nextStep].email;
+      subject = `[รอตรวจสอบ] ${docData.subject||'เอกสาร'}`;
+      body = `เรียน ${workflow[nextStep].name||toEmail}\n\nมีเอกสาร "${docData.subject}" รอการตรวจสอบจากท่าน\n\nผู้เสนอ: ${docData.createdBy?.name||''}\n\nดูเอกสาร: ${SYSTEM_BASE_URL}/document-review.html?id=${DOC_ID}`;
+    } else if (finalStatus === 'approved') {
+      toEmail = docData.createdBy?.email;
+      subject = `[อนุมัติ] ${docData.subject||'เอกสาร'}`;
+      body = `เรียน ${docData.createdBy?.name||'ผู้เสนอ'}\n\nเอกสาร "${docData.subject}" ได้รับการอนุมัติเรียบร้อยแล้ว\n\nดูเอกสาร: ${SYSTEM_BASE_URL}/document-review.html?id=${DOC_ID}`;
+    }
+    if (toEmail) {
+      window.open(`mailto:${toEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,'_blank');
+    }
+  } catch(e) { console.warn('email error',e); }
+}
+
+// ─────────────────────────────────────
+// ANNOTATION (canvas drawing)
+// ─────────────────────────────────────
+let annotMode = false;
+let isDrawing = false;
+let penColor = '#e53e3e';
+let penWidth = 2;
+let currentTool = 'pen';
+let paths = []; // [{color,width,points:[{x,y}]}]
+let currentPath = null;
+
+function toggleAnnotMode() {
+  annotMode = !annotMode;
+  const canvas = document.getElementById('annotCanvas');
+  const btn = document.getElementById('annotToggle');
+  canvas.classList.toggle('active', annotMode);
+  btn.classList.toggle('active', annotMode);
+  btn.textContent = annotMode ? '👆 ปิดโหมดเขียน (เลื่อนได้)' : '🖊️ เปิดโหมดเขียน';
+}
+
+function setTool(t) {
+  currentTool = t;
+  document.getElementById('toolPen').classList.toggle('active', t==='pen');
+  document.getElementById('toolEraser').classList.toggle('active', t==='eraser');
+}
+
+function setColor(c, el) {
+  penColor = c;
+  document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function clearAnnot() {
+  paths = [];
+  const canvas = document.getElementById('annotCanvas');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+}
+
+function resizeAnnotCanvas() {
+  const page = document.getElementById('docPage');
+  const canvas = document.getElementById('annotCanvas');
+  canvas.width = page.offsetWidth;
+  canvas.height = page.offsetHeight;
+}
+
+function getPos(e, canvas) {
+  const r = canvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  return { x: (src.clientX - r.left) * (canvas.width / r.width), y: (src.clientY - r.top) * (canvas.height / r.height) };
+}
+
+function startDraw(e) {
+  if (!annotMode) return;
+  e.preventDefault();
+  isDrawing = true;
+  const canvas = document.getElementById('annotCanvas');
+  const pos = getPos(e, canvas);
+  currentPath = { color: currentTool==='eraser'?'#fff':penColor, width: currentTool==='eraser'?20:parseInt(document.getElementById('penSize').value), points:[pos] };
+  paths.push(currentPath);
+}
+function moveDraw(e) {
+  if (!annotMode||!isDrawing||!currentPath) return;
+  e.preventDefault();
+  const canvas = document.getElementById('annotCanvas');
+  const ctx = canvas.getContext('2d');
+  const pos = getPos(e, canvas);
+  currentPath.points.push(pos);
+  redrawAnnot(ctx);
+}
+function endDraw(e) { isDrawing=false; currentPath=null; }
+
+function redrawAnnot(ctx) {
+  const canvas = document.getElementById('annotCanvas');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  drawPaths(ctx, paths);
+}
+
+function drawPaths(ctx, pathList) {
+  (pathList||[]).forEach(path => {
+    if (!path.points||path.points.length<2) return;
+    ctx.beginPath();
+    ctx.strokeStyle = path.color;
+    ctx.lineWidth = path.width;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.moveTo(path.points[0].x, path.points[0].y);
+    path.points.slice(1).forEach(p => ctx.lineTo(p.x, p.y));
+    ctx.stroke();
+  });
+}
+
+function getAnnotData() {
+  return paths.length ? paths : null;
+}
+
+// Wire canvas events
+window.addEventListener('load', () => {
+  const canvas = document.getElementById('annotCanvas');
+  resizeAnnotCanvas();
+  window.addEventListener('resize', resizeAnnotCanvas);
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', moveDraw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('touchstart', startDraw, {passive:false});
+  canvas.addEventListener('touchmove', moveDraw, {passive:false});
+  canvas.addEventListener('touchend', endDraw);
+});
+
+// ─────────────────────────────────────
+// SIGNATURE PAD
+// ─────────────────────────────────────
+let sigDrawing = false;
+let sigPaths = [];
+let sigCurrentPath = null;
+
+window.addEventListener('load', () => {
+  const canvas = document.getElementById('sigCanvas');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * dpr;
+  canvas.height = 100 * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  function sigPos(e) {
+    const r = canvas.getBoundingClientRect();
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX-r.left)*(canvas.width/r.width/dpr), y: (src.clientY-r.top)*(canvas.height/r.height/dpr) };
+  }
+  function sigStart(e) { e.preventDefault(); sigDrawing=true; const p=sigPos(e); sigCurrentPath={points:[p]}; sigPaths.push(sigCurrentPath); }
+  function sigMove(e) { if(!sigDrawing||!sigCurrentPath) return; e.preventDefault(); const p=sigPos(e); sigCurrentPath.points.push(p); redrawSig(ctx); }
+  function sigEnd() { sigDrawing=false; sigCurrentPath=null; document.getElementById('sigStatus').textContent=sigPaths.length?'มีลายเซ็น':''; }
+
+  function redrawSig(ctx) {
+    ctx.clearRect(0,0,canvas.width/dpr,canvas.height/dpr);
+    ctx.strokeStyle='#111'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.lineJoin='round';
+    sigPaths.forEach(path=>{
+      if(path.points.length<2) return;
+      ctx.beginPath(); ctx.moveTo(path.points[0].x,path.points[0].y);
+      path.points.slice(1).forEach(p=>ctx.lineTo(p.x,p.y)); ctx.stroke();
+    });
+  }
+
+  canvas.addEventListener('mousedown',sigStart); canvas.addEventListener('mousemove',sigMove); canvas.addEventListener('mouseup',sigEnd);
+  canvas.addEventListener('touchstart',sigStart,{passive:false}); canvas.addEventListener('touchmove',sigMove,{passive:false}); canvas.addEventListener('touchend',sigEnd);
+});
+
+function clearSig() { sigPaths=[]; const c=document.getElementById('sigCanvas'); c.getContext('2d').clearRect(0,0,c.width,c.height); document.getElementById('sigStatus').textContent=''; }
+function getSigData() { return sigPaths.length ? document.getElementById('sigCanvas').toDataURL('image/png') : null; }
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
