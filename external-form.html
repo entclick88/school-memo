@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>หนังสือภายนอก — โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1a73c0; --accent2:#1558a0; --bg:#f3f6fa; --card:#fff;
+    --border:#dfe6ee; --text:#1f2a37; --muted:#667788;
+    --success:#1e7d3c; --danger:#c0392b;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh;}
+
+  .topbar{
+    background:var(--accent); color:#fff; padding:12px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  .topbar-left{display:flex; align-items:center; gap:12px;}
+  .topbar a.back{color:rgba(255,255,255,.85); text-decoration:none; font-size:.88rem;}
+  .topbar a.back:hover{color:#fff;}
+  .topbar h1{font-size:1.1rem; font-weight:700;}
+  .save-badge{font-size:.78rem;background:rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;display:flex;align-items:center;gap:5px;}
+  .save-badge .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;}
+  .save-badge.unsaved .dot{background:#fbbf24;}
+
+  .main{
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+    max-width:1400px; margin:0 auto; min-height:calc(100vh - 52px);
+  }
+
+  .form-side{padding:24px; overflow-y:auto; border-right:1px solid var(--border);}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:20px 22px; box-shadow:0 1px 6px rgba(20,40,80,.05); margin-bottom:16px;
+  }
+  .section-title{
+    font-weight:700; font-size:.95rem; color:var(--accent);
+    margin-bottom:14px; padding-bottom:8px; border-bottom:2px solid #e8f0fb;
+    display:flex; align-items:center; gap:6px;
+  }
+  label{display:block; font-size:.84rem; font-weight:600; margin-bottom:5px; color:#445566;}
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .row3{display:grid; grid-template-columns:2fr 1fr 1fr; gap:14px;}
+  input[type=text], input[type=date], input[type=tel], textarea, select{
+    width:100%; padding:9px 12px; border:1.5px solid var(--border);
+    border-radius:8px; font-family:'Sarabun',sans-serif; font-size:.9rem;
+    background:#fbfcfe; color:var(--text); transition:border-color .15s;
+  }
+  input:focus, textarea:focus, select:focus{
+    outline:none; border-color:var(--accent); background:#fff;
+    box-shadow:0 0 0 3px rgba(26,115,192,.1);
+  }
+  textarea{resize:vertical; min-height:72px; line-height:1.6;}
+  .hint{font-size:.75rem; color:#8a97a8; margin-top:3px;}
+  .req{color:var(--danger);}
+  .para-group{display:flex; flex-direction:column; gap:8px;}
+  .para-label{font-size:.76rem; color:var(--muted); font-weight:600; margin-bottom:2px;}
+
+  .form-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:4px;}
+  button{
+    font-family:'Sarabun',sans-serif; font-size:.92rem; font-weight:600;
+    padding:11px 20px; border-radius:10px; border:none; cursor:pointer;
+    transition:background .15s;
+  }
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:var(--accent2);}
+  .btn-primary:disabled{background:#aebed0; cursor:not-allowed;}
+  .btn-secondary{background:#eef2f7; color:#33414f;}
+  .btn-secondary:hover{background:#e1e8f0;}
+  .btn-danger{background:#fef2f2; color:var(--danger); border:1.5px solid #fecaca;}
+  .btn-danger:hover{background:#fee2e2;}
+
+  /* ── Preview side ── */
+  .preview-side{
+    padding:20px 20px 24px; background:#f0f2f5;
+    overflow-y:auto; position:sticky; top:52px; height:calc(100vh - 52px);
+  }
+  .preview-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .preview-header h2{font-size:.9rem; color:var(--muted); font-weight:600;}
+  .preview-label{font-size:.7rem; background:#e8f0fb; color:var(--accent); padding:3px 9px; border-radius:20px; font-weight:600;}
+
+  /* ── Document preview ── */
+  .doc-wrap{
+    width:100%; background:#fff;
+    border:1px solid #c8d4e3; box-shadow:0 4px 24px rgba(0,0,0,.12); border-radius:4px;
+  }
+  .doc-inner{
+    padding:6% 7% 6% 11%;
+    font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
+    font-size:16px; line-height:1.0; color:#111;
+  }
+
+  /* ── Header: letterhead ── */
+  .doc-letterhead{
+    display:flex; align-items:flex-start; gap:1em; margin-bottom:0.5em;
+  }
+  .doc-logo{height:4.5em; width:auto; object-fit:contain; flex-shrink:0;}
+  .doc-school-info{flex:1; line-height:1.5;}
+  .doc-school-th{font-weight:700; font-size:1.05em;}
+  .doc-school-en{font-weight:700; font-size:0.92em;}
+  .doc-school-addr{font-size:0.82em; margin-top:2px;}
+  .doc-school-tel{font-size:0.82em;}
+
+  /* Field rows */
+  .doc-field{display:flex; align-items:baseline; line-height:1.5; gap:.3em; flex-wrap:wrap; margin-bottom:2px;}
+  .doc-field-lbl{white-space:nowrap; font-size:1em; font-weight:700; flex-shrink:0;}
+  .doc-field-val{
+    flex:1; border-bottom:1px dotted #aaa;
+    min-width:3em; word-break:break-word;
+    padding-bottom:1px; font-size:1em; min-height:1.2em;
+  }
+  .doc-field-val:not(.empty){ border-bottom-color:transparent; }
+  .doc-field-val.empty{color:#bbb;}
+  .doc-row2{display:flex; gap:1em;}
+  .doc-row2 .doc-field{flex:1;}
+  .doc-row3{display:flex; gap:0.5em; align-items:baseline;}
+
+  .doc-divider{border:none; border-top:1px solid #222; margin:3px 0 4px;}
+  .doc-thin-rule{border:none; border-top:0.5px solid #888; margin:2px 0;}
+
+  /* Body */
+  .doc-body{margin-top:4px;}
+  .doc-para{
+    text-indent:2.54cm;
+    text-align:justify; text-justify:distribute;
+    white-space:pre-wrap; word-break:break-word;
+    line-height:1.0; font-size:1em; min-height:1.4em;
+  }
+  .doc-para.filled{color:#111;}
+  .doc-para.empty-line{color:#ccc; text-indent:0;}
+  .doc-close{text-indent:2.54cm; font-size:1em; margin-top:4px;}
+
+  /* Complimentary close */
+  .doc-compliment{
+    text-align:center; font-size:1em; margin-top:6px;
+  }
+
+  /* Signer */
+  .doc-sign-area{
+    margin-top:4em;
+    display:flex; justify-content:flex-end; padding-right:4%;
+  }
+  .doc-sign-block{font-size:.9em; line-height:1.5; min-width:220px;}
+  .doc-sign-center{text-align:center; white-space:nowrap; display:block;}
+
+  /* Footer */
+  .doc-footer{
+    margin-top:1.5em; padding-top:4px;
+    border-top:1px solid #555; font-size:0.85em; line-height:1.5;
+  }
+  .doc-footer-quote{
+    text-align:center; font-size:0.82em; margin-top:6px;
+    font-style:italic; color:#333;
+  }
+
+  .doc-placeholder{color:#bbb;}
+  .preview-note{font-size:.7rem; color:var(--muted); text-align:center; margin-top:10px;}
+
+  @media(max-width:900px){
+    .main{grid-template-columns:1fr;}
+    .preview-side{position:static; height:auto; border-top:1px solid var(--border);}
+    .form-side{border-right:none;}
+  }
+  .btn-print{background:#f0fdf4; color:#166534; border:1.5px solid #bbf7d0;}
+  .btn-print:hover{background:#dcfce7;}
+
+  @media print{
+    .topbar,.form-side,.preview-header,.preview-note,.form-actions{display:none!important;}
+    .main{display:block; max-width:100%;}
+    .preview-side{padding:0; background:#fff; height:auto; position:static;}
+    .doc-wrap{box-shadow:none; border:none; width:210mm; min-height:297mm; page-break-after:always;}
+    .doc-inner{padding:15mm 20mm 15mm 30mm; font-size:16pt; line-height:1.0; overflow:visible;}
+    .doc-school-th{font-size:16pt;}
+    .doc-school-en{font-size:16pt;}
+  }
+
+  /* ROLE_LABELS chip */
+  .role-chip{font-size:.73rem;background:#e8f0fb;color:var(--accent);padding:1px 7px;border-radius:10px;font-weight:600;margin-left:6px;}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="auth-guard.js"></script>
+<script src="staff.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back" href="./index.html">← กลับ</a>
+    <h1>📨 หนังสือภายนอก</h1>
+  </div>
+  <div class="save-badge" id="saveBadge">
+    <span class="dot"></span>
+    <span id="saveText">บันทึกอัตโนมัติ</span>
+  </div>
+</div>
+
+<div class="main">
+  <!-- ══ FORM ══ -->
+  <div class="form-side">
+    <form id="extForm" autocomplete="off">
+
+      <!-- ส่วนหัว -->
+      <div class="card">
+        <div class="section-title">📋 ส่วนหัวหนังสือ</div>
+
+        <div class="row2">
+          <div class="field">
+            <label>ที่ (เลขที่หนังสือ) <span class="req">*</span></label>
+            <input type="text" id="เลขที่" placeholder="เช่น มอ.ว.สฎ. 1.6/2569-001" required>
+          </div>
+          <div class="field">
+            <label>วันที่ <span class="req">*</span></label>
+            <input type="date" id="วันที่" required>
+          </div>
+        </div>
+        <div id="thaiDatePreview" style="font-size:.82rem;color:#335;background:#f0f7ff;border:1px solid #c5daf5;border-radius:8px;padding:7px 12px;margin-bottom:14px;">— วันที่จะแสดงที่นี่ —</div>
+
+        <div class="field">
+          <label>เรื่อง <span class="req">*</span></label>
+          <input type="text" id="เรื่อง" placeholder="บรรทัดที่ 1" required>
+          <input type="text" id="เรื่อง2" placeholder="บรรทัดที่ 2 (ถ้ามี)" style="margin-top:6px;">
+        </div>
+
+        <div class="field">
+          <label>เรียน <span class="req">*</span></label>
+          <input type="text" id="เรียน" placeholder="เช่น นายกองค์การบริหารส่วนจังหวัดสุราษฎร์ธานี" required>
+        </div>
+
+        <div class="row3">
+          <div class="field">
+            <label>สิ่งที่ส่งมาด้วย (ถ้ามี)</label>
+            <input type="text" id="สิ่งส่งมาด้วย" placeholder="ชื่อเอกสารแนบ">
+          </div>
+          <div class="field">
+            <label>จำนวน</label>
+            <input type="text" id="จำนวน" placeholder="เช่น 1">
+          </div>
+          <div class="field">
+            <label>หน่วย</label>
+            <select id="หน่วย">
+              <option value="ฉบับ">ฉบับ</option>
+              <option value="ชุด">ชุด</option>
+              <option value="แผ่น">แผ่น</option>
+              <option value="รายการ">รายการ</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- เนื้อความ -->
+      <div class="card">
+        <div class="section-title">📄 เนื้อความหนังสือ</div>
+
+        <div class="field">
+          <label>ภาคเหตุ <span class="req">*</span></label>
+          <div class="para-group">
+            <div><div class="para-label">ย่อหน้า 1</div><textarea id="ภาคเหตุ" rows="3" placeholder="ด้วย / เนื่องด้วย ... (มูลเหตุ/ที่มาของเรื่อง)" required></textarea></div>
+            <div><div class="para-label">ย่อหน้า 2</div><textarea id="ภาคเหตุ2" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 3</div><textarea id="ภาคเหตุ3" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 4</div><textarea id="ภาคเหตุ4" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>ภาคความประสงค์</label>
+          <div class="para-group">
+            <div><div class="para-label">ย่อหน้า 1</div><textarea id="ภาคความประสงค์" rows="2" placeholder="ในการนี้... / สิ่งที่ต้องการให้ดำเนินการ (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 2</div><textarea id="ภาคความประสงค์2" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 3</div><textarea id="ภาคความประสงค์3" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 4</div><textarea id="ภาคความประสงค์4" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>ภาคสรุป</label>
+          <div class="para-group">
+            <div><div class="para-label">ย่อหน้า 1</div><textarea id="ภาคสรุป" rows="2" placeholder="จึงเรียนมาเพื่อโปรดทราบ / พิจารณา / อนุเคราะห์ (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 2</div><textarea id="ภาคสรุป2" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 3</div><textarea id="ภาคสรุป3" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+            <div><div class="para-label">ย่อหน้า 4</div><textarea id="ภาคสรุป4" rows="2" placeholder="ย่อหน้าถัดไป (ถ้ามี)"></textarea></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>จึงเรียนมาเพื่อ... <span class="req">*</span></label>
+          <input type="text" id="จึงเรียนมาเพื่อ..." placeholder="เช่น โปรดพิจารณา / โปรดทราบ" required>
+        </div>
+      </div>
+
+      <!-- ผู้ลงนาม -->
+      <div class="card">
+        <div class="section-title">✍️ ผู้ลงนาม</div>
+        <div class="row2">
+          <div class="field"><label>ชื่อ-สกุล <span class="req">*</span></label><input type="text" id="ลงชื่อ1" placeholder="ชื่อ-สกุล" required></div>
+          <div class="field"><label>ตำแหน่ง <span class="req">*</span></label><input type="text" id="ตำแหน่ง1" placeholder="ตำแหน่ง" required></div>
+        </div>
+      </div>
+
+      <!-- ส่วนงาน/โทร footer -->
+      <div class="card">
+        <div class="section-title">📞 ข้อมูลเจ้าของเรื่อง (Footer)</div>
+        <div class="row2">
+          <div class="field">
+            <label>ส่วนงาน / ฝ่าย</label>
+            <input type="text" id="ส่วนงาน" placeholder="เช่น ฝ่ายสารสนเทศและเทคโนโลยี">
+          </div>
+          <div class="field">
+            <label>โทร.</label>
+            <input type="tel" id="โทร" placeholder="เช่น 08-4557-9229">
+          </div>
+        </div>
+      </div>
+
+      <!-- Workflow -->
+      <div class="card" id="reviewCard">
+        <div class="section-title">📤 ส่งเอกสารเข้าระบบ Workflow</div>
+
+        <div class="row2">
+          <div class="field">
+            <label>หัวหน้าฝ่าย / กลุ่มสาระที่รับผิดชอบ</label>
+            <select id="wf-headEmail">
+              <option value="">— เลือกหัวหน้าฝ่าย —</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>เสนอถึง</label>
+            <select id="wf-toDirector">
+              <option value="director">ผู้อำนวยการโรงเรียน</option>
+              <option value="authorized">ผู้ลงนามแทน / ผู้รับใบอนุญาต</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>ขั้นตอนการตรวจสอบ (สร้างอัตโนมัติตาม flow chart ของโรงเรียน)</label>
+          <div id="workflowSteps" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px;"></div>
+          <button type="button" id="addStepBtn" style="font-size:.8rem;padding:5px 12px;border-radius:7px;border:1.5px dashed var(--border);background:#fff;cursor:pointer;color:var(--accent);">+ เพิ่มขั้นตอนเอง</button>
+        </div>
+
+        <div class="form-actions" style="margin-top:8px;">
+          <button type="button" id="sendWorkflowBtn" class="btn-primary">📤 ส่งเข้าระบบตรวจสอบ</button>
+          <a href="document-inbox.html" style="padding:8px 16px;border-radius:8px;background:#fff;color:var(--accent);border:1.5px solid var(--accent);text-decoration:none;font-size:.88rem;display:inline-flex;align-items:center;gap:4px;">📥 กล่องเอกสาร</a>
+        </div>
+        <div id="reviewStatus" style="margin-top:10px;font-size:.84rem;min-height:1.2em;"></div>
+      </div>
+
+      <!-- แนบเอกสาร -->
+      <div class="card">
+        <div class="section-title">📎 แนบเอกสาร</div>
+        <div class="field">
+          <label>เลือกไฟล์เอกสารแนบ (รูปภาพ / PDF)</label>
+          <input type="file" id="attachFiles" multiple accept="image/*,application/pdf" style="font-size:.85rem;padding:6px;">
+          <div class="hint">ไฟล์จะแสดงต่อท้าย preview ไม่ถูกอัพโหลดออนไลน์</div>
+        </div>
+        <button type="button" id="clearAttach" class="btn-danger" style="margin-top:4px;font-size:.8rem;padding:6px 14px;">🗑️ ลบเอกสารแนบทั้งหมด</button>
+      </div>
+
+      <div class="card">
+        <div class="form-actions">
+          <button type="button" class="btn-print" id="printBtn">🖨️ พิมพ์ / บันทึก PDF</button>
+          <button type="button" class="btn-danger" id="clearBtn">🗑️ ล้างข้อมูลทั้งหมด</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- ══ PREVIEW ══ -->
+  <div class="preview-side">
+    <div class="preview-header">
+      <h2>👁️ ตัวอย่างหนังสือภายนอก</h2>
+      <span class="preview-label">Live Preview</span>
+    </div>
+
+    <div class="doc-wrap">
+      <div class="doc-inner">
+
+        <!-- ── Letterhead ── -->
+        <div class="doc-letterhead">
+          <img src="./logo.png" class="doc-logo" alt="logo">
+          <div class="doc-school-info">
+            <div class="doc-school-th">โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</div>
+            <div class="doc-school-en">PSU.WITTAYANUSORN SURAT THANI SCHOOL</div>
+            <div class="doc-school-addr">31 หมู่ 6 ถนนสุราษฎร์ธานี-นาสาร ซอยพิเศษ ตำบลมะขามเตี้ย อำเภอเมืองสุราษฎร์ธานี จังหวัดสุราษฎร์ธานี 84000</div>
+            <div class="doc-school-tel">โทรศัพท์ 08 4557 9229</div>
+          </div>
+        </div>
+
+        <hr class="doc-thin-rule">
+
+        <!-- ที่ + วันที่ -->
+        <div class="doc-row2" style="margin-top:6px;">
+          <div class="doc-field">
+            <span class="doc-field-lbl">ที่</span>
+            <span class="doc-field-val empty" id="pv-เลขที่"></span>
+          </div>
+          <div class="doc-field">
+            <span class="doc-field-lbl">วันที่</span>
+            <span class="doc-field-val empty" id="pv-วันที่"></span>
+          </div>
+        </div>
+
+        <!-- เรื่อง -->
+        <div class="doc-field" style="margin-top:2px;">
+          <span class="doc-field-lbl">เรื่อง</span>
+          <span class="doc-field-val empty" id="pv-เรื่อง" style="white-space:normal;word-break:break-word;"></span>
+        </div>
+
+        <hr class="doc-divider">
+
+        <!-- เรียน -->
+        <div class="doc-field">
+          <span class="doc-field-lbl">เรียน</span>
+          <span class="doc-field-val empty" id="pv-เรียน"></span>
+        </div>
+
+        <!-- สิ่งที่ส่งมาด้วย -->
+        <div class="doc-field" id="pv-สิ่งส่งRow" style="display:none;">
+          <span class="doc-field-lbl">สิ่งที่ส่งมาด้วย</span>
+          <span class="doc-field-val" id="pv-สิ่งส่งมาด้วย"></span>
+          <span style="white-space:nowrap;margin-left:.3em;">จำนวน</span>
+          <span class="doc-field-val" id="pv-จำนวน" style="max-width:4em;text-align:center;"></span>
+          <span class="doc-field-val" id="pv-หน่วย" style="max-width:4em;"></span>
+        </div>
+
+        <!-- Body paragraphs -->
+        <div class="doc-body" id="pvBody"></div>
+
+        <!-- ขอแสดงความนับถือ -->
+        <div class="doc-compliment">ขอแสดงความนับถือ</div>
+
+        <!-- Signer -->
+        <div class="doc-sign-area" id="pvSignRow"></div>
+
+        <!-- Footer -->
+        <div class="doc-footer">
+          <span id="pv-footer-dept"></span><span id="pv-footer-tel"></span>
+        </div>
+        <div class="doc-footer-quote">
+          "ประโยชน์เพื่อนมนุษย์เป็นกิจที่หนึ่ง Our Soul is for the Benefit of Mankind"
+        </div>
+
+      </div>
+    </div>
+
+    <div id="attachPages"></div>
+    <div class="preview-note">ตัวอย่างแสดงโครงสร้างเท่านั้น</div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'extFormData_v1';
+
+const FIELDS = [
+  'เลขที่','วันที่','เรื่อง','เรื่อง2','เรียน',
+  'สิ่งส่งมาด้วย','จำนวน','หน่วย',
+  'ภาคเหตุ','ภาคเหตุ2','ภาคเหตุ3','ภาคเหตุ4',
+  'ภาคความประสงค์','ภาคความประสงค์2','ภาคความประสงค์3','ภาคความประสงค์4',
+  'ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4',
+  'จึงเรียนมาเพื่อ...',
+  'ลงชื่อ1','ตำแหน่ง1',
+  'ส่วนงาน','โทร',
+];
+
+function thaiDate(iso){
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-').map(Number);
+  const months=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  return `${d} ${months[m]} ${y+543}`;
+}
+function getVal(id){ const el=document.getElementById(id); return el?el.value:''; }
+function escHtml(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function pvSet(id, val){
+  const el=document.getElementById(id);
+  if(!el) return;
+  if(val){ el.style.whiteSpace='pre-wrap'; el.textContent=val; el.classList.remove('empty'); }
+  else   { el.textContent=''; el.classList.add('empty'); }
+}
+
+/* ── Auto-save ── */
+let saveTimer=null;
+const saveBadge=document.getElementById('saveBadge');
+const saveText=document.getElementById('saveText');
+function markUnsaved(){ saveBadge.classList.add('unsaved'); saveText.textContent='มีการเปลี่ยนแปลง...'; }
+function markSaved(){   saveBadge.classList.remove('unsaved'); saveText.textContent='บันทึกอัตโนมัติ ✓'; }
+
+function saveData(){
+  const d={};
+  FIELDS.forEach(f=>{d[f]=getVal(f);});
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(d));
+  markSaved();
+}
+function loadData(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const d=JSON.parse(raw);
+    FIELDS.forEach(f=>{
+      const el=document.getElementById(f);
+      if(el && d[f]!==undefined) el.value=d[f];
+    });
+    updatePreview(); markSaved();
+  }catch(e){}
+}
+
+/* ── Live Preview ── */
+function updatePreview(){
+  const v={};
+  FIELDS.forEach(f=>{v[f]=getVal(f);});
+
+  const tDate=thaiDate(v['วันที่']);
+  document.getElementById('thaiDatePreview').textContent = tDate||'— วันที่จะแสดงที่นี่ —';
+
+  pvSet('pv-เลขที่', v['เลขที่']);
+  pvSet('pv-วันที่', tDate);
+  const เรื่องFull = [v['เรื่อง'],v['เรื่อง2']].filter(Boolean).join('\n');
+  pvSet('pv-เรื่อง', เรื่องFull);
+  pvSet('pv-เรียน', v['เรียน']);
+
+  // สิ่งที่ส่งมาด้วย
+  const hasSend = v['สิ่งส่งมาด้วย'] || v['จำนวน'];
+  document.getElementById('pv-สิ่งส่งRow').style.display = hasSend ? '' : 'none';
+  pvSet('pv-สิ่งส่งมาด้วย', v['สิ่งส่งมาด้วย']);
+  pvSet('pv-จำนวน', v['จำนวน']);
+  pvSet('pv-หน่วย', v['หน่วย']||'ฉบับ');
+
+  // Body
+  const groups = [
+    {keys:['ภาคเหตุ','ภาคเหตุ2','ภาคเหตุ3','ภาคเหตุ4']},
+    {keys:['ภาคความประสงค์','ภาคความประสงค์2','ภาคความประสงค์3','ภาคความประสงค์4']},
+    {keys:['ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4']},
+  ];
+  let bodyHTML = '';
+  groups.forEach(g=>{
+    const vals = g.keys.map(k=>v[k]);
+    const anyFilled = vals.some(Boolean);
+    if(anyFilled){
+      vals.forEach((t,i)=>{
+        if(t) bodyHTML += `<div class="doc-para filled">${escHtml(t)}</div>`;
+        else if(i===0) bodyHTML += `<div class="doc-para empty-line">................................................................................................</div>`;
+      });
+    } else {
+      bodyHTML += `<div class="doc-para empty-line">................................................................................................</div>`;
+    }
+  });
+  const closeVal = v['จึงเรียนมาเพื่อ...'];
+  bodyHTML += `<div class="doc-close">${closeVal ? escHtml(closeVal) : '<span style="color:#bbb;">จึงเรียนมาเพื่อ...</span>'}</div>`;
+  document.getElementById('pvBody').innerHTML = bodyHTML;
+
+  // Signer
+  const signRow = document.getElementById('pvSignRow');
+  const name = v['ลงชื่อ1'];
+  const pos  = v['ตำแหน่ง1'];
+  signRow.innerHTML = `<div class="doc-sign-block">
+    <div class="doc-sign-center">(${escHtml(name)||'ชื่อ-สกุล'})</div>
+    <div class="doc-sign-center">(${escHtml(pos)||'ตำแหน่ง'})</div>
+  </div>`;
+
+  // Footer
+  const dept = v['ส่วนงาน'];
+  const tel  = v['โทร'];
+  document.getElementById('pv-footer-dept').textContent = dept ? `ส่วนงาน / ฝ่าย  ${dept}` : '';
+  document.getElementById('pv-footer-tel').textContent  = tel  ? `   โทร.  ${tel}` : '';
+}
+
+/* ── Event wiring ── */
+FIELDS.forEach(f=>{
+  const el=document.getElementById(f);
+  if(!el) return;
+  ['input','change'].forEach(ev=>{
+    el.addEventListener(ev,()=>{
+      updatePreview(); markUnsaved();
+      clearTimeout(saveTimer);
+      saveTimer=setTimeout(saveData,800);
+    });
+  });
+});
+
+document.getElementById('printBtn').addEventListener('click',()=>window.print());
+document.getElementById('clearBtn').addEventListener('click',()=>{
+  if(!confirm('ต้องการล้างข้อมูลทั้งหมดใช่หรือไม่?')) return;
+  FIELDS.forEach(f=>{ const el=document.getElementById(f); if(el) el.value=''; });
+  localStorage.removeItem(STORAGE_KEY);
+  updatePreview(); markSaved();
+});
+
+/* ── Attach ── */
+let attachedFiles = [];
+document.getElementById('attachFiles').addEventListener('change', function(){
+  Array.from(this.files).forEach(f=>attachedFiles.push(f));
+  renderAttachPages(); this.value='';
+});
+document.getElementById('clearAttach').addEventListener('click',()=>{ attachedFiles=[]; renderAttachPages(); });
+function renderAttachPages(){
+  const container=document.getElementById('attachPages');
+  container.innerHTML='';
+  attachedFiles.forEach((file,i)=>{
+    const url=URL.createObjectURL(file);
+    const wrap=document.createElement('div');
+    wrap.className='doc-wrap'; wrap.style.marginTop='12px';
+    const label=document.createElement('div');
+    label.style.cssText='font-size:.72rem;color:var(--muted);padding:4px 10px;background:#f5f7fa;border-bottom:1px solid #e0e8f0;';
+    label.textContent=`เอกสารแนบ ${i+1} — ${file.name}`;
+    wrap.appendChild(label);
+    if(file.type==='application/pdf'){
+      const iframe=document.createElement('iframe');
+      iframe.src=url; iframe.style.cssText='width:100%;height:800px;border:none;display:block;';
+      wrap.appendChild(iframe);
+    } else {
+      const img=document.createElement('img');
+      img.src=url; img.style.cssText='width:100%;display:block;';
+      wrap.appendChild(img);
+    }
+    container.appendChild(wrap);
+  });
+}
+
+/* ── Workflow ── */
+let workflowStepList = [];
+const ROLE_LABELS = {
+  head_sign:'ลงนามผ่าน', approver:'ตรวจสอบ', finance_check:'ตรวจสอบ(การเงิน)',
+  saraban_check:'ตรวจสอบ(สารบรรณ)', saraban_register:'ออกเลข', signer:'ลงนาม',
+};
+
+function renderWorkflowSteps(){
+  const container=document.getElementById('workflowSteps');
+  if(!workflowStepList.length){
+    container.innerHTML='<div style="font-size:.8rem;color:var(--muted);padding:4px 0;">ยังไม่มีขั้นตอน</div>';
+    return;
+  }
+  container.innerHTML=workflowStepList.map((step,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f8fafc;border-radius:8px;border:1px solid var(--border);">
+      <span style="color:var(--accent);font-size:.85rem;font-weight:700;min-width:22px;">${i+1}.</span>
+      <span style="flex:1;">
+        <span style="font-weight:600;font-size:.88rem;">${step.name||step.email}</span>
+        <span class="role-chip">${ROLE_LABELS[step.role]||step.role}</span>
+        ${step.label?`<span style="display:block;font-size:.75rem;color:var(--muted);">${step.label}</span>`:''}
+      </span>
+      <button onclick="workflowStepList.splice(${i},1);renderWorkflowSteps()" title="ลบ" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.1rem;">✕</button>
+    </div>`).join('');
+}
+
+function rebuildWorkflow(){
+  const toDirector=(document.getElementById('wf-toDirector')?.value||'director')==='director';
+  const headEmail=document.getElementById('wf-headEmail')?.value||'';
+  workflowStepList=buildWorkflow({docType:'external', isFinance:false, toDirector, headEmail});
+  renderWorkflowSteps();
+}
+
+function populateHeadDropdown(){
+  const sel=document.getElementById('wf-headEmail');
+  if(!sel) return;
+  STAFF_LIST.filter(s=>s.role==='head_dept').forEach(s=>{
+    const opt=document.createElement('option');
+    opt.value=s.email; opt.textContent=s.name; sel.appendChild(opt);
+  });
+}
+
+['wf-headEmail','wf-toDirector'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('change',rebuildWorkflow);
+});
+document.getElementById('addStepBtn').addEventListener('click',()=>{
+  const first=STAFF_LIST[0];
+  workflowStepList.push({name:first.name,email:first.email,role:'approver',label:'',status:'pending'});
+  renderWorkflowSteps();
+});
+
+firebase.auth().onAuthStateChanged(u=>{
+  if(u && !workflowStepList.length){ populateHeadDropdown(); rebuildWorkflow(); }
+});
+
+document.getElementById('sendWorkflowBtn').addEventListener('click', async()=>{
+  const btn=document.getElementById('sendWorkflowBtn');
+  const statusEl=document.getElementById('reviewStatus');
+  const user=firebase.auth().currentUser;
+  if(!user){ statusEl.textContent='❌ กรุณา login ก่อน'; return; }
+  const เรื่อง=getVal('เรื่อง');
+  if(!เรื่อง){ statusEl.textContent='❌ กรุณากรอก "เรื่อง" ก่อน'; return; }
+  if(!workflowStepList.length){ statusEl.textContent='❌ กรุณาเพิ่มขั้นตอนอย่างน้อย 1 ขั้น'; return; }
+
+  btn.disabled=true; statusEl.textContent='กำลังส่ง...';
+  try{
+    const db=firebase.firestore();
+    const docRef=db.collection('documents').doc();
+    const v={}; FIELDS.forEach(f=>{v[f]=getVal(f);});
+    await docRef.set({
+      type:'external', subject:เรื่อง,
+      createdBy:{uid:user.uid,email:user.email,name:user.displayName||user.email},
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+      status:'pending', currentStep:0,
+      workflow:workflowStepList.map(s=>({...s,status:'pending'})),
+      formData:v, annotations:[],
+    });
+    const first=workflowStepList[0];
+    const mailBody=`เรียน ${first.name}\n\nมีหนังสือภายนอก "${เรื่อง}" รอการตรวจสอบจากท่าน\n\nผู้เสนอ: ${user.displayName||user.email}\n\nดูเอกสาร: ${SYSTEM_BASE_URL}/document-review.html?id=${docRef.id}`;
+    window.open(`mailto:${first.email}?subject=${encodeURIComponent('[รอตรวจสอบ] '+เรื่อง)}&body=${encodeURIComponent(mailBody)}`,'_blank');
+    statusEl.innerHTML=`<span style="color:var(--success);">✅ ส่งเข้าระบบแล้ว — <a href="document-review.html?id=${docRef.id}" target="_blank">ดูเอกสาร</a></span>`;
+    btn.textContent='📤 ส่งอีกครั้ง';
+  }catch(err){
+    statusEl.textContent='❌ '+err.message;
+  }
+  btn.disabled=false;
+});
+
+loadData();
+</script>
+</body>
+</html>
