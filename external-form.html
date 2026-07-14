@@ -289,10 +289,6 @@
           </div>
         </div>
 
-        <div class="field">
-          <label>จึงเรียนมาเพื่อ... <span class="req">*</span></label>
-          <input type="text" id="จึงเรียนมาเพื่อ..." placeholder="เช่น โปรดพิจารณา / โปรดทราบ" required>
-        </div>
       </div>
 
       <!-- ผู้ลงนาม -->
@@ -442,7 +438,14 @@
 
         <!-- Footer -->
         <div class="doc-footer">
-          <span id="pv-footer-dept"></span><span id="pv-footer-tel"></span>
+          <div class="doc-field" style="margin-bottom:2px;">
+            <span class="doc-field-lbl">ส่วนงาน / ฝ่าย</span>
+            <span class="doc-field-val empty" id="pv-footer-dept"></span>
+          </div>
+          <div class="doc-field">
+            <span class="doc-field-lbl">โทร.</span>
+            <span class="doc-field-val empty" id="pv-footer-tel"></span>
+          </div>
         </div>
         <div class="doc-footer-quote">
           "ประโยชน์เพื่อนมนุษย์เป็นกิจที่หนึ่ง Our Soul is for the Benefit of Mankind"
@@ -465,7 +468,6 @@ const FIELDS = [
   'ภาคเหตุ','ภาคเหตุ2','ภาคเหตุ3','ภาคเหตุ4',
   'ภาคความประสงค์','ภาคความประสงค์2','ภาคความประสงค์3','ภาคความประสงค์4',
   'ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4',
-  'จึงเรียนมาเพื่อ...',
   'ลงชื่อ1','ตำแหน่ง1',
   'ส่วนงาน','โทร',
 ];
@@ -553,8 +555,6 @@ function updatePreview(){
       bodyHTML += `<div class="doc-para empty-line">................................................................................................</div>`;
     }
   });
-  const closeVal = v['จึงเรียนมาเพื่อ...'];
-  bodyHTML += `<div class="doc-close">${closeVal ? escHtml(closeVal) : '<span style="color:#bbb;">จึงเรียนมาเพื่อ...</span>'}</div>`;
   document.getElementById('pvBody').innerHTML = bodyHTML;
 
   // Signer
@@ -567,10 +567,8 @@ function updatePreview(){
   </div>`;
 
   // Footer
-  const dept = v['ส่วนงาน'];
-  const tel  = v['โทร'];
-  document.getElementById('pv-footer-dept').textContent = dept ? `ส่วนงาน / ฝ่าย  ${dept}` : '';
-  document.getElementById('pv-footer-tel').textContent  = tel  ? `   โทร.  ${tel}` : '';
+  pvSet('pv-footer-dept', v['ส่วนงาน']);
+  pvSet('pv-footer-tel',  v['โทร']);
 }
 
 /* ── Event wiring ── */
