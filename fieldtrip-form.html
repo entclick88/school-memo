@@ -329,6 +329,18 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
     </div>
   </div>
 
+  <!-- กำหนดกิจกรรม -->
+  <div class="card">
+    <div class="section-title">📅 กำหนดกิจกรรม (สิ่งที่ส่งมาด้วย 2)</div>
+    <div class="field">
+      <label>วันที่ (ระบุวันที่จัดกิจกรรม)</label>
+      <input type="date" id="วันที่กำหนดการ">
+    </div>
+    <div class="hint" style="margin-bottom:8px;">เพิ่มแถวเวลา-รายละเอียดกิจกรรม แถวออกเดินทาง/กลับ ระบบจะเติมอัตโนมัติ</div>
+    <div id="schedList"></div>
+    <button class="btn-add" onclick="addSched()">+ เพิ่มแถวกิจกรรม</button>
+  </div>
+
   <!-- Actions -->
   <div class="card">
     <div class="form-actions">
@@ -347,10 +359,11 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
   </div>
   <div class="page-tabs">
     <button class="page-tab active" onclick="showPage(0)">📝 บันทึก</button>
-    <button class="page-tab" onclick="showPage(1)">📋 รายชื่อ</button>
-    <button class="page-tab" onclick="showPage(2)">📌 คำสั่ง</button>
-    <button class="page-tab" onclick="showPage(3)">📄 สำเนาคำสั่ง</button>
-    <button class="page-tab" onclick="showPage(4)">📨 หนังสือผู้ปกครอง</button>
+    <button class="page-tab" onclick="showPage(1)">📋 สิ่งแนบ 1 รายชื่อ</button>
+    <button class="page-tab" onclick="showPage(2)">📅 สิ่งแนบ 2 กำหนดการ</button>
+    <button class="page-tab" onclick="showPage(3)">📌 คำสั่ง</button>
+    <button class="page-tab" onclick="showPage(4)">📄 สำเนาคำสั่ง</button>
+    <button class="page-tab" onclick="showPage(5)">📨 หนังสือผู้ปกครอง</button>
   </div>
 
   <!-- ── หน้า 1: บันทึกข้อความ ── -->
@@ -443,6 +456,8 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
   <div class="doc-page" id="page1">
   <div class="doc-wrap"><div class="doc-inner">
 
+    <div style="text-align:right;font-size:.85em;margin-bottom:1em;">สิ่งที่ส่งมาด้วย 1</div>
+
     <div style="text-align:center;font-weight:700;font-size:1em;margin-bottom:.4em;">
       รายชื่อนักเรียนและคุณครูผู้ควบคุมดูแลนักเรียน ในกิจกรรม
       <span id="p2-กิจกรรม" style="color:#bbb;">[ชื่อกิจกรรม]</span>
@@ -472,6 +487,50 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
 
   </div></div>
   </div><!-- /page1 -->
+
+  <!-- ── สิ่งที่ส่งมาด้วย 2: กำหนดกิจกรรม ── -->
+  <div class="doc-page" id="page_sched">
+  <div class="doc-wrap"><div class="doc-inner">
+
+    <div style="text-align:right;font-size:.85em;margin-bottom:1em;">สิ่งที่ส่งมาด้วย 2</div>
+
+    <div style="text-align:center;font-weight:700;font-size:1em;margin-bottom:.3em;">
+      กำหนดกิจกรรม
+      <span id="ps-กิจกรรม" style="color:#bbb;">[ชื่อกิจกรรม]</span>
+    </div>
+    <div style="text-align:center;font-size:.9em;margin-bottom:.2em;">
+      ในวันที่ <span id="ps-วันไป" style="color:#bbb;">............</span>
+      ถึง วันที่ <span id="ps-วันกลับ" style="color:#bbb;">............</span>
+    </div>
+    <div style="text-align:center;font-size:.9em;margin-bottom:.6em;">
+      ณ <span id="ps-สถานที่" style="color:#bbb;">[สถานที่]</span>
+    </div>
+
+    <div style="font-size:.9em;margin-bottom:.3em;">
+      วันที่ <span id="ps-วันที่กำหนดการ" style="color:#bbb;border-bottom:1px dotted #aaa;min-width:6em;display:inline-block;">&nbsp;</span>
+    </div>
+
+    <table id="ps-ตาราง" style="width:100%;border-collapse:collapse;font-size:.9em;margin-bottom:.8em;">
+      <thead>
+        <tr style="background:#f5f5f5;">
+          <th style="border:1px solid #ccc;padding:5px 10px;text-align:center;width:30%;">เวลา</th>
+          <th style="border:1px solid #ccc;padding:5px 10px;text-align:center;">รายละเอียด</th>
+        </tr>
+      </thead>
+      <tbody id="ps-tbody">
+        <tr>
+          <td style="border:1px solid #ccc;padding:4px 8px;color:#bbb;text-align:center;">XX.XX – XX.XX น.</td>
+          <td style="border:1px solid #ccc;padding:4px 8px;color:#bbb;">ออกเดินทางจาก โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี ไปยัง [สถานที่]</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="font-size:.82em;border-top:1px solid #aaa;padding-top:.4em;">
+      <strong>หมายเหตุ</strong> : กำหนดการอาจเปลี่ยนแปลงได้ตามความเหมาะสม
+    </div>
+
+  </div></div>
+  </div><!-- /page_sched -->
 
   <!-- ── หน้า 3: คำสั่งโรงเรียน ── -->
   <div class="doc-page" id="page2">
@@ -740,6 +799,14 @@ function thaiDateNoYear(iso){
 /* ── Dynamic student/teacher lists ── */
 let students=[{name:'',level:''}];
 let teachers=[{name:'',subject:''}];
+let schedules=[
+  {from:'',to:'',detail:'ออกเดินทางจาก โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี ไปยัง',auto:'depart'},
+  {from:'',to:'',detail:'',auto:''},
+  {from:'',to:'',detail:'',auto:''},
+  {from:'',to:'',detail:'',auto:''},
+  {from:'',to:'',detail:'ออกเดินทางจาก [สถานที่] เดินทางกลับโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี',auto:'return'},
+  {from:'',to:'',detail:'ถึง โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี โดยสวัสดิภาพ',auto:'arrive'},
+];
 
 function renderStudents(){
   const div=document.getElementById('studentList');
@@ -771,6 +838,24 @@ function renderTeachers(){
 function addTeacher(){teachers.push({name:'',subject:''});renderTeachers();markUnsaved();}
 function removeTeacher(i){teachers.splice(i,1);if(!teachers.length)teachers=[{name:'',subject:''}];renderTeachers();markUnsaved();}
 
+function renderSched(){
+  const div=document.getElementById('schedList');
+  if(!div)return;
+  div.innerHTML=schedules.map((s,i)=>`
+    <div class="list-entry" style="align-items:center;">
+      <input type="text" placeholder="เริ่ม" style="max-width:72px" value="${escAttr(s.from)}"
+        oninput="schedules[${i}].from=this.value;markUnsaved()">
+      <span style="flex-shrink:0;color:var(--muted);font-size:.82rem;">–</span>
+      <input type="text" placeholder="สิ้นสุด" style="max-width:72px" value="${escAttr(s.to)}"
+        oninput="schedules[${i}].to=this.value;markUnsaved()">
+      <input type="text" placeholder="รายละเอียดกิจกรรม" value="${escAttr(s.detail)}"
+        oninput="schedules[${i}].detail=this.value;markUnsaved()">
+      ${schedules.length>1?`<button class="btn-rm" onclick="removeSched(${i})">×</button>`:''}
+    </div>`).join('');
+}
+function addSched(){schedules.push({from:'',to:'',detail:'',auto:''});renderSched();markUnsaved();}
+function removeSched(i){schedules.splice(i,1);if(!schedules.length)schedules=[{from:'',to:'',detail:'',auto:''}];renderSched();markUnsaved();}
+
 function escAttr(s){return (s||'').replace(/"/g,'&quot;');}
 
 /* ── Tabs ── */
@@ -789,6 +874,7 @@ const SCALAR_FIELDS=[
   'ผู้รับรองสำเนา','ตำแหน่งผู้รับรอง','ผู้ร่าง','ผู้ทาน',
   'เลขที่หนังสือ','วันที่หนังสือ','ผู้ลงนามหนังสือ','ตำแหน่งหนังสือ',
   'footer-ส่วนงาน','footer-โทร',
+  'วันที่กำหนดการ',
 ];
 let saveTimer;
 function markUnsaved(){
@@ -801,6 +887,7 @@ function saveAll(){
   SCALAR_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)v[id]=el.value;});
   v._students=students;
   v._teachers=teachers;
+  v._schedules=schedules;
   localStorage.setItem(STORAGE_KEY,JSON.stringify(v));
   document.getElementById('saveBadge').classList.remove('unsaved');
   document.getElementById('saveText').textContent='บันทึกอัตโนมัติ';
@@ -812,15 +899,23 @@ function loadAll(){
     SCALAR_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el&&v[id]!==undefined)el.value=v[id];});
     if(v._students&&v._students.length){students=v._students;}
     if(v._teachers&&v._teachers.length){teachers=v._teachers;}
+    if(v._schedules&&v._schedules.length){schedules=v._schedules;}
   }catch(e){}
-  renderStudents();renderTeachers();updatePreview();
+  renderStudents();renderTeachers();renderSched();updatePreview();
 }
 function clearAll(){
   if(!confirm('ล้างข้อมูลทั้งหมด?'))return;
   SCALAR_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   students=[{name:'',level:''}];teachers=[{name:'',subject:''}];
+  schedules=[
+    {from:'',to:'',detail:'ออกเดินทางจาก โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี ไปยัง',auto:'depart'},
+    {from:'',to:'',detail:'',auto:''},
+    {from:'',to:'',detail:'',auto:''},
+    {from:'',to:'',detail:'ออกเดินทางจาก [สถานที่] เดินทางกลับโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี',auto:'return'},
+    {from:'',to:'',detail:'ถึง โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี โดยสวัสดิภาพ',auto:'arrive'},
+  ];
   localStorage.removeItem(STORAGE_KEY);
-  renderStudents();renderTeachers();updatePreview();
+  renderStudents();renderTeachers();renderSched();updatePreview();
 }
 
 /* ── Helpers ── */
@@ -946,6 +1041,31 @@ function updatePreview(){
   pvSet('p5-tr-วันไป',thGo,'............');
   pvSet('p5-tr-วันกลับ',thBack,'............');
   pvSet('p5-tr-สถานที่',place,'[สถานที่]');
+
+  /* ── สิ่งที่ส่งมาด้วย 2: กำหนดกิจกรรม ── */
+  pvSet('ps-กิจกรรม',activity,'[ชื่อกิจกรรม]');
+  pvSet('ps-วันไป',thGo,'............');
+  pvSet('ps-วันกลับ',thBack,'............');
+  pvSet('ps-สถานที่',place,'[สถานที่]');
+  const schedDate=g('วันที่กำหนดการ');
+  pvSet('ps-วันที่กำหนดการ',schedDate?thaiDate(schedDate):'','ระบุวันที่');
+
+  // render schedule table
+  const tbody=document.getElementById('ps-tbody');
+  if(tbody){
+    tbody.innerHTML=schedules.map(s=>{
+      const timeStr=s.from||s.to ? `${s.from||'XX.XX'} – ${s.to||'XX.XX'} น.` : 'XX.XX – XX.XX น.';
+      // auto-fill สถานที่ in depart/return rows
+      let detail=s.detail||'';
+      if(s.auto==='depart'&&place&&!detail.includes(place)) detail=`ออกเดินทางจาก โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี ไปยัง ${place}`;
+      if(s.auto==='return'&&place&&!s.detail) detail=`ออกเดินทางจาก ${place} เดินทางกลับโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี`;
+      const isEmpty=!s.from&&!s.to&&!s.detail&&!s.auto;
+      return `<tr>
+        <td style="border:1px solid #ccc;padding:4px 8px;text-align:center;${isEmpty?'color:#bbb;':''}">${timeStr}</td>
+        <td style="border:1px solid #ccc;padding:4px 8px;${isEmpty||(!detail)?'color:#bbb;':''}">${detail||'ระบุรายละเอียดกิจกรรม'}</td>
+      </tr>`;
+    }).join('');
+  }
 }
 
 /* ── Listen ── */
