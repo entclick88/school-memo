@@ -314,6 +314,68 @@
         </div>
       </div>
 
+      <!-- หนังสือตอบรับ (หน้า 2) -->
+      <div class="card">
+        <div class="section-title">📄 หนังสือตอบรับ (สิ่งที่ส่งมาด้วย 1)</div>
+
+        <div class="field">
+          <label>ชื่อเรื่องหนังสือตอบรับ <span class="req">*</span></label>
+          <input type="text" id="ตอบรับ-ชื่อเรื่อง" placeholder="เช่น นักเรียนเข้าทดลองฝึกประสบการณ์การปฏิบัติงาน" required>
+        </div>
+
+        <div class="field">
+          <label>เรื่อง (ที่ระบุในหนังสือตอบรับ)</label>
+          <textarea id="ตอบรับ-เรื่อง" rows="2" placeholder="เช่น ของความอนุเคราะห์นักเรียนเข้ารับการฝึกงาน ณ ... เกี่ยวข้องกับอาชีพ..."></textarea>
+        </div>
+
+        <div class="field">
+          <label>ชื่อหน่วยงาน (ที่กรอกตอบกลับ)</label>
+          <input type="text" id="ตอบรับ-หน่วยงาน" placeholder="เช่น สถานีตำรวจภูธรชุมทะเล">
+        </div>
+
+        <div class="row3">
+          <div class="field">
+            <label>วันที่เริ่มฝึกงาน</label>
+            <input type="date" id="ตอบรับ-วันเริ่ม">
+          </div>
+          <div class="field">
+            <label>วันที่สิ้นสุด</label>
+            <input type="date" id="ตอบรับ-วันสิ้นสุด">
+          </div>
+          <div class="field">
+            <label>จำนวน (คน)</label>
+            <input type="text" id="ตอบรับ-จำนวน" placeholder="เช่น 5">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>เหตุผล (กรณีปฏิเสธ / ข้อจำกัด)</label>
+          <input type="text" id="ตอบรับ-เหตุผล" placeholder="เช่น ไม่สามารถรับได้เนื่องจาก...">
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>ผู้ประสานงานภายใน</label>
+            <input type="text" id="ตอบรับ-ผู้ประสาน" placeholder="ชื่อ-สกุล">
+          </div>
+          <div class="field">
+            <label>ตำแหน่ง</label>
+            <input type="text" id="ตอบรับ-ตำแหน่ง" placeholder="ตำแหน่ง">
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>เบอร์โทรศัพท์ผู้ประสาน</label>
+            <input type="tel" id="ตอบรับ-เบอร์โทร" placeholder="เช่น 08-xxxx-xxxx">
+          </div>
+          <div class="field">
+            <label>กำหนดส่งตอบรับภายใน</label>
+            <input type="date" id="ตอบรับ-กำหนดส่ง">
+          </div>
+        </div>
+      </div>
+
       <!-- Workflow -->
       <div class="card" id="reviewCard">
         <div class="section-title">📤 ส่งเอกสารเข้าระบบ Workflow</div>
@@ -446,6 +508,93 @@
       </div>
     </div>
 
+    <!-- ── หน้า 2: หนังสือตอบรับ ── -->
+    <div class="doc-wrap" style="margin-top:16px;">
+      <div class="doc-inner">
+
+        <!-- สิ่งที่ส่งมาด้วย 1 (top-right) -->
+        <div style="text-align:right; font-size:.85em; margin-bottom:4px;">สิ่งที่ส่งมาด้วย 1</div>
+
+        <!-- ชื่อเรื่อง (centered bold) -->
+        <div style="text-align:center; font-weight:700; font-size:1em; margin-bottom:8px;" id="pv2-ชื่อเรื่อง">
+          <span style="color:#bbb;">หนังสือตอบรับ...</span>
+        </div>
+
+        <!-- ตามหนังสือ + เรื่อง -->
+        <div style="line-height:1.6; font-size:.95em;">
+          <span style="font-weight:700;">ตามหนังสือเลขที่</span>
+          <span id="pv2-เลขที่" style="color:#bbb;"> มอ.ว.สฎ........./.........</span>
+          <span style="font-weight:700;"> ลงวันที่ </span>
+          <span id="pv2-วันที่" style="color:#bbb;">.............................</span>
+        </div>
+        <div style="line-height:1.6; font-size:.95em; margin-bottom:6px;">
+          <span style="font-weight:700;">เรื่อง</span>
+          <span id="pv2-เรื่อง" style="color:#bbb;"> ของความอนุเคราะห์...</span>
+          <span> นั้น ทางหน่วยงาน </span>
+          <span id="pv2-หน่วยงาน" style="color:#bbb;">..................................</span>
+        </div>
+
+        <!-- ยินดีรับ -->
+        <div style="line-height:1.8; font-size:.95em; text-indent:2.54cm;">
+          <span>( )</span>
+          <span style="font-weight:700;"> มีความยินดีรับนักเรียนเข้าฝึกงานระหว่างวันที่</span>
+          <span id="pv2-วันเริ่ม" style="color:#bbb;">..................</span>
+          <span style="font-weight:700;"> ถึงวันที่</span>
+          <span id="pv2-วันสิ้นสุด" style="color:#bbb;">..................</span>
+          <span style="font-weight:700;"> จำนวน</span>
+          <span id="pv2-จำนวน" style="color:#bbb;">......</span>
+          <span style="font-weight:700;"> คน</span>
+        </div>
+
+        <!-- ปฏิเสธ -->
+        <div style="line-height:1.8; font-size:.95em; text-indent:2.54cm; margin-bottom:8px;">
+          <span>( ) เนื่องจาก</span>
+          <span id="pv2-เหตุผล" style="color:#bbb;">.................................................................</span>
+        </div>
+
+        <!-- ผู้ประสาน -->
+        <div class="doc-field" style="font-size:.9em;">
+          <span class="doc-field-lbl">ผู้ประสานงานภายใน</span>
+          <span class="doc-field-val empty" id="pv2-ผู้ประสาน"></span>
+        </div>
+        <div style="display:flex; gap:1em; font-size:.9em; margin-bottom:12px;">
+          <div class="doc-field" style="flex:2;">
+            <span class="doc-field-lbl">ตำแหน่ง</span>
+            <span class="doc-field-val empty" id="pv2-ตำแหน่ง"></span>
+          </div>
+          <div class="doc-field" style="flex:1.5;">
+            <span class="doc-field-lbl">เบอร์โทรศัพท์</span>
+            <span class="doc-field-val empty" id="pv2-เบอร์โทร"></span>
+          </div>
+        </div>
+
+        <!-- ลายเซ็น -->
+        <div style="margin-top:3em; padding-left:40%;">
+          <div class="doc-field" style="font-size:.9em;">
+            <span class="doc-field-lbl">ลงชื่อ</span>
+            <span class="doc-field-val empty"></span>
+          </div>
+          <div style="text-align:center; font-size:.85em; color:#aaa;">(.................................................)</div>
+          <div style="display:flex; gap:.5em; font-size:.85em; margin-top:4px;">
+            <span>วันที่</span><span class="doc-field-val empty" style="max-width:3em;"></span>
+            <span>เดือน</span><span class="doc-field-val empty" style="max-width:4em;"></span>
+            <span>พ.ศ.</span><span class="doc-field-val empty" style="max-width:3em;"></span>
+          </div>
+        </div>
+
+        <!-- หมายเหตุ -->
+        <div style="margin-top:3em; font-size:.82em; line-height:1.6; border-top:1px solid #ccc; padding-top:6px;">
+          <span style="font-weight:700;">หมายเหตุ</span>
+          โปรดส่งแบบตอบรับกลับคืนงานแนะแนว โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี<br>
+          โทร 08 4557 9229 กด 4 (งานแนะแนว)<br>
+          หรือทาง E-mail : guidancewit.06@gmail.com<br>
+          ขอความอนุเคราะห์ส่งแบบตอบรับ ภายในวันที่
+          <span id="pv2-กำหนดส่ง" style="color:#bbb;">.....................................</span>
+        </div>
+
+      </div>
+    </div>
+
     <div id="attachPages"></div>
     <div class="preview-note">ตัวอย่างแสดงโครงสร้างเท่านั้น</div>
   </div>
@@ -462,6 +611,13 @@ const FIELDS = [
   'ภาคสรุป','ภาคสรุป2','ภาคสรุป3','ภาคสรุป4',
   'ลงชื่อ1','ตำแหน่ง1',
   'ส่วนงาน','โทร',
+  // หนังสือตอบรับ (หน้า 2)
+  'ตอบรับ-ชื่อเรื่อง','ตอบรับ-เรื่อง',
+  'ตอบรับ-หน่วยงาน',
+  'ตอบรับ-วันเริ่ม','ตอบรับ-วันสิ้นสุด','ตอบรับ-จำนวน',
+  'ตอบรับ-เหตุผล',
+  'ตอบรับ-ผู้ประสาน','ตอบรับ-ตำแหน่ง','ตอบรับ-เบอร์โทร',
+  'ตอบรับ-กำหนดส่ง',
 ];
 
 const MONTHS = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
@@ -571,6 +727,27 @@ function updatePreview(){
   // Footer
   pvSet('pv-footer-dept', v['ส่วนงาน']);
   pvSet('pv-footer-tel',  v['โทร']);
+
+  // ── หน้า 2: หนังสือตอบรับ ──
+  const pv2set = (id, val, placeholder) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (val) { el.textContent = val; el.style.color = ''; }
+    else     { el.textContent = placeholder; el.style.color = '#bbb'; }
+  };
+  pv2set('pv2-ชื่อเรื่อง', v['ตอบรับ-ชื่อเรื่อง'], 'หนังสือตอบรับ...');
+  pv2set('pv2-เลขที่',     v['เลขที่'],             ' มอ.ว.สฎ........./.........');
+  pv2set('pv2-วันที่',     tMonthYear,              '.............................');
+  pv2set('pv2-เรื่อง',    v['ตอบรับ-เรื่อง'],      ' ของความอนุเคราะห์...');
+  pv2set('pv2-หน่วยงาน', v['ตอบรับ-หน่วยงาน'],   '..................................');
+  pv2set('pv2-วันเริ่ม',  v['ตอบรับ-วันเริ่ม']  ? thaiDate(v['ตอบรับ-วันเริ่ม'])  : '', '..................');
+  pv2set('pv2-วันสิ้นสุด',v['ตอบรับ-วันสิ้นสุด']? thaiDate(v['ตอบรับ-วันสิ้นสุด']): '', '..................');
+  pv2set('pv2-จำนวน',     v['ตอบรับ-จำนวน'],      '......');
+  pv2set('pv2-เหตุผล',    v['ตอบรับ-เหตุผล'],     '.................................................................');
+  pvSet('pv2-ผู้ประสาน',  v['ตอบรับ-ผู้ประสาน']);
+  pvSet('pv2-ตำแหน่ง',   v['ตอบรับ-ตำแหน่ง']);
+  pvSet('pv2-เบอร์โทร',  v['ตอบรับ-เบอร์โทร']);
+  pv2set('pv2-กำหนดส่ง', v['ตอบรับ-กำหนดส่ง'] ? thaiDate(v['ตอบรับ-กำหนดส่ง']) : '', '.............................');
 }
 
 /* ── Event wiring ── */
