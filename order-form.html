@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คำสั่งโรงเรียน — มอ. วิทยานุสรณ์ สุราษฎร์ธานี</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1a73c0; --accent2:#1558a0; --bg:#f3f6fa; --card:#fff;
+    --border:#dfe6ee; --text:#1f2a37; --muted:#667788;
+    --success:#1e7d3c; --danger:#c0392b;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Sarabun',sans-serif; background:var(--bg); color:var(--text); min-height:100vh;}
+
+  .topbar{
+    background:var(--accent); color:#fff; padding:12px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  .topbar-left{display:flex; align-items:center; gap:12px;}
+  .topbar a.back{color:rgba(255,255,255,.85); text-decoration:none; font-size:.88rem;}
+  .topbar a.back:hover{color:#fff;}
+  .topbar h1{font-size:1.1rem; font-weight:700;}
+  .save-badge{font-size:.78rem;background:rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;display:flex;align-items:center;gap:5px;}
+  .save-badge .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;}
+  .save-badge.unsaved .dot{background:#fbbf24;}
+
+  .main{
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+    max-width:1400px; margin:0 auto; min-height:calc(100vh - 52px);
+  }
+
+  .form-side{padding:24px; overflow-y:auto; border-right:1px solid var(--border);}
+  .card{
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:20px 22px; box-shadow:0 1px 6px rgba(20,40,80,.05); margin-bottom:16px;
+  }
+  .section-title{
+    font-weight:700; font-size:.95rem; color:var(--accent);
+    margin-bottom:14px; padding-bottom:8px; border-bottom:2px solid #e8f0fb;
+    display:flex; align-items:center; gap:6px;
+  }
+  label{display:block; font-size:.84rem; font-weight:600; margin-bottom:5px; color:#445566;}
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  input[type=text], input[type=date], textarea, select{
+    width:100%; padding:9px 12px; border:1.5px solid var(--border);
+    border-radius:8px; font-family:'Sarabun',sans-serif; font-size:.9rem;
+    background:#fbfcfe; color:var(--text); transition:border-color .15s;
+  }
+  input:focus, textarea:focus, select:focus{
+    outline:none; border-color:var(--accent); background:#fff;
+    box-shadow:0 0 0 3px rgba(26,115,192,.1);
+  }
+  textarea{resize:vertical; min-height:72px; line-height:1.6;}
+  .hint{font-size:.75rem; color:#8a97a8; margin-top:3px;}
+
+  .form-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:4px;}
+  button{
+    font-family:'Sarabun',sans-serif; font-size:.92rem; font-weight:600;
+    padding:11px 20px; border-radius:10px; border:none; cursor:pointer;
+    transition:background .15s;
+  }
+  .btn-primary{background:var(--accent); color:#fff;}
+  .btn-primary:hover{background:var(--accent2);}
+  .btn-secondary{background:#eef2f7; color:#33414f;}
+  .btn-secondary:hover{background:#e1e8f0;}
+  .btn-danger{background:#fef2f2; color:var(--danger); border:1.5px solid #fecaca;}
+  .btn-danger:hover{background:#fee2e2;}
+  .btn-print{background:#f0fdf4; color:#166534; border:1.5px solid #bbf7d0;}
+  .btn-print:hover{background:#dcfce7;}
+
+  /* ── Preview side ── */
+  .preview-side{
+    padding:20px 20px 24px; background:#f0f2f5;
+    overflow-y:auto; position:sticky; top:52px; height:calc(100vh - 52px);
+  }
+  .preview-header{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .preview-header h2{font-size:.9rem; color:var(--muted); font-weight:600;}
+  .preview-label{font-size:.7rem; background:#e8f0fb; color:var(--accent); padding:3px 9px; border-radius:20px; font-weight:600;}
+
+  /* ── Document ── */
+  .doc-wrap{
+    width:100%; background:#fff;
+    border:1px solid #c8d4e3; box-shadow:0 4px 24px rgba(0,0,0,.12); border-radius:4px;
+  }
+  .doc-inner{
+    padding:6% 7% 6% 11%;
+    font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
+    font-size:16px; line-height:1.5; color:#111;
+  }
+
+  .doc-field{display:flex; align-items:baseline; gap:.3em; flex-wrap:wrap; margin-bottom:2px;}
+  .doc-field-lbl{white-space:nowrap; font-weight:700; flex-shrink:0;}
+  .doc-field-val{
+    flex:1; border-bottom:1px dotted #aaa;
+    min-width:3em; word-break:break-word;
+    padding-bottom:1px; min-height:1.2em;
+  }
+  .doc-field-val.empty{color:#bbb;}
+  .doc-field-val:not(.empty){border-bottom-color:transparent;}
+
+  .doc-para{
+    text-indent:2.54cm; text-align:justify; text-justify:distribute;
+    white-space:pre-wrap; word-break:break-word;
+    line-height:1.5; font-size:1em; min-height:1.6em;
+  }
+  .doc-para.filled{color:#111;}
+  .doc-para.empty-line{color:#ccc; text-indent:2.54cm;}
+
+  .doc-sign-block{font-size:1em; line-height:1.8; min-width:240px; text-align:center;}
+
+  .preview-note{font-size:.7rem; color:var(--muted); text-align:center; margin-top:10px;}
+
+  @media(max-width:900px){
+    .main{grid-template-columns:1fr;}
+    .preview-side{position:static; height:auto; border-top:1px solid var(--border);}
+    .form-side{border-right:none;}
+  }
+
+  @media print{
+    .topbar,.form-side,.preview-header,.preview-note,.form-actions{display:none!important;}
+    .main{display:block; max-width:100%;}
+    .preview-side{padding:0; background:#fff; height:auto; position:static;}
+    .doc-wrap{box-shadow:none; border:none; width:210mm; min-height:297mm; page-break-after:always;}
+    .doc-inner{padding:15mm 20mm 15mm 30mm; font-size:16pt; line-height:1.5; overflow:visible;}
+  }
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="auth-guard.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back" href="./index.html">← กลับ</a>
+    <h1>📋 คำสั่งโรงเรียน</h1>
+  </div>
+  <div class="save-badge" id="saveBadge">
+    <span class="dot"></span>
+    <span id="saveText">บันทึกอัตโนมัติ</span>
+  </div>
+</div>
+
+<div class="main">
+  <!-- ══════════════ FORM SIDE ══════════════ -->
+  <div class="form-side">
+
+    <!-- ส่วนที่ 1: หัวคำสั่ง -->
+    <div class="card">
+      <div class="section-title">📋 ข้อมูลหัวคำสั่ง</div>
+
+      <div class="row2">
+        <div class="field">
+          <label>เลขที่คำสั่ง <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="เลขที่" placeholder="เช่น 001">
+          <div class="hint">จะแสดงเป็น ที่ .../2569</div>
+        </div>
+        <div class="field">
+          <label>วันที่ออกคำสั่ง</label>
+          <input type="date" id="วันที่">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>เรื่อง <span style="color:var(--danger)">*</span></label>
+        <input type="text" id="เรื่อง" placeholder="เช่น แต่งตั้งคณะกรรมการดำเนินงาน...">
+      </div>
+    </div>
+
+    <!-- ส่วนที่ 2: ภาคเหตุ -->
+    <div class="card">
+      <div class="section-title">📝 ภาคเหตุ (เหตุผลความเป็นมา)</div>
+      <div class="hint" style="margin-bottom:10px;">ย่อหน้าแรกระบุเหตุผล เหตุการณ์ หรือโครงการ</div>
+
+      <div class="field">
+        <label>ย่อหน้าที่ 1</label>
+        <textarea id="ภาคเหตุ1" placeholder="ภาคเหตุที่ 1 ในการจัดกิจกรรม / โครงการ  จะอ้างถึงเหตุผล ความจำเป็น หรือกฎหมาย&#10;ระเบียบที่ให้อำนาจผู้บริหารในการออกคำสั่ง"></textarea>
+      </div>
+      <div class="field">
+        <label>ย่อหน้าที่ 2 (ถ้ามี)</label>
+        <textarea id="ภาคเหตุ2" placeholder="ย่อหน้าที่ 2 (ถ้ามี)"></textarea>
+      </div>
+    </div>
+
+    <!-- ส่วนที่ 3: ภาคสั่งการ -->
+    <div class="card">
+      <div class="section-title">📌 ภาคสั่งการ (รายชื่อผู้ได้รับแต่งตั้ง/รายละเอียด)</div>
+      <div class="hint" style="margin-bottom:10px;">ระบุผู้ได้รับการแต่งตั้ง หรือรายละเอียดคำสั่ง</div>
+
+      <div class="field">
+        <label>ย่อหน้าที่ 1</label>
+        <textarea id="ภาคสั่ง1" placeholder="กรณีที่สั่งแต่งตั้งให้ระบุรายชื่อตำแหน่งที่ได้รับมอบหมายได้เลย&#10;สมมุติว่า นาย ก. ปฏิบัติหน้าที่ ประธานกรรมการ..."></textarea>
+      </div>
+      <div class="field">
+        <label>ย่อหน้าที่ 2 (ถ้ามี)</label>
+        <textarea id="ภาคสั่ง2" placeholder="ย่อหน้าที่ 2 (ถ้ามี)"></textarea>
+      </div>
+    </div>
+
+    <!-- ส่วนที่ 4: ทั้งนี้ตั้งแต่ / วันที่สั่ง -->
+    <div class="card">
+      <div class="section-title">📅 วันมีผลบังคับ / วันที่สั่ง</div>
+
+      <div class="row2">
+        <div class="field">
+          <label>ทั้งนี้ตั้งแต่วันที่</label>
+          <input type="date" id="ตั้งแต่">
+          <div class="hint">วันที่มีผลบังคับใช้</div>
+        </div>
+        <div class="field">
+          <label>เป็นต้นไป / หรือระบุเพิ่มเติม</label>
+          <input type="text" id="เป็นต้นไป" placeholder="เป็นต้นไป">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>สั่ง ณ วันที่</label>
+          <input type="date" id="วันที่สั่ง">
+        </div>
+      </div>
+    </div>
+
+    <!-- ส่วนที่ 5: ผู้ลงนาม -->
+    <div class="card">
+      <div class="section-title">✍️ ผู้ลงนาม</div>
+
+      <div class="field">
+        <label>ชื่อ-สกุล ผู้ลงนาม</label>
+        <input type="text" id="ลงชื่อ" placeholder="ชื่อเต็ม">
+      </div>
+      <div class="field">
+        <label>ตำแหน่ง</label>
+        <input type="text" id="ตำแหน่ง" placeholder="ผู้อำนวยการโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี">
+      </div>
+    </div>
+
+    <!-- ส่วนที่ 6: สำเนาถูกต้อง -->
+    <div class="card">
+      <div class="section-title">📄 สำเนาถูกต้อง (หน้า 2)</div>
+
+      <div class="field">
+        <label>ชื่อ-สกุล ผู้รับรองสำเนา</label>
+        <input type="text" id="สำเนา-ลงชื่อ" placeholder="ชื่อเต็ม">
+      </div>
+      <div class="field">
+        <label>ตำแหน่ง</label>
+        <input type="text" id="สำเนา-ตำแหน่ง" placeholder="ตำแหน่ง">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label>ผู้ร่าง</label>
+          <input type="text" id="ผู้ร่าง" placeholder="ชื่อย่อ">
+        </div>
+        <div class="field">
+          <label>ผู้ทาน</label>
+          <input type="text" id="ผู้ทาน" placeholder="ชื่อย่อ">
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="card">
+      <div class="form-actions">
+        <button class="btn-print" onclick="window.print()">🖨️ พิมพ์</button>
+        <button class="btn-danger" onclick="clearAll()">🗑️ ล้างข้อมูล</button>
+      </div>
+    </div>
+
+  </div><!-- /form-side -->
+
+  <!-- ══════════════ PREVIEW SIDE ══════════════ -->
+  <div class="preview-side">
+    <div class="preview-header">
+      <h2>ตัวอย่างเอกสาร</h2>
+      <span class="preview-label">Live Preview</span>
+    </div>
+
+    <!-- ── หน้า 1: ต้นฉบับ ── -->
+    <div class="doc-wrap">
+      <div class="doc-inner">
+
+        <!-- โลโก้ + ชื่อ (กึ่งกลาง) -->
+        <div style="text-align:center; margin-bottom:.6em;">
+          <img src="logo.png" alt="ตราโรงเรียน"
+               style="height:5em; width:auto; object-fit:contain; margin-bottom:.3em; display:block; margin-left:auto; margin-right:auto;">
+        </div>
+
+        <!-- ชื่อคำสั่ง -->
+        <div style="text-align:center; font-weight:700; font-size:1.75em; line-height:1.2; margin-bottom:.1em;">
+          คำสั่งโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี
+        </div>
+
+        <!-- ที่ -->
+        <div style="text-align:center; font-size:1em; margin-bottom:.5em;">
+          ที่ <span id="pv-เลขที่" style="color:#bbb;">...........</span> / 2569
+        </div>
+
+        <!-- เรื่อง -->
+        <div class="doc-field" style="margin-bottom:.6em;">
+          <span class="doc-field-lbl">เรื่อง</span>
+          <span class="doc-field-val empty" id="pv-เรื่อง"></span>
+        </div>
+
+        <!-- เส้นคั่น -->
+        <div style="border-top:1px solid #555; margin: .4em 20% .6em 20%;"></div>
+
+        <!-- ภาคเหตุ -->
+        <div class="doc-para empty-line" id="pv-ภาคเหตุ1">กรอกภาคเหตุที่ 1 ทางซ้าย...</div>
+        <div class="doc-para empty-line" id="pv-ภาคเหตุ2" style="display:none;"></div>
+
+        <!-- ภาคสั่งการ -->
+        <div style="margin-top:.4em;">
+          <div class="doc-para empty-line" id="pv-ภาคสั่ง1">กรอกภาคสั่งการทางซ้าย...</div>
+          <div class="doc-para empty-line" id="pv-ภาคสั่ง2" style="display:none;"></div>
+        </div>
+
+        <!-- ทั้งนี้ตั้งแต่ / เป็นต้นไป -->
+        <div style="margin-top:.6em; text-indent:2.54cm; font-size:1em; line-height:1.8;">
+          ทั้งนี้ ตั้งแต่
+          <span id="pv-ตั้งแต่" style="color:#bbb;">วัน/เดือน/ปี</span>
+          <span style="padding-left:3em;" id="pv-เป็นต้นไป">เป็นต้นไป</span>
+        </div>
+
+        <!-- สั่ง ณ วันที่ -->
+        <div style="text-indent:2.54cm; font-size:1em; line-height:1.8;">
+          <span style="font-weight:700;">สั่ง</span> ณ วันที่
+          <span id="pv-วันที่สั่ง-วัน" style="color:#bbb;">.....</span>
+          เดือน <span id="pv-วันที่สั่ง-เดือน" style="color:#bbb;">..........</span>
+          <span style="padding-left:1em;">พ.ศ. <span id="pv-วันที่สั่ง-ปี" style="color:#bbb;">.........</span></span>
+        </div>
+
+        <!-- ลายเซ็น (ขวา) -->
+        <div style="margin-top:4em; display:flex; justify-content:flex-end; padding-right:5%;">
+          <div class="doc-sign-block">
+            <div>(<span id="pv-ลงชื่อ" style="color:#bbb;">.......................................</span>)</div>
+            <div id="pv-ตำแหน่ง" style="color:#bbb;">ระบุตำแหน่ง</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── หน้า 2: สำเนา ── -->
+    <div class="doc-wrap" style="margin-top:16px;">
+      <div class="doc-inner">
+
+        <!-- (สำเนา) -->
+        <div style="text-align:center; font-size:1em; margin-bottom:1.5em;">(สำเนา)</div>
+
+        <!-- ชื่อคำสั่ง -->
+        <div style="text-align:center; font-weight:700; font-size:1.75em; line-height:1.2; margin-bottom:.1em;">
+          คำสั่งโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี
+        </div>
+
+        <!-- ที่ -->
+        <div style="text-align:center; font-size:1em; margin-bottom:.5em;">
+          ที่ <span id="pv2-เลขที่" style="color:#bbb;">...........</span> / 2569
+        </div>
+
+        <!-- เรื่อง -->
+        <div class="doc-field" style="margin-bottom:.6em;">
+          <span class="doc-field-lbl">เรื่อง</span>
+          <span class="doc-field-val empty" id="pv2-เรื่อง"></span>
+        </div>
+
+        <!-- เส้นคั่น -->
+        <div style="border-top:1px solid #555; margin: .4em 20% .6em 20%;"></div>
+
+        <!-- ภาคเหตุ -->
+        <div class="doc-para empty-line" id="pv2-ภาคเหตุ1">กรอกภาคเหตุที่ 1 ทางซ้าย...</div>
+        <div class="doc-para empty-line" id="pv2-ภาคเหตุ2" style="display:none;"></div>
+
+        <!-- ภาคสั่งการ -->
+        <div style="margin-top:.4em;">
+          <div class="doc-para empty-line" id="pv2-ภาคสั่ง1">กรอกภาคสั่งการทางซ้าย...</div>
+          <div class="doc-para empty-line" id="pv2-ภาคสั่ง2" style="display:none;"></div>
+        </div>
+
+        <!-- ทั้งนี้ตั้งแต่ -->
+        <div style="margin-top:.6em; text-indent:2.54cm; font-size:1em; line-height:1.8;">
+          ทั้งนี้ ตั้งแต่
+          <span id="pv2-ตั้งแต่" style="color:#bbb;">วัน/เดือน/ปี</span>
+          <span style="padding-left:3em;" id="pv2-เป็นต้นไป">เป็นต้นไป</span>
+        </div>
+
+        <!-- สั่ง ณ วันที่ -->
+        <div style="text-indent:2.54cm; font-size:1em; line-height:1.8;">
+          <span style="font-weight:700;">สั่ง</span> ณ วันที่
+          <span id="pv2-วันที่สั่ง-วัน" style="color:#bbb;">.....</span>
+          เดือน <span id="pv2-วันที่สั่ง-เดือน" style="color:#bbb;">..........</span>
+          <span style="padding-left:1em;">พ.ศ. <span id="pv2-วันที่สั่ง-ปี" style="color:#bbb;">.........</span></span>
+        </div>
+
+        <!-- ลายเซ็น (ขวา) -->
+        <div style="margin-top:4em; display:flex; justify-content:flex-end; padding-right:5%;">
+          <div class="doc-sign-block">
+            <div>(<span id="pv2-ลงชื่อ" style="color:#bbb;">.......................................</span>)</div>
+            <div id="pv2-ตำแหน่ง" style="color:#bbb;">ระบุตำแหน่ง</div>
+          </div>
+        </div>
+
+        <!-- สำเนาถูกต้อง (ซ้าย) + ร่าง/ทาน (ขวา) -->
+        <div style="margin-top:3em; display:flex; justify-content:space-between; align-items:flex-end; font-size:.9em;">
+          <!-- ซ้าย -->
+          <div>
+            <div style="margin-bottom:2.5em;">สำเนาถูกต้อง</div>
+            <div>(<span id="pv-สำเนา-ลงชื่อ" style="color:#bbb;">.......................................</span>)</div>
+            <div id="pv-สำเนา-ตำแหน่ง" style="color:#bbb;">ระบุตำแหน่ง</div>
+          </div>
+          <!-- ขวา -->
+          <div style="text-align:right; font-size:.88em; line-height:2;">
+            <div>
+              <span id="pv-ผู้ร่าง" style="color:#bbb;">.........</span>
+              <span> / ร่าง / พิมพ์</span>
+            </div>
+            <div>
+              <span id="pv-ผู้ทาน" style="color:#bbb;">.........</span>
+              <span> / ทาน</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="preview-note">ตัวอย่างแสดงโครงสร้างเท่านั้น</div>
+  </div><!-- /preview-side -->
+</div><!-- /main -->
+
+<script>
+const STORAGE_KEY = 'orderFormData_v1';
+
+const FIELDS = [
+  'เลขที่','วันที่','เรื่อง',
+  'ภาคเหตุ1','ภาคเหตุ2',
+  'ภาคสั่ง1','ภาคสั่ง2',
+  'ตั้งแต่','เป็นต้นไป','วันที่สั่ง',
+  'ลงชื่อ','ตำแหน่ง',
+  'สำเนา-ลงชื่อ','สำเนา-ตำแหน่ง',
+  'ผู้ร่าง','ผู้ทาน',
+];
+
+const MONTHS = ['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+function thaiDate(iso){
+  if(!iso) return '';
+  const [y,m,d] = iso.split('-').map(Number);
+  return `${d} ${MONTHS[m]} ${y+543}`;
+}
+function thaiDateParts(iso){
+  if(!iso) return {d:'',m:'',y:''};
+  const [y,m,d] = iso.split('-').map(Number);
+  return {d:String(d), m:MONTHS[m], y:String(y+543)};
+}
+
+/* สร้าง/อ่านค่าจาก localStorage */
+let saveTimer;
+function markUnsaved(){
+  const b = document.getElementById('saveBadge');
+  b.classList.add('unsaved');
+  document.getElementById('saveText').textContent = 'มีการแก้ไข...';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveAll, 800);
+}
+function saveAll(){
+  const v = {};
+  FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if(el) v[id] = el.value;
+  });
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(v));
+  const b = document.getElementById('saveBadge');
+  b.classList.remove('unsaved');
+  document.getElementById('saveText').textContent = 'บันทึกอัตโนมัติ';
+  updatePreview();
+}
+function loadAll(){
+  try{
+    const v = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    FIELDS.forEach(id => {
+      const el = document.getElementById(id);
+      if(el && v[id] !== undefined) el.value = v[id];
+    });
+  }catch(e){}
+  updatePreview();
+}
+function clearAll(){
+  if(!confirm('ล้างข้อมูลทั้งหมด?')) return;
+  FIELDS.forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  localStorage.removeItem(STORAGE_KEY);
+  updatePreview();
+}
+
+/* helpers */
+function pvSet(id, val, placeholder=''){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(val){
+    el.textContent = val;
+    el.style.color = '';
+    el.classList.remove('empty');
+  } else {
+    el.textContent = placeholder;
+    el.style.color = '#bbb';
+    el.classList.add('empty');
+  }
+}
+function pvPara(id, val, placeholder=''){
+  const el = document.getElementById(id);
+  if(!el) return;
+  if(val && val.trim()){
+    el.textContent = val;
+    el.className = 'doc-para filled';
+    el.style.display = '';
+  } else if(placeholder){
+    el.textContent = placeholder;
+    el.className = 'doc-para empty-line';
+    el.style.display = '';
+  } else {
+    el.textContent = '';
+    el.style.display = 'none';
+  }
+}
+
+function updatePreview(){
+  const v = {};
+  FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    v[id] = el ? el.value.trim() : '';
+  });
+
+  const part = thaiDateParts(v['วันที่สั่ง']);
+  const partตั้งแต่ = v['ตั้งแต่'] ? thaiDate(v['ตั้งแต่']) : '';
+
+  /* หน้า 1 */
+  pvSet('pv-เลขที่',     v['เลขที่'],   '...........');
+  pvSet('pv-เรื่อง',    v['เรื่อง'],  '');
+  pvPara('pv-ภาคเหตุ1', v['ภาคเหตุ1'], 'กรอกภาคเหตุที่ 1 ทางซ้าย...');
+  pvPara('pv-ภาคเหตุ2', v['ภาคเหตุ2']);
+  pvPara('pv-ภาคสั่ง1', v['ภาคสั่ง1'], 'กรอกภาคสั่งการทางซ้าย...');
+  pvPara('pv-ภาคสั่ง2', v['ภาคสั่ง2']);
+  pvSet('pv-ตั้งแต่',   partตั้งแต่,  'วัน/เดือน/ปี');
+  pvSet('pv-เป็นต้นไป', v['เป็นต้นไป'] || 'เป็นต้นไป');
+  pvSet('pv-วันที่สั่ง-วัน',   part.d, '.....');
+  pvSet('pv-วันที่สั่ง-เดือน', part.m, '..........');
+  pvSet('pv-วันที่สั่ง-ปี',    part.y, '.........');
+  pvSet('pv-ลงชื่อ',   v['ลงชื่อ'],  '...............................');
+  pvSet('pv-ตำแหน่ง',  v['ตำแหน่ง'], 'ระบุตำแหน่ง');
+
+  /* หน้า 2 (สำเนา) — ซ้ำเนื้อหาเหมือนหน้า 1 */
+  pvSet('pv2-เลขที่',    v['เลขที่'],  '...........');
+  pvSet('pv2-เรื่อง',   v['เรื่อง'], '');
+  pvPara('pv2-ภาคเหตุ1', v['ภาคเหตุ1'], 'กรอกภาคเหตุที่ 1 ทางซ้าย...');
+  pvPara('pv2-ภาคเหตุ2', v['ภาคเหตุ2']);
+  pvPara('pv2-ภาคสั่ง1', v['ภาคสั่ง1'], 'กรอกภาคสั่งการทางซ้าย...');
+  pvPara('pv2-ภาคสั่ง2', v['ภาคสั่ง2']);
+  pvSet('pv2-ตั้งแต่',  partตั้งแต่, 'วัน/เดือน/ปี');
+  pvSet('pv2-เป็นต้นไป', v['เป็นต้นไป'] || 'เป็นต้นไป');
+  pvSet('pv2-วันที่สั่ง-วัน',   part.d, '.....');
+  pvSet('pv2-วันที่สั่ง-เดือน', part.m, '..........');
+  pvSet('pv2-วันที่สั่ง-ปี',    part.y, '.........');
+  pvSet('pv2-ลงชื่อ',  v['ลงชื่อ'],  '...............................');
+  pvSet('pv2-ตำแหน่ง', v['ตำแหน่ง'], 'ระบุตำแหน่ง');
+
+  pvSet('pv-สำเนา-ลงชื่อ',  v['สำเนา-ลงชื่อ'],  '...............................');
+  pvSet('pv-สำเนา-ตำแหน่ง', v['สำเนา-ตำแหน่ง'], 'ระบุตำแหน่ง');
+  pvSet('pv-ผู้ร่าง', v['ผู้ร่าง'], '.........');
+  pvSet('pv-ผู้ทาน',  v['ผู้ทาน'],  '.........');
+}
+
+/* listeners */
+FIELDS.forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', markUnsaved);
+});
+
+loadAll();
+</script>
+</body>
+</html>
