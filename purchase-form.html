@@ -77,26 +77,26 @@
   .doc-header-row{position:relative;text-align:center;margin-bottom:4px;min-height:3.5em;display:flex;align-items:center;}
   .doc-logo{position:absolute;left:0;top:0;height:3.5em;width:auto;object-fit:contain;}
   .doc-title{width:100%;font-weight:700;font-size:1.75em;line-height:1.2;}
-  .doc-field{display:flex;align-items:baseline;line-height:1.85;gap:.3em;flex-wrap:wrap;}
+  .doc-field{display:flex;align-items:baseline;line-height:1.0;gap:.3em;flex-wrap:wrap;}
   .doc-field-lbl{white-space:nowrap;font-size:1em;font-weight:700;flex-shrink:0;}
   .doc-field-val{flex:1;border-bottom:1px dotted #aaa;min-width:3em;word-break:break-word;padding-bottom:1px;font-size:1em;min-height:1.1em;}
   .doc-field-val:not(.empty){border-bottom-color:transparent;}
   .doc-field-val.empty{color:#bbb;}
   .doc-row2{display:flex;gap:1em;}
   .doc-row2 .doc-field{flex:1;}
-  .doc-divider{border:none;border-top:1px solid #222;margin:3px 0 2px;}
-  .doc-para{text-indent:2.54cm;text-align:justify;line-height:1.85;font-size:1em;min-height:1.4em;}
+  .doc-divider{border:none;border-top:1px solid #222;margin:2px 0 2px;}
+  .doc-para{text-indent:2.5cm;text-align:justify;line-height:1.0;font-size:1em;min-height:1.2em;}
   .doc-para.nindent{text-indent:0;}
   .doc-placeholder{color:#bbb;}
-  .doc-sign-area{margin-top:1.5em;display:flex;justify-content:flex-end;padding-right:4%;}
-  .doc-sign-block{font-size:.9em;line-height:1.85;min-width:220px;text-align:center;}
+  .doc-sign-area{margin-top:1em;display:flex;justify-content:flex-end;padding-right:4%;}
+  .doc-sign-block{font-size:.9em;line-height:1.0;min-width:220px;text-align:center;}
   /* section 2 approval */
   .doc-section2{
-    margin-top:6px;
+    margin-top:4px;
     border-top:2px solid #222;
-    padding-top:6px;
+    padding-top:4px;
   }
-  .doc-appr-sign{margin-top:1.2em;text-align:center;}
+  .doc-appr-sign{margin-top:.8em;text-align:center;line-height:1.0;}
   .preview-note{font-size:.7rem;color:var(--muted);text-align:center;margin-top:10px;}
 
   @media(max-width:900px){
@@ -110,6 +110,7 @@
     .preview-side{padding:0;background:#fff;height:auto;position:static;}
     .doc-wrap{box-shadow:none;border:none;width:210mm;min-height:297mm;page-break-after:always;}
     .doc-inner{padding:15mm 20mm 15mm 30mm;font-size:16pt;line-height:1.0;}
+    @page{margin:1.5cm 2cm 1.5cm 3cm;}
     .doc-title{font-size:28pt;}
   }
 </style>
