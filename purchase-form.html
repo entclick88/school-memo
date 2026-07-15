@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>บันทึกข้อความจัดซื้อ — โรงเรียน มอ.วิทยานุสรณ์</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#1a73c0; --accent2:#1558a0; --bg:#f3f6fa; --card:#fff;
+    --border:#dfe6ee; --text:#1f2a37; --muted:#667788;
+    --success:#1e7d3c; --danger:#c0392b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  .topbar{
+    background:var(--accent);color:#fff;padding:12px 24px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.15);
+  }
+  .topbar-left{display:flex;align-items:center;gap:12px;}
+  .topbar a.back{color:rgba(255,255,255,.85);text-decoration:none;font-size:.88rem;}
+  .topbar a.back:hover{color:#fff;}
+  .topbar h1{font-size:1.1rem;font-weight:700;}
+  .save-badge{font-size:.78rem;background:rgba(255,255,255,.2);border-radius:6px;padding:3px 10px;display:flex;align-items:center;gap:5px;}
+  .save-badge .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;flex-shrink:0;}
+  .save-badge.unsaved .dot{background:#fbbf24;}
+  .main{display:grid;grid-template-columns:1fr 1fr;gap:0;max-width:1400px;margin:0 auto;min-height:calc(100vh - 52px);}
+  .form-side{padding:24px;overflow-y:auto;border-right:1px solid var(--border);}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;box-shadow:0 1px 6px rgba(20,40,80,.05);margin-bottom:16px;}
+  .section-title{font-weight:700;font-size:.95rem;color:var(--accent);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid #e8f0fb;display:flex;align-items:center;gap:6px;}
+  label{display:block;font-size:.84rem;font-weight:600;margin-bottom:5px;color:#445566;}
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  input[type=text],input[type=date],textarea,select{
+    width:100%;padding:9px 12px;border:1.5px solid var(--border);
+    border-radius:8px;font-family:'Sarabun',sans-serif;font-size:.9rem;
+    background:#fbfcfe;color:var(--text);transition:border-color .15s;
+  }
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(26,115,192,.1);}
+  textarea{resize:vertical;min-height:60px;line-height:1.6;}
+  .hint{font-size:.75rem;color:#8a97a8;margin-top:3px;}
+  .req{color:var(--danger);}
+  button{font-family:'Sarabun',sans-serif;font-size:.92rem;font-weight:600;padding:11px 20px;border-radius:10px;border:none;cursor:pointer;transition:background .15s;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent2);}
+  .btn-secondary{background:#eef2f7;color:#33414f;}
+  .btn-secondary:hover{background:#e1e8f0;}
+  .btn-danger{background:#fef2f2;color:var(--danger);border:1.5px solid #fecaca;}
+  .btn-danger:hover{background:#fee2e2;}
+  .btn-small{font-size:.8rem;padding:6px 14px;border-radius:8px;}
+  .btn-print{background:#f0fdf4;color:#166534;border:1.5px solid #bbf7d0;}
+  .btn-print:hover{background:#dcfce7;}
+  .form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;}
+  /* Committee list */
+  .committee-row{
+    display:flex;gap:8px;align-items:center;
+    background:#f8fafc;border:1px solid var(--border);border-radius:8px;
+    padding:8px 10px;margin-bottom:8px;
+  }
+  .committee-num{font-size:.85rem;font-weight:700;color:var(--accent);min-width:20px;}
+  .committee-row input{flex:1;}
+  .remove-btn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.2rem;padding:0 4px;line-height:1;}
+
+  /* Preview side */
+  .preview-side{padding:20px 20px 24px;background:#f0f2f5;overflow-y:auto;position:sticky;top:52px;height:calc(100vh - 52px);}
+  .preview-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .preview-header h2{font-size:.9rem;color:var(--muted);font-weight:600;}
+  .preview-label{font-size:.7rem;background:#e8f0fb;color:var(--accent);padding:3px 9px;border-radius:20px;font-weight:600;}
+  .doc-wrap{width:100%;background:#fff;border:1px solid #c8d4e3;box-shadow:0 4px 24px rgba(0,0,0,.12);border-radius:4px;}
+  .doc-inner{
+    padding:5% 6% 5% 9%;
+    font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
+    font-size:15px;line-height:1.0;color:#111;
+  }
+  .doc-header-row{position:relative;text-align:center;margin-bottom:4px;min-height:3.5em;display:flex;align-items:center;}
+  .doc-logo{position:absolute;left:0;top:0;height:3.5em;width:auto;object-fit:contain;}
+  .doc-title{width:100%;font-weight:700;font-size:1.75em;line-height:1.2;}
+  .doc-field{display:flex;align-items:baseline;line-height:1.85;gap:.3em;flex-wrap:wrap;}
+  .doc-field-lbl{white-space:nowrap;font-size:1em;font-weight:700;flex-shrink:0;}
+  .doc-field-val{flex:1;border-bottom:1px dotted #aaa;min-width:3em;word-break:break-word;padding-bottom:1px;font-size:1em;min-height:1.1em;}
+  .doc-field-val:not(.empty){border-bottom-color:transparent;}
+  .doc-field-val.empty{color:#bbb;}
+  .doc-row2{display:flex;gap:1em;}
+  .doc-row2 .doc-field{flex:1;}
+  .doc-divider{border:none;border-top:1px solid #222;margin:3px 0 2px;}
+  .doc-para{text-indent:2.54cm;text-align:justify;line-height:1.85;font-size:1em;min-height:1.4em;}
+  .doc-para.nindent{text-indent:0;}
+  .doc-placeholder{color:#bbb;}
+  .doc-sign-area{margin-top:1.5em;display:flex;justify-content:flex-end;padding-right:4%;}
+  .doc-sign-block{font-size:.9em;line-height:1.85;min-width:220px;text-align:center;}
+  /* section 2 approval */
+  .doc-section2{
+    margin-top:6px;
+    border-top:2px solid #222;
+    padding-top:6px;
+  }
+  .doc-appr-sign{margin-top:1.2em;text-align:center;}
+  .preview-note{font-size:.7rem;color:var(--muted);text-align:center;margin-top:10px;}
+
+  @media(max-width:900px){
+    .main{grid-template-columns:1fr;}
+    .preview-side{position:static;height:auto;border-top:1px solid var(--border);}
+    .form-side{border-right:none;}
+  }
+  @media print{
+    .topbar,.form-side,.preview-header,.preview-note,.form-actions{display:none!important;}
+    .main{display:block;max-width:100%;}
+    .preview-side{padding:0;background:#fff;height:auto;position:static;}
+    .doc-wrap{box-shadow:none;border:none;width:210mm;min-height:297mm;page-break-after:always;}
+    .doc-inner{padding:15mm 20mm 15mm 30mm;font-size:16pt;line-height:1.0;}
+    .doc-title{font-size:28pt;}
+  }
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="auth-guard.js"></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back" href="./index.html">← กลับ</a>
+    <h1>🛒 บันทึกข้อความจัดซื้อ</h1>
+  </div>
+  <div class="save-badge" id="saveBadge">
+    <span class="dot"></span>
+    <span id="saveText">บันทึกอัตโนมัติ</span>
+  </div>
+</div>
+
+<div class="main">
+  <!-- ══ FORM ══ -->
+  <div class="form-side">
+
+    <div class="card">
+      <div class="section-title">📋 ส่วนหัวบันทึก</div>
+
+      <div class="field">
+        <label>ส่วนงาน</label>
+        <input type="text" id="ส่วนงาน" value="บริหารโรงเรียนมูลนิธิการ โรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>ที่ (เลขที่) <span class="req">*</span></label>
+          <input type="text" id="เลขที่" placeholder="เช่น มอ.ว.สฎ.2.1/69-1" required>
+        </div>
+        <div class="field">
+          <label>วันที่ <span class="req">*</span></label>
+          <input type="date" id="วันที่" required>
+        </div>
+      </div>
+      <div id="thaiDatePreview" style="font-size:.82rem;color:#335;background:#f0f7ff;border:1px solid #c5daf5;border-radius:8px;padding:7px 12px;margin-bottom:14px;">— วันที่จะแสดงที่นี่ —</div>
+
+      <div class="field">
+        <label>สินค้าที่จัดซื้อ <span class="req">*</span></label>
+        <input type="text" id="สินค้า" placeholder="เช่น เครื่องแบบนักเรียน" required>
+        <div class="hint">ใช้ใน เรื่อง + เนื้อหา เช่น "ขออนุมัติจัดซื้อ[สินค้า]"</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">📦 รายละเอียดการจัดซื้อ</div>
+
+      <div class="row2">
+        <div class="field">
+          <label>ระดับชั้น / กลุ่มเป้าหมาย</label>
+          <input type="text" id="ระดับชั้น" placeholder="เช่น 1 หรือ มัธยมศึกษา">
+        </div>
+        <div class="field">
+          <label>ปีการศึกษา <span class="req">*</span></label>
+          <input type="text" id="ปีการศึกษา" placeholder="เช่น 2569">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>ร้านค้า / ผู้จำหน่าย <span class="req">*</span></label>
+        <input type="text" id="ร้านค้า" placeholder="เช่น บริษัทสยามวัสดุและครุภัณฑ์ จำกัด">
+      </div>
+
+      <div class="field">
+        <label>วันที่ใบเสนอราคา</label>
+        <input type="date" id="วันที่ใบเสนอ">
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>จำนวนเงิน (ตัวเลข) <span class="req">*</span></label>
+          <input type="text" id="จำนวนเงิน" placeholder="เช่น 30,000">
+        </div>
+        <div class="field">
+          <label>จำนวนเงิน (ตัวอักษร) <span class="req">*</span></label>
+          <input type="text" id="จำนวนเงินตัวอักษร" placeholder="เช่น สามหมื่นบาทถ้วน">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">👥 คณะกรรมการตรวจรับ</div>
+      <div id="committeeList"></div>
+      <button type="button" class="btn-secondary btn-small" onclick="addMember()" style="margin-top:4px;">+ เพิ่มกรรมการ</button>
+    </div>
+
+    <div class="card">
+      <div class="section-title">✍️ ผู้เสนอ</div>
+      <div class="row2">
+        <div class="field">
+          <label>ลงชื่อ <span class="req">*</span></label>
+          <input type="text" id="ลงชื่อผู้เสนอ" placeholder="ชื่อ-สกุล">
+        </div>
+        <div class="field">
+          <label>ตำแหน่ง <span class="req">*</span></label>
+          <input type="text" id="ตำแหน่งผู้เสนอ" placeholder="ตำแหน่ง">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">✅ ส่วนอนุมัติ</div>
+
+      <div class="field">
+        <label>เรียน (ผู้มีอำนาจอนุมัติ)</label>
+        <input type="text" id="เรียนอนุมัติ" placeholder="เช่น ผู้งานแทนมูลนิธิ">
+        <div class="hint">ระบุชื่อ/ตำแหน่งผู้มีอำนาจอนุมัติในส่วนล่าง</div>
+      </div>
+
+      <div class="row2">
+        <div class="field">
+          <label>จำนวนเงินคงเหลือ</label>
+          <input type="text" id="คงเหลือ" placeholder="เช่น 120,000">
+        </div>
+        <div class="field">
+          <label>ชื่อผู้อนุมัติ</label>
+          <input type="text" id="ผู้อนุมัติ" placeholder="ชื่อ-สกุล">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>ตำแหน่งผู้อนุมัติ (บรรทัด 1)</label>
+        <input type="text" id="ตำแหน่งอนุมัติ1" value="ผู้งานแทนมูลนิธิเพื่อการศึกษาโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี">
+      </div>
+      <div class="field">
+        <label>ตำแหน่งผู้อนุมัติ (บรรทัด 2)</label>
+        <input type="text" id="ตำแหน่งอนุมัติ2" value="ผู้รับใบอนุญาตโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี">
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="form-actions">
+        <button type="button" class="btn-print" id="printBtn">🖨️ พิมพ์ / บันทึก PDF</button>
+        <button type="button" class="btn-danger" id="clearBtn">🗑️ ล้างข้อมูลทั้งหมด</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ PREVIEW ══ -->
+  <div class="preview-side">
+    <div class="preview-header">
+      <h2>👁️ ตัวอย่างบันทึกข้อความจัดซื้อ</h2>
+      <span class="preview-label">Live Preview</span>
+    </div>
+
+    <div class="doc-wrap">
+      <div class="doc-inner">
+
+        <div class="doc-header-row">
+          <img src="./logo.png" class="doc-logo" alt="logo">
+          <div class="doc-title">บันทึกข้อความ</div>
+        </div>
+
+        <div class="doc-field">
+          <span class="doc-field-lbl">ส่วนงาน</span>
+          <span class="doc-field-val empty" id="pv-ส่วนงาน"></span>
+        </div>
+
+        <div class="doc-row2">
+          <div class="doc-field">
+            <span class="doc-field-lbl">ที่</span>
+            <span class="doc-field-val empty" id="pv-เลขที่"></span>
+          </div>
+          <div class="doc-field">
+            <span class="doc-field-lbl">วันที่</span>
+            <span class="doc-field-val empty" id="pv-วันที่"></span>
+          </div>
+        </div>
+
+        <div class="doc-field">
+          <span class="doc-field-lbl">เรื่อง</span>
+          <span class="doc-field-val empty" id="pv-เรื่อง"></span>
+        </div>
+
+        <hr class="doc-divider">
+
+        <div class="doc-field" style="align-items:flex-start;">
+          <span class="doc-field-lbl" style="white-space:nowrap;">เรียน</span>
+          <span style="flex:1;line-height:1.85;padding-left:.3em;">
+            ผู้งานแทนมูลนิธิเพื่อการศึกษาโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี<br>
+            ผู้รับใบอนุญาตโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี
+          </span>
+        </div>
+
+        <div id="pvBody" style="margin-top:4px;"></div>
+
+        <div class="doc-sign-area" style="margin-top:1.5em;">
+          <div class="doc-sign-block">
+            <div id="pv-sign-name" style="white-space:nowrap;"></div>
+            <div id="pv-sign-pos" style="white-space:nowrap;"></div>
+          </div>
+        </div>
+
+        <!-- Section 2: Approval -->
+        <div class="doc-section2">
+          <div class="doc-field">
+            <span class="doc-field-lbl">เรียน</span>
+            <span class="doc-field-val empty" id="pv-เรียนอนุมัติ"></span>
+          </div>
+          <div class="doc-para" id="pv-appr-body"></div>
+          <div style="line-height:1.85;margin-top:4px;">
+            จำนวนเงิน .....
+            <span id="pv-จำนวนเงิน2" style="color:#bbb;">............</span>
+            บาท &nbsp; คงเหลือ
+            <span id="pv-คงเหลือ" style="color:#bbb;">............</span>
+            บาท
+          </div>
+          <div class="doc-appr-sign">
+            <div style="margin-bottom:1.5em;">อนุมัติ</div>
+            <div id="pv-ผู้อนุมัติ" style="color:#bbb;">(ระบุชื่อผู้อนุมัติ)</div>
+            <div id="pv-ตำแหน่งอนุมัติ1"></div>
+            <div id="pv-ตำแหน่งอนุมัติ2"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="preview-note">ตัวอย่าง Live Preview — ใช้ปุ่มพิมพ์เพื่อออก PDF</div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'purchaseFormData_v1';
+
+const SCALAR_FIELDS = [
+  'ส่วนงาน','เลขที่','วันที่','สินค้า',
+  'ระดับชั้น','ปีการศึกษา','ร้านค้า','วันที่ใบเสนอ','จำนวนเงิน','จำนวนเงินตัวอักษร',
+  'ลงชื่อผู้เสนอ','ตำแหน่งผู้เสนอ',
+  'เรียนอนุมัติ','คงเหลือ','ผู้อนุมัติ','ตำแหน่งอนุมัติ1','ตำแหน่งอนุมัติ2',
+];
+
+let committee = [{name:'',role:'ประธานกรรมการ'},{name:'',role:'กรรมการ'},{name:'',role:'กรรมการ/เลขานุการ'}];
+
+function thaiDate(iso){
+  if(!iso) return '';
+  const [y,m,d]=iso.split('-').map(Number);
+  const months=['','มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  return `${d} ${months[m]} ${y+543}`;
+}
+
+function getVal(id){const el=document.getElementById(id);return el?el.value:'';}
+
+function pvSet(id,val){
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(val){el.textContent=val;el.classList.remove('empty');}
+  else{el.textContent='';el.classList.add('empty');}
+}
+function pvHTML(id,html){const el=document.getElementById(id);if(el)el.innerHTML=html;}
+
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ── Committee list render ── */
+function renderCommittee(){
+  const container=document.getElementById('committeeList');
+  container.innerHTML='';
+  committee.forEach((m,i)=>{
+    const row=document.createElement('div');
+    row.className='committee-row';
+    row.innerHTML=`
+      <span class="committee-num">${i+1}.</span>
+      <input type="text" placeholder="ชื่อ-สกุล" value="${escHtml(m.name)}" data-ci="${i}" data-field="name">
+      <input type="text" placeholder="ตำแหน่งในคณะ" style="max-width:180px;" value="${escHtml(m.role)}" data-ci="${i}" data-field="role">
+      <button type="button" class="remove-btn" onclick="removeMember(${i})" title="ลบ">✕</button>
+    `;
+    container.appendChild(row);
+  });
+  container.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input',()=>{
+      const i=+inp.dataset.ci;
+      committee[i][inp.dataset.field]=inp.value;
+      markUnsaved();
+      clearTimeout(saveTimer);
+      saveTimer=setTimeout(saveAll,800);
+      updatePreview();
+    });
+  });
+}
+
+function addMember(){
+  committee.push({name:'',role:'กรรมการ'});
+  renderCommittee();
+  updatePreview();
+}
+
+function removeMember(i){
+  if(committee.length<=1){alert('ต้องมีกรรมการอย่างน้อย 1 คน');return;}
+  committee.splice(i,1);
+  renderCommittee();
+  updatePreview();
+}
+
+/* ── Preview update ── */
+function updatePreview(){
+  const สินค้า=getVal('สินค้า')||'...';
+  const ระดับ=getVal('ระดับชั้น');
+  const ปี=getVal('ปีการศึกษา');
+  const ร้าน=getVal('ร้านค้า');
+  const วันใบเสนอ=thaiDate(getVal('วันที่ใบเสนอ'));
+  const จำนวน=getVal('จำนวนเงิน');
+  const ตัวอักษร=getVal('จำนวนเงินตัวอักษร');
+  const tDate=thaiDate(getVal('วันที่'));
+
+  document.getElementById('thaiDatePreview').textContent=tDate||'— วันที่จะแสดงที่นี่ —';
+
+  pvSet('pv-ส่วนงาน',getVal('ส่วนงาน'));
+  pvSet('pv-เลขที่',getVal('เลขที่'));
+  pvSet('pv-วันที่',tDate);
+  pvSet('pv-เรื่อง','ขออนุมัติจัดซื้อ'+สินค้า);
+
+  // Body paragraphs
+  const para1=`ด้วยโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี มีความจำเป็นต้องจัดซื้อ${escHtml(สินค้า)}`
+    +(ระดับ||ปี?` เพื่อจำหน่ายนักเรียนในระดับเรียนที่ ${escHtml(ระดับ||'...')} ปีการศึกษา ${escHtml(ปี||'...')} นั้น`:'');
+
+  const para2=`ในการนี้ จึงขออนุมัติจัดซื้อ${escHtml(สินค้า)}`
+    +(ร้าน?` ซึ่งจัดซื้อจาก ${escHtml(ร้าน)}`:'')
+    +(วันใบเสนอ?` ตามใบเสนอราคา ลงวันที่ ${escHtml(วันใบเสนอ)}`:'')
+    +(จำนวน?` เป็นจำนวนเงิน ${escHtml(จำนวน)} บาท`:'')
+    +(ตัวอักษร?` (${escHtml(ตัวอักษร)})`:'');
+
+  const committeeItems=committee.filter(m=>m.name||m.role);
+  const committeeHTML=committeeItems.length
+    ? committeeItems.map((m,i)=>`<div style="line-height:1.85;padding-left:2.54cm;">${i+1}. ${escHtml(m.name||'...')} &nbsp;&nbsp; ${escHtml(m.role||'...')}</div>`).join('')
+    : `<div style="color:#bbb;padding-left:2.54cm;">1. ........................... &nbsp;&nbsp; .........</div>`;
+
+  const paraCommittee='พร้อมมีข้อแต่งตั้งคณะกรรมการตรวจรับ ดังรายนามต่อไปนี้';
+
+  pvHTML('pvBody',
+    `<div class="doc-para">${para1}</div>`+
+    `<div class="doc-para">${para2}</div>`+
+    `<div class="doc-para">${escHtml(paraCommittee)}</div>`+
+    committeeHTML+
+    `<div class="doc-para" style="margin-top:2px;">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ</div>`
+  );
+
+  // Sign block
+  const ชื่อเสนอ=getVal('ลงชื่อผู้เสนอ');
+  const ตำแหน่งเสนอ=getVal('ตำแหน่งผู้เสนอ');
+  document.getElementById('pv-sign-name').textContent=ชื่อเสนอ?`(${ชื่อเสนอ})`:'(ระบุชื่อผู้เสนอ)';
+  document.getElementById('pv-sign-name').style.color=ชื่อเสนอ?'':'#bbb';
+  document.getElementById('pv-sign-pos').textContent=ตำแหน่งเสนอ||'ตำแหน่ง';
+  document.getElementById('pv-sign-pos').style.color=ตำแหน่งเสนอ?'':'#bbb';
+
+  // Approval section
+  pvSet('pv-เรียนอนุมัติ',getVal('เรียนอนุมัติ'));
+  pvHTML('pv-appr-body',
+    `เพื่อโปรดพิจารณาอนุมัติจากเงินจำหน่าย${escHtml(สินค้า)}`+(ปี?` ปี ${escHtml(ปี)}`:'')+
+    `<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...........................................................................................................`
+  );
+
+  const จ2=getVal('จำนวนเงิน');
+  document.getElementById('pv-จำนวนเงิน2').textContent=จ2||'............';
+  document.getElementById('pv-จำนวนเงิน2').style.color=จ2?'':'#bbb';
+  const คง=getVal('คงเหลือ');
+  document.getElementById('pv-คงเหลือ').textContent=คง||'............';
+  document.getElementById('pv-คงเหลือ').style.color=คง?'':'#bbb';
+
+  const ผอ=getVal('ผู้อนุมัติ');
+  document.getElementById('pv-ผู้อนุมัติ').textContent=ผอ?`(${ผอ})`:'(ระบุชื่อผู้อนุมัติ)';
+  document.getElementById('pv-ผู้อนุมัติ').style.color=ผอ?'':'#bbb';
+  pvSet('pv-ตำแหน่งอนุมัติ1',getVal('ตำแหน่งอนุมัติ1'));
+  pvSet('pv-ตำแหน่งอนุมัติ2',getVal('ตำแหน่งอนุมัติ2'));
+}
+
+/* ── Save/Load ── */
+let saveTimer=null;
+const saveBadge=document.getElementById('saveBadge');
+const saveText=document.getElementById('saveText');
+
+function _setSyncStatus(state){
+  if(state==='saving'){saveBadge.classList.add('unsaved');saveText.textContent='กำลังบันทึก...';}
+  else if(state==='saved'){saveBadge.classList.remove('unsaved');saveText.textContent='บันทึกแล้ว ✓';}
+  else{saveBadge.classList.add('unsaved');saveText.textContent='บันทึกเฉพาะเครื่อง';}
+}
+function markUnsaved(){saveBadge.classList.add('unsaved');saveText.textContent='มีการเปลี่ยนแปลง...';}
+
+function _buildSaveData(){
+  const d={};
+  SCALAR_FIELDS.forEach(f=>{d[f]=getVal(f);});
+  d._committee=committee.slice();
+  return d;
+}
+
+function _applyData(d){
+  SCALAR_FIELDS.forEach(f=>{
+    const el=document.getElementById(f);
+    if(el&&d[f]!==undefined)el.value=d[f];
+  });
+  if(Array.isArray(d._committee)&&d._committee.length){
+    committee=d._committee.map(m=>({name:m.name||'',role:m.role||''}));
+  }
+  renderCommittee();
+  updatePreview();
+}
+
+let _db=null,_uid=null;
+function _fsDoc(){
+  if(!_db||!_uid)return null;
+  return _db.collection('users').doc(_uid).collection('forms').doc('purchase');
+}
+
+function saveAll(){
+  _setSyncStatus('saving');
+  const v=_buildSaveData();
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(v));
+  const ref=_fsDoc();
+  if(ref){
+    v._savedAt=new Date().toISOString();
+    ref.set(v).then(()=>_setSyncStatus('saved')).catch(()=>_setSyncStatus('local'));
+  } else {
+    _setSyncStatus('local');
+  }
+  updatePreview();
+}
+
+function loadAll(){
+  try{
+    const local=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+    if(Object.keys(local).length)_applyData(local);
+  }catch(e){}
+  const ref=_fsDoc();
+  if(ref){
+    ref.get().then(doc=>{
+      if(doc.exists){_applyData(doc.data());_setSyncStatus('saved');}
+      else{_setSyncStatus('local');}
+    }).catch(()=>_setSyncStatus('local'));
+  }
+}
+
+/* ── Wire events ── */
+SCALAR_FIELDS.forEach(f=>{
+  const el=document.getElementById(f);
+  if(!el)return;
+  ['input','change'].forEach(ev=>{
+    el.addEventListener(ev,()=>{
+      markUnsaved();
+      clearTimeout(saveTimer);
+      saveTimer=setTimeout(saveAll,800);
+      updatePreview();
+    });
+  });
+});
+
+document.getElementById('printBtn').addEventListener('click',()=>window.print());
+
+document.getElementById('clearBtn').addEventListener('click',()=>{
+  if(!confirm('ต้องการล้างข้อมูลทั้งหมดใช่หรือไม่?'))return;
+  SCALAR_FIELDS.forEach(f=>{const el=document.getElementById(f);if(el)el.value='';});
+  // restore defaults
+  document.getElementById('ส่วนงาน').value='บริหารโรงเรียนมูลนิธิการ โรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี';
+  document.getElementById('ตำแหน่งอนุมัติ1').value='ผู้งานแทนมูลนิธิเพื่อการศึกษาโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี';
+  document.getElementById('ตำแหน่งอนุมัติ2').value='ผู้รับใบอนุญาตโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี';
+  committee=[{name:'',role:'ประธานกรรมการ'},{name:'',role:'กรรมการ'},{name:'',role:'กรรมการ/เลขานุการ'}];
+  renderCommittee();
+  localStorage.removeItem(STORAGE_KEY);
+  updatePreview();
+  _setSyncStatus('saved');
+  saveText.textContent='ล้างข้อมูลแล้ว';
+});
+
+/* ── Firebase init ── */
+(function(){
+  function tryInit(){
+    if(typeof firebase==='undefined'||!firebase.apps||!firebase.apps.length){setTimeout(tryInit,100);return;}
+    _db=firebase.firestore();
+    firebase.auth().onAuthStateChanged(function(user){
+      if(user){_uid=user.uid;loadAll();}
+      else{loadAll();}
+    });
+  }
+  tryInit();
+})();
+
+// Initial render
+renderCommittee();
+updatePreview();
+</script>
+</body>
+</html>
