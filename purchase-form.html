@@ -91,12 +91,8 @@
   .doc-sign-area{margin-top:1em;display:flex;justify-content:flex-end;padding-right:4%;}
   .doc-sign-block{font-size:.9em;line-height:1.0;min-width:220px;text-align:center;}
   /* section 2 approval */
-  .doc-section2{
-    margin-top:4px;
-    border-top:2px solid #222;
-    padding-top:4px;
-  }
-  .doc-appr-sign{margin-top:.8em;text-align:center;line-height:1.0;}
+  .doc-section2{margin-top:6px;padding-top:4px;}
+  .doc-appr-sign{text-align:center;line-height:1.0;min-width:200px;flex-shrink:0;}
   .preview-note{font-size:.7rem;color:var(--muted);text-align:center;margin-top:10px;}
 
   @media(max-width:900px){
@@ -314,22 +310,25 @@
         </div>
 
         <!-- Section 2: Approval -->
-        <div class="doc-section2">
-          <div class="doc-field">
-            <span class="doc-field-lbl">เรียน</span>
-            <span class="doc-field-val empty" id="pv-เรียนอนุมัติ"></span>
+        <div class="doc-section2" style="display:flex;gap:1em;align-items:flex-start;">
+          <!-- left: approval text -->
+          <div style="flex:1;min-width:0;line-height:1.0;">
+            <div style="display:flex;align-items:baseline;gap:.3em;">
+              <span style="font-weight:700;white-space:nowrap;min-width:3.2em;flex-shrink:0;">เรียน</span>
+              <span id="pv-เรียนอนุมัติ" style="flex:1;word-break:break-word;color:#bbb;"></span>
+            </div>
+            <div style="padding-left:3.5em;line-height:1.0;">
+              <div id="pv-appr-body"></div>
+              <div style="margin-top:2px;">
+                จำนวนเงิน .....&nbsp;<span id="pv-จำนวนเงิน2" style="color:#bbb;">............</span>&nbsp;บาท
+                &nbsp;คงเหลือ&nbsp;<span id="pv-คงเหลือ" style="color:#bbb;">............</span>&nbsp;บาท
+              </div>
+            </div>
           </div>
-          <div class="doc-para" id="pv-appr-body"></div>
-          <div style="line-height:1.85;margin-top:4px;">
-            จำนวนเงิน .....
-            <span id="pv-จำนวนเงิน2" style="color:#bbb;">............</span>
-            บาท &nbsp; คงเหลือ
-            <span id="pv-คงเหลือ" style="color:#bbb;">............</span>
-            บาท
-          </div>
+          <!-- right: sign block (ตรงบรรทัดกับ เรียน) -->
           <div class="doc-appr-sign">
-            <div style="margin-bottom:1.5em;">อนุมัติ</div>
-            <div id="pv-ผู้อนุมัติ" style="color:#bbb;">(ระบุชื่อผู้อนุมัติ)</div>
+            <div>อนุมัติ</div>
+            <div style="margin-top:1.5em;" id="pv-ผู้อนุมัติ" style="color:#bbb;">(ระบุชื่อผู้อนุมัติ)</div>
             <div id="pv-ตำแหน่งอนุมัติ1"></div>
             <div id="pv-ตำแหน่งอนุมัติ2"></div>
           </div>
@@ -466,10 +465,12 @@ function updatePreview(){
   document.getElementById('pv-sign-pos').style.color=ตำแหน่งเสนอ?'':'#bbb';
 
   // Approval section
-  pvSet('pv-เรียนอนุมัติ',getVal('เรียนอนุมัติ'));
+  const elเรียนอนุมัติ=document.getElementById('pv-เรียนอนุมัติ');
+  const vเรียนอนุมัติ=getVal('เรียนอนุมัติ');
+  elเรียนอนุมัติ.textContent=vเรียนอนุมัติ||'ระบุผู้รับ';
+  elเรียนอนุมัติ.style.color=vเรียนอนุมัติ?'':'#bbb';
   pvHTML('pv-appr-body',
-    `เพื่อโปรดพิจารณาอนุมัติจากเงินจำหน่าย${escHtml(สินค้า)}`+(ปี?` ปี ${escHtml(ปี)}`:'')+
-    `<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...........................................................................................................`
+    `เพื่อโปรดพิจารณาอนุมัติจากเงินจำหน่าย${escHtml(สินค้า)}`+(ปี?` ปี ${escHtml(ปี)}`:'')+`.`
   );
 
   const จ2=getVal('จำนวนเงิน');
