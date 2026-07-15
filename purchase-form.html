@@ -77,13 +77,13 @@
   .doc-header-row{position:relative;text-align:center;margin-bottom:4px;min-height:3.5em;display:flex;align-items:center;}
   .doc-logo{position:absolute;left:0;top:0;height:3.5em;width:auto;object-fit:contain;}
   .doc-title{width:100%;font-weight:700;font-size:1.75em;line-height:1.2;}
-  .doc-field{display:flex;align-items:baseline;line-height:1.0;gap:.3em;flex-wrap:wrap;}
-  .doc-field-lbl{white-space:nowrap;font-size:1em;font-weight:700;flex-shrink:0;}
-  .doc-field-val{flex:1;border-bottom:1px dotted #aaa;min-width:3em;word-break:break-word;padding-bottom:1px;font-size:1em;min-height:1.1em;}
+  .doc-field{display:flex;align-items:baseline;line-height:1.0;gap:.3em;flex-wrap:wrap;margin-bottom:0.5em;}
+  .doc-row2{display:flex;gap:1em;margin-bottom:0.5em;}
+  .doc-row2 .doc-field{flex:1;margin-bottom:0;}
+  .doc-field-lbl{white-space:nowrap;font-size:1em;font-weight:700;flex-shrink:0;line-height:1.0;}
+  .doc-field-val{flex:1;border-bottom:1px dotted #aaa;min-width:3em;word-break:break-word;padding-bottom:1px;font-size:1em;min-height:1.1em;line-height:1.0;}
   .doc-field-val:not(.empty){border-bottom-color:transparent;}
   .doc-field-val.empty{color:#bbb;}
-  .doc-row2{display:flex;gap:1em;}
-  .doc-row2 .doc-field{flex:1;}
   .doc-divider{border:none;border-top:1px solid #222;margin:2px 0 2px;}
   .doc-para{text-indent:2.5cm;text-align:justify;line-height:1.0;font-size:1em;min-height:1.2em;}
   .doc-para.nindent{text-indent:0;}
@@ -292,9 +292,9 @@
 
         <hr class="doc-divider">
 
-        <div class="doc-field" style="align-items:flex-start;">
-          <span class="doc-field-lbl" style="white-space:nowrap;">เรียน</span>
-          <span style="flex:1;line-height:1.85;padding-left:.3em;">
+        <div style="display:flex;gap:.3em;margin-bottom:0.5em;">
+          <span class="doc-field-lbl" style="line-height:1.0;">เรียน</span>
+          <span style="flex:1;line-height:1.0;">
             ผู้งานแทนมูลนิธิเพื่อการศึกษาโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี<br>
             ผู้รับใบอนุญาตโรงเรียน มอ.วิทยานุสรณ์ สุราษฎร์ธานี
           </span>
