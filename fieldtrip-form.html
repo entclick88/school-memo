@@ -341,6 +341,53 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
     <button class="btn-add" onclick="addSched()">+ เพิ่มแถวกิจกรรม</button>
   </div>
 
+  <!-- แผนที่การเดินทาง -->
+  <div class="card">
+    <div class="section-title">🗺️ แผนที่การเดินทาง</div>
+    <div style="font-size:.82rem;font-weight:700;color:var(--accent);margin-bottom:8px;">✈️ ขาไป</div>
+    <div class="row2">
+      <div class="field">
+        <label>ยานพาหนะ (ขาไป)</label>
+        <input type="text" id="map-รถไป" placeholder="เช่น รถบัส / รถตู้" oninput="markUnsaved()">
+      </div>
+      <div class="field">
+        <label>วันที่เดินทางไป</label>
+        <input type="date" id="map-วันไป" oninput="markUnsaved()">
+      </div>
+    </div>
+    <div class="field">
+      <label>เวลาออกเดินทาง (น.)</label>
+      <input type="text" id="map-เวลาไป" placeholder="เช่น 07.30" oninput="markUnsaved()">
+    </div>
+    <div class="field">
+      <label>ภาพแผนที่ขาไป (Google Maps screenshot)</label>
+      <input type="file" id="mapImg1-input" accept="image/*" onchange="handleMapImg(1,this)" style="font-size:.82rem;">
+      <div class="hint">ถ่ายภาพหน้าจอจาก Google Maps แล้วอัปโหลด</div>
+      <img id="mapImg1-preview" src="" style="display:none;max-width:100%;border-radius:8px;margin-top:6px;border:1px solid var(--border);">
+    </div>
+    <div style="font-size:.82rem;font-weight:700;color:var(--accent);margin:12px 0 8px;">🏫 ขากลับ</div>
+    <div class="row2">
+      <div class="field">
+        <label>ยานพาหนะ (ขากลับ)</label>
+        <input type="text" id="map-รถกลับ" placeholder="เช่น รถบัส / รถตู้" oninput="markUnsaved()">
+      </div>
+      <div class="field">
+        <label>วันที่เดินทางกลับ</label>
+        <input type="date" id="map-วันกลับ" oninput="markUnsaved()">
+      </div>
+    </div>
+    <div class="field">
+      <label>เวลาออกเดินทางกลับ (น.)</label>
+      <input type="text" id="map-เวลากลับ" placeholder="เช่น 16.00" oninput="markUnsaved()">
+    </div>
+    <div class="field">
+      <label>ภาพแผนที่ขากลับ (Google Maps screenshot)</label>
+      <input type="file" id="mapImg2-input" accept="image/*" onchange="handleMapImg(2,this)" style="font-size:.82rem;">
+      <div class="hint">ถ่ายภาพหน้าจอจาก Google Maps แล้วอัปโหลด</div>
+      <img id="mapImg2-preview" src="" style="display:none;max-width:100%;border-radius:8px;margin-top:6px;border:1px solid var(--border);">
+    </div>
+  </div>
+
   <!-- Actions -->
   <div class="card">
     <div class="form-actions">
@@ -364,6 +411,8 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
     <button class="page-tab" onclick="showPage(3)">📨 หนังสือผู้ปกครอง</button>
     <button class="page-tab" onclick="showPage(4)">📋 สิ่งแนบ 1 รายชื่อ</button>
     <button class="page-tab" onclick="showPage(5)">📅 สิ่งแนบ 2 กำหนดการ</button>
+    <button class="page-tab" onclick="showPage(6)">🛡️ กรมธรรม์</button>
+    <button class="page-tab" onclick="showPage(7)">🗺️ แผนที่การเดินทาง</button>
   </div>
 
   <!-- ── หน้า 1: บันทึกข้อความ ── -->
@@ -771,6 +820,221 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
   </div></div>
   </div><!-- /page_sched -->
 
+  <!-- ── หน้า 7: กรมธรรม์ประกันภัย (static) ── -->
+  <div class="doc-page" id="page_insurance">
+  <div class="doc-wrap" style="font-size:.78em;"><div class="doc-inner" style="padding:10mm 12mm;">
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.5em;font-size:.82em;">
+      <div>
+        <div style="font-size:.75em;color:#555;">สำนักงานใหญ่ 1115 ถนน 3 สาย เชิงดอยสุเทพ</div>
+        <div style="font-size:.75em;color:#555;">เชตยกนคร กรุงเทพฯ 10120</div>
+        <div style="font-size:.75em;color:#555;">โทรศัพท์ 1725, 0 2239 2200</div>
+      </div>
+      <div style="text-align:center;flex:1;">
+        <div style="font-size:1.1em;font-weight:700;">บริษัท ทิพยประกันภัย จำกัด (มหาชน)</div>
+        <div style="font-size:.88em;">DHIPAYA INSURANCE PUBLIC COMPANY LIMITED</div>
+        <div style="border:2px solid #000;padding:4px 12px;margin:.4em auto;width:fit-content;font-weight:700;font-size:.95em;">ตารางกรมธรรม์ประกันภัย THE SCHEDULE</div>
+        <div style="border:1px solid #555;padding:3px 10px;display:inline-block;margin-top:.2em;font-weight:700;">อุบัติเหตุกลุ่ม ทิพย แบบพิเศษ</div>
+        <div style="font-size:.78em;margin-top:.3em;">คุ้มครอง 24 ชั่วโมงทั่วโลก 24 Hours Worldwide Coverage</div>
+      </div>
+      <div style="text-align:right;font-size:.8em;">
+        <div>HEAD OFFICE ADDRESS :</div>
+        <div>1115 Rama 3 Road, Chong Nonsi,</div>
+        <div>Yannawa, Bangkok 10120</div>
+        <div>TEL. 1725, 0 2239 2200</div>
+        <div style="margin-top:.3em;font-weight:700;">SPA0501Y</div>
+        <div>ชำระเงินแล้ว</div>
+        <div>ต้นฉบับ</div>
+      </div>
+    </div>
+
+    <table style="width:100%;border-collapse:collapse;font-size:.9em;margin-bottom:.4em;">
+      <tr>
+        <td style="border:1px solid #888;padding:3px 6px;width:40%;">
+          รหัสบริษัท <strong>DHP</strong> &nbsp; ต่ออายุ <strong>(X)</strong> &nbsp; ประกันภัยใหม่ ( )
+        </td>
+        <td style="border:1px solid #888;padding:3px 6px;">
+          กรมธรรม์เดิมเลขที่ <strong>14001-169-250094526</strong>
+        </td>
+        <td style="border:1px solid #888;padding:3px 6px;">
+          กรมธรรม์ที่ <strong>14001-169-260097891</strong>
+        </td>
+      </tr>
+    </table>
+
+    <table style="width:100%;border-collapse:collapse;font-size:.9em;margin-bottom:.4em;">
+      <tr>
+        <td style="border:1px solid #888;padding:3px 6px;vertical-align:top;">
+          <strong>1. ผู้ถือกรมธรรม์/ชื่อและที่อยู่</strong><br>
+          โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี<br>
+          31 หมู่ 6 ซ.พิเศษ ถ.สุราษฎร์ธานี-นาสาร ตำบลมะขามเตี้ย<br>
+          อำเภอเมืองสุราษฎร์ธานี จังหวัดสุราษฎร์ธานี 84000
+        </td>
+        <td style="border:1px solid #888;padding:3px 6px;vertical-align:top;font-size:.85em;">
+          <div>เลขประจำตัวประชาชน / ID No.</div>
+          <div style="margin-top:.3em;">อาชีพ / Occupation</div>
+          <div style="margin-top:.3em;">ชั้นอาชีพ / Occupation Class</div>
+          <div style="margin-top:.3em;">อายุ / Age</div>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2" style="border:1px solid #888;padding:3px 6px;">
+          <strong>2. ผู้เอาประกัน/ชื่อและที่อยู่</strong> &nbsp; ตามเอกสารแนบ
+        </td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #888;padding:3px 6px;">
+          <strong>3. ผู้รับประโยชน์</strong> &nbsp; ตามเอกสารแนบ
+        </td>
+        <td style="border:1px solid #888;padding:3px 6px;font-size:.85em;">
+          ความสัมพันธ์กับผู้เอาประกันภัย
+        </td>
+      </tr>
+    </table>
+
+    <table style="width:100%;border-collapse:collapse;font-size:.9em;margin-bottom:.4em;">
+      <tr>
+        <td style="border:1px solid #888;padding:3px 6px;">
+          <strong>4. ระยะเวลาประกันภัย :</strong> &nbsp;
+          เริ่มวันที่ <strong>1 พฤษภาคม 2569</strong> เวลา 00:01 น. &nbsp;
+          สิ้นสุดวันที่ <strong>30 เมษายน 2570</strong> เวลา 24:00 น.
+        </td>
+      </tr>
+    </table>
+
+    <div style="font-size:.85em;margin-bottom:.3em;"><strong>5. จำนวนวงเงินคุ้มครองรับผิด</strong> : กรมธรรม์นี้จะจ่ายผลประโยชน์ให้แก่ผู้เอาประกันภัยหรือผู้รับประโยชน์ เมื่อผู้เอาประกันภัยได้รับบาดเจ็บทางร่างกายซึ่งเกิดขึ้นโดยอุบัติเหตุ ทำให้เกิดผลดังต่อไปนี้</div>
+
+    <table style="width:100%;border-collapse:collapse;font-size:.85em;margin-bottom:.4em;">
+      <thead>
+        <tr style="background:#eee;">
+          <th style="border:1px solid #888;padding:3px 6px;text-align:left;">ข้อตกลงคุ้มครอง (อบ.2)</th>
+          <th style="border:1px solid #888;padding:3px 6px;text-align:right;width:30%;">จำนวนเงินเอาประกันภัย (บาท)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="border:1px solid #888;padding:2px 6px;">แผน1 เสียชีวิตจากอุบัติเหตุ</td><td style="border:1px solid #888;padding:2px 6px;text-align:right;">90,000</td></tr>
+        <tr><td style="border:1px solid #888;padding:2px 6px;">ทุพพลภาพถาวร</td><td style="border:1px solid #888;padding:2px 6px;text-align:right;">90,000</td></tr>
+        <tr><td style="border:1px solid #888;padding:2px 6px;">สูญเสียมือ 1 ข้าง หรือเท้า 1 ข้าง หรือสายตา 1 ข้าง (ตั้งแต่ 2 ชิ้นขึ้นไป)</td><td style="border:1px solid #888;padding:2px 6px;text-align:right;">90,000</td></tr>
+        <tr><td style="border:1px solid #888;padding:2px 6px;">สูญเสียมือ 1 ข้าง หรือเท้า 1 ข้าง หรือสายตา 1 ข้าง</td><td style="border:1px solid #888;padding:2px 6px;text-align:right;">54,000</td></tr>
+        <tr><td style="border:1px solid #888;padding:2px 6px;">สูญเสียอวัยวะ การรับฟัง การพูดออกเสียง</td><td style="border:1px solid #888;padding:2px 6px;text-align:right;">จ่ายตามมาตรฐาน อบ.2</td></tr>
+        <tr><td style="border:1px solid #888;padding:2px 6px;">การขับขี่หรือโดยสารรถจักรยานยนต์</td><td style="border:1px solid #888;padding:2px 6px;text-align:right;">90,000</td></tr>
+        <tr><td style="border:1px solid #888;padding:2px 6px;">การถูกฆาตกรรมหรือถูกทำร้ายร่างกาย</td><td style="border:1px solid #888;padding:2px 6px;text-align:right;">90,000</td></tr>
+        <tr><td style="border:1px solid #888;padding:2px 6px;">ค่ารักษาพยาบาลต่ออุบัติเหตุแต่ละครั้ง</td><td style="border:1px solid #888;padding:2px 6px;text-align:right;">10,000</td></tr>
+      </tbody>
+    </table>
+
+    <table style="width:100%;border-collapse:collapse;font-size:.85em;margin-bottom:.4em;">
+      <tr>
+        <td style="border:1px solid #888;padding:3px 6px;width:70%;">
+          <div style="margin-bottom:3px;"><strong>ข้อยกเว้น</strong> : การก่อการร้าย ทั้งนี้ เงื่อนไขและข้อยกเว้นเงื่อนไขอื่นๆ ให้เป็นไปตามกรมธรรม์ฉบับมาตรฐานการประกันภัยอุบัติเหตุกลุ่ม ทิพยแบบพิเศษ</div>
+        </td>
+        <td style="border:1px solid #888;padding:3px 6px;text-align:right;">
+          <div>เบี้ยประกันภัยสุทธิ Net Premium</div>
+          <div style="font-weight:700;">146,563.00</div>
+          <div style="margin-top:4px;">อากรแสตมป์ Stamps</div>
+          <div style="font-weight:700;">587.00</div>
+          <div style="margin-top:4px;">เบี้ยประกันภัยรวม Total Premium</div>
+          <div style="font-weight:700;">147,150.00</div>
+        </td>
+      </tr>
+    </table>
+
+    <div style="font-size:.82em;margin-bottom:.3em;">
+      <strong>6. ผู้เอาประกันฯ เลือกชำระเบี้ยประกันภัยแบบ:</strong> 1 งวด &nbsp;............เดือนต่อครั้ง &nbsp; [ ] รายปี
+    </div>
+    <div style="font-size:.82em;margin-bottom:.3em;">
+      <strong>ผู้เอาประกันภัย:</strong> นักศึกษา จำนวนประมาณ 654 คน &nbsp;&nbsp;&nbsp;
+      <strong>ระยะเวลาเอาประกันภัย:</strong> 1 ปี &nbsp;&nbsp;&nbsp;
+      <strong>ความคุ้มครอง:</strong> 24 ชั่วโมงทั่วโลก
+    </div>
+
+    <!-- เงื่อนไขเพิ่มเติม -->
+    <div style="border-top:1px solid #888;margin:.4em 0;padding-top:.4em;font-size:.8em;">
+      <div style="font-weight:700;margin-bottom:.3em;">หมายเหตุ :</div>
+      <div>1. เบี้ยประกันภัยข้างต้น รวมอากรแสตมป์ 0.4% ของเบี้ยประกันภัย (ค่าภาษีเงินได้ไม่ต้องชำระ)</div>
+      <div>2. สำหรับผู้ขอเอาประกันภัยอายุ 12-60 ปี สุขภาพสมบูรณ์ แข็งแรง ไม่มีส่วนใดส่วนหนึ่งพิการหรือวิกลจริต</div>
+      <div>3. บริษัทฯ กำหนดจำนวนผู้เอาประกันภัยขั้นต่ำ 200 คนขึ้นไป สำหรับการแจ้งออกกรมธรรม์ในครั้งแรก ต้องมีจำนวนผู้เอาประกันไม่ต่ำกว่า 90% ของจำนวนผู้เอาประกันที่แจ้งให้การเสนอราคา</div>
+      <div>4. บริษัทฯ จะคิดเบี้ยประกันภัย 100% ของเบี้ยประกันภัยเต็มทุกภาคการศึกษา และไม่คืนเบี้ยให้กับผู้เอาประกันภัยที่ออกกระหว่างปี แต่สามารถใช้สิทธิแทนกันได้เข้าใหม่ (กรณีใช้สิทธิแทนกันต้องแจ้งเข้า - แจ้งออกในครั้งเดียวกัน)</div>
+      <div>5. บริษัทฯ ขอสงวนสิทธิ์ไม่รับประกันภัยนักเรียนที่แจ้งรายชื่อล่าช้า นับจากวันที่มีการเปิดภาคเรียนที่สองเกิน 30 วัน</div>
+      <div style="margin-top:.3em;">6. กรณีเกิดอุบัติเหตุ หากมีประกันภัย พ.ร.บ. ขอให้ผู้เอาประกันภัยเลือกใช้สิทธิเรียกร้องค่าสินไหมใหม่กับกรมธรรม์ พ.ร.บ. เป็นอันดับแรก</div>
+      <div>7. ทางบริษัทฯ จะไม่รับผิดชอบกรณีได้รับบาดเจ็บหรือเสียชีวิต อันมีสาเหตุเนื่องจากการทะเลาะวิวาทกันระหว่างผู้เอาประกันภัยกับบุคคลอื่น</div>
+      <div>8. สามารถใช้สิทธิบัตรประกัน (Care Card) สำหรับอุบัติเหตุ ได้ที่โรงพยาบาลคู่สัญญาทั่วประเทศ</div>
+      <div>9. บริษัทฯ ขอสงวนสิทธิ์ในการเปลี่ยนแปลงเบี้ยประกันภัย หรือเงื่อนไขความคุ้มครองของกรมธรรม์ประกันภัยในปีต่ออายุ ในกรณีที่มีการเรียกร้องค่าสินไหมทดแทนระหว่างระยะเวลาคุ้มครองของกรมธรรม์ประกันภัยที่เหลืออยู่</div>
+      <div>10. บริษัทฯ จำกัดความรับผิดต่อการสูญเสียอันเนื่องมาจากอุบัติเหตุแต่ละครั้ง และ ตลอดระยะเวลาเอาประกันภัย ไม่เกิน 300,000,000 บาท</div>
+    </div>
+
+    <div style="font-size:.78em;text-align:center;margin-top:.5em;font-style:italic;border-top:1px solid #888;padding-top:.3em;">
+      นอกจากนี้ให้ยึดถือตามเงื่อนไข ความคุ้มครอง ข้อยกเว้นและสลักหลังอื่นในภายใต้กรมธรรม์ฉบับนี้<br>
+      Subject otherwise to all other terms, conditions, exclusions and extensions in this policy.
+    </div>
+
+    <div style="display:flex;justify-content:space-between;margin-top:.8em;font-size:.8em;border-top:1px solid #888;padding-top:.4em;">
+      <div style="text-align:center;">
+        <div>นายหน้าประกันภัย/ตัวแทนฯ : นางสาว ประมัทนา เนตรนาวา</div>
+        <div>ใบอนุญาตเลขที่ 6104045416</div>
+      </div>
+      <div style="text-align:center;">
+        <div>ตกลง 1 พฤษภาคม 2569</div>
+        <div>กรมธรรม์ออก 14 พฤษภาคม 2569</div>
+      </div>
+    </div>
+
+  </div></div>
+  </div><!-- /page_insurance -->
+
+  <!-- ── หน้า 8: แผนที่แสดงการเดินทาง ── -->
+  <div class="doc-page" id="page_map">
+  <div class="doc-wrap"><div class="doc-inner">
+
+    <div style="text-align:center;font-weight:700;font-size:1.05em;margin-bottom:.8em;text-decoration:underline;">
+      แผนที่แสดงการเดินทาง พร้อมระบุยานพาหนะ
+    </div>
+
+    <!-- ขาไป -->
+    <div style="font-size:.95em;line-height:2;margin-bottom:.5em;">
+      <span>1. เส้นทางการเดินทางไปด้วย</span>
+      <span id="pm-รถไป" style="border-bottom:1px solid #555;min-width:6em;display:inline-block;color:#bbb;padding:0 4px;">ระบุรถ/เครื่องบิน</span>
+      <span>วันที่</span>
+      <span id="pm-วันไป" style="border-bottom:1px solid #555;min-width:5em;display:inline-block;color:#bbb;padding:0 4px;">ระบุวันที่ไป</span>
+      <span>เวลา</span>
+      <span id="pm-เวลาไป" style="border-bottom:1px solid #555;min-width:3em;display:inline-block;color:#bbb;padding:0 4px;">ระบุเวลา</span>
+      <span>น.</span>
+    </div>
+    <div style="font-size:.95em;margin-bottom:.4em;">
+      จากโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี ไปยัง
+      <span id="pm-สถานที่" style="border-bottom:1px solid #555;min-width:8em;display:inline-block;color:#bbb;padding:0 4px;">[สถานที่เข้าร่วมกิจกรรม]</span>
+    </div>
+    <div style="text-align:center;color:#c55;font-size:.82em;margin-bottom:.4em;font-style:italic;">ถ่ายภาพหน้าจอจาก google map</div>
+    <div id="pm-img1-wrap" style="border:1.5px dashed #aaa;border-radius:6px;min-height:120px;display:flex;align-items:center;justify-content:center;margin-bottom:1em;overflow:hidden;">
+      <img id="pm-img1" src="" style="display:none;max-width:100%;max-height:180px;object-fit:contain;">
+      <span id="pm-img1-ph" style="color:#bbb;font-size:.82em;">[ ยังไม่ได้อัปโหลดภาพแผนที่ขาไป ]</span>
+    </div>
+
+    <!-- ขากลับ -->
+    <div style="font-size:.95em;line-height:2;margin-bottom:.5em;">
+      <span>2. เส้นทางการเดินทางไปด้วย</span>
+      <span id="pm-รถกลับ" style="border-bottom:1px solid #555;min-width:6em;display:inline-block;color:#bbb;padding:0 4px;">ระบุรถ/เครื่องบิน</span>
+      <span>วันที่</span>
+      <span id="pm-วันกลับ" style="border-bottom:1px solid #555;min-width:5em;display:inline-block;color:#bbb;padding:0 4px;">ระบุวันที่กลับ</span>
+      <span>เวลา</span>
+      <span id="pm-เวลากลับ" style="border-bottom:1px solid #555;min-width:3em;display:inline-block;color:#bbb;padding:0 4px;">ระบุเวลากลับ</span>
+      <span>น.</span>
+    </div>
+    <div style="font-size:.95em;margin-bottom:.4em;">
+      จาก
+      <span id="pm-สถานที่2" style="border-bottom:1px solid #555;min-width:8em;display:inline-block;color:#bbb;padding:0 4px;">[สถานที่เข้าร่วมกิจกรรม]</span>
+      ไปยังโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี
+    </div>
+    <div style="text-align:center;color:#c55;font-size:.82em;margin-bottom:.4em;font-style:italic;">ถ่ายภาพหน้าจอจาก google map</div>
+    <div id="pm-img2-wrap" style="border:1.5px dashed #aaa;border-radius:6px;min-height:120px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+      <img id="pm-img2" src="" style="display:none;max-width:100%;max-height:180px;object-fit:contain;">
+      <span id="pm-img2-ph" style="color:#bbb;font-size:.82em;">[ ยังไม่ได้อัปโหลดภาพแผนที่ขากลับ ]</span>
+    </div>
+
+  </div></div>
+  </div><!-- /page_map -->
+
   <div class="preview-note">ตัวอย่างแสดงโครงสร้างเท่านั้น</div>
 </div><!-- /preview-side -->
 </div><!-- /main -->
@@ -858,6 +1122,44 @@ function removeSched(i){schedules.splice(i,1);if(!schedules.length)schedules=[{f
 
 function escAttr(s){return (s||'').replace(/"/g,'&quot;');}
 
+/* ── Map image upload ── */
+let mapImages={img1:'',img2:''};
+function handleMapImg(n,input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const src=e.target.result;
+    mapImages['img'+n]=src;
+    const prev=document.getElementById('mapImg'+n+'-preview');
+    if(prev){prev.src=src;prev.style.display='block';}
+    markUnsaved();
+    updateMapPreview();
+  };
+  reader.readAsDataURL(file);
+}
+function updateMapPreview(){
+  const g=id=>(document.getElementById(id)||{}).value||'';
+  const place=g('สถานที่');
+  pvSet('pm-รถไป',g('map-รถไป'),'ระบุรถ/เครื่องบิน');
+  pvSet('pm-วันไป',g('map-วันไป')?thaiDate(g('map-วันไป')):'','ระบุวันที่ไป');
+  pvSet('pm-เวลาไป',g('map-เวลาไป'),'ระบุเวลา');
+  pvSet('pm-รถกลับ',g('map-รถกลับ'),'ระบุรถ/เครื่องบิน');
+  pvSet('pm-วันกลับ',g('map-วันกลับ')?thaiDate(g('map-วันกลับ')):'','ระบุวันที่กลับ');
+  pvSet('pm-เวลากลับ',g('map-เวลากลับ'),'ระบุเวลากลับ');
+  pvSet('pm-สถานที่',place,'[สถานที่เข้าร่วมกิจกรรม]');
+  pvSet('pm-สถานที่2',place,'[สถานที่เข้าร่วมกิจกรรม]');
+  [1,2].forEach(n=>{
+    const img=document.getElementById('pm-img'+n);
+    const ph=document.getElementById('pm-img'+n+'-ph');
+    const src=mapImages['img'+n];
+    if(img&&ph){
+      if(src){img.src=src;img.style.display='block';ph.style.display='none';}
+      else{img.style.display='none';ph.style.display='';}
+    }
+  });
+}
+
 /* ── Tabs ── */
 function showPage(n){
   document.querySelectorAll('.doc-page').forEach((p,i)=>p.classList.toggle('active',i===n));
@@ -875,6 +1177,8 @@ const SCALAR_FIELDS=[
   'เลขที่หนังสือ','วันที่หนังสือ','ผู้ลงนามหนังสือ','ตำแหน่งหนังสือ',
   'footer-ส่วนงาน','footer-โทร',
   'วันที่กำหนดการ',
+  'map-รถไป','map-วันไป','map-เวลาไป',
+  'map-รถกลับ','map-วันกลับ','map-เวลากลับ',
 ];
 let saveTimer;
 function markUnsaved(){
@@ -888,6 +1192,7 @@ function saveAll(){
   v._students=students;
   v._teachers=teachers;
   v._schedules=schedules;
+  v._mapImages=mapImages;
   localStorage.setItem(STORAGE_KEY,JSON.stringify(v));
   document.getElementById('saveBadge').classList.remove('unsaved');
   document.getElementById('saveText').textContent='บันทึกอัตโนมัติ';
@@ -900,6 +1205,16 @@ function loadAll(){
     if(v._students&&v._students.length){students=v._students;}
     if(v._teachers&&v._teachers.length){teachers=v._teachers;}
     if(v._schedules&&v._schedules.length){schedules=v._schedules;}
+    if(v._mapImages){
+      mapImages=v._mapImages;
+      [1,2].forEach(n=>{
+        const src=mapImages['img'+n];
+        if(src){
+          const prev=document.getElementById('mapImg'+n+'-preview');
+          if(prev){prev.src=src;prev.style.display='block';}
+        }
+      });
+    }
   }catch(e){}
   renderStudents();renderTeachers();renderSched();updatePreview();
 }
@@ -914,6 +1229,13 @@ function clearAll(){
     {from:'',to:'',detail:'ออกเดินทางจาก [สถานที่] เดินทางกลับโรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี',auto:'return'},
     {from:'',to:'',detail:'ถึง โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี โดยสวัสดิภาพ',auto:'arrive'},
   ];
+  mapImages={img1:'',img2:''};
+  [1,2].forEach(n=>{
+    const prev=document.getElementById('mapImg'+n+'-preview');
+    if(prev){prev.src='';prev.style.display='none';}
+    const inp=document.getElementById('mapImg'+n+'-input');
+    if(inp)inp.value='';
+  });
   localStorage.removeItem(STORAGE_KEY);
   renderStudents();renderTeachers();renderSched();updatePreview();
 }
@@ -1066,6 +1388,9 @@ function updatePreview(){
       </tr>`;
     }).join('');
   }
+
+  /* ── แผนที่การเดินทาง ── */
+  updateMapPreview();
 }
 
 /* ── Listen ── */
