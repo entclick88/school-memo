@@ -133,6 +133,7 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="auth-guard.js"></script>
 </head>
 <body>
@@ -1014,46 +1015,104 @@ const SCALAR_FIELDS=[
   'map-รถไป','map-วันไป','map-เวลาไป',
   'map-รถกลับ','map-วันกลับ','map-เวลากลับ',
 ];
+/* ── Firestore ref (init after Firebase ready) ── */
+let _db=null;
+let _uid=null;
+function _fsDoc(){
+  if(!_db||!_uid)return null;
+  return _db.collection('users').doc(_uid).collection('forms').doc('fieldtrip');
+}
+function _setSyncStatus(state){
+  const badge=document.getElementById('saveBadge');
+  const text=document.getElementById('saveText');
+  if(!badge||!text)return;
+  badge.classList.remove('unsaved');
+  if(state==='saving'){badge.classList.add('unsaved');text.textContent='กำลังบันทึก...';}
+  else if(state==='saved'){text.textContent='☁️ ซิงค์แล้ว';}
+  else if(state==='local'){text.textContent='💾 บันทึกเฉพาะเครื่องนี้';}
+  else if(state==='unsaved'){badge.classList.add('unsaved');text.textContent='มีการแก้ไข...';}
+}
+
 let saveTimer;
 function markUnsaved(){
-  document.getElementById('saveBadge').classList.add('unsaved');
-  document.getElementById('saveText').textContent='มีการแก้ไข...';
+  _setSyncStatus('unsaved');
   clearTimeout(saveTimer);saveTimer=setTimeout(saveAll,800);
 }
-function saveAll(){
+
+function _buildSaveData(){
   const v={};
   SCALAR_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)v[id]=el.value;});
   v._students=students;
   v._teachers=teachers;
   v._schedules=schedules;
-  v._mapImages=mapImages;
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(v));
-  document.getElementById('saveBadge').classList.remove('unsaved');
-  document.getElementById('saveText').textContent='บันทึกอัตโนมัติ';
+  return v;
+}
+
+function saveAll(){
+  _setSyncStatus('saving');
+  const v=_buildSaveData();
+  // localStorage รวมภาพ
+  const vLocal=Object.assign({},v,{_mapImages:mapImages});
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(vLocal));
+
+  // Firestore ไม่รวมภาพ (ขนาดใหญ่เกิน)
+  const ref=_fsDoc();
+  if(ref){
+    v._savedAt=new Date().toISOString();
+    ref.set(v).then(()=>{
+      _setSyncStatus('saved');
+    }).catch(()=>{
+      _setSyncStatus('local');
+    });
+  } else {
+    _setSyncStatus('local');
+  }
   updatePreview();
 }
-function loadAll(){
-  try{
-    const v=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
-    SCALAR_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el&&v[id]!==undefined)el.value=v[id];});
-    if(v._students&&v._students.length){students=v._students;}
-    if(v._teachers&&v._teachers.length){teachers=v._teachers;}
-    if(v._schedules&&v._schedules.length){schedules=v._schedules;}
-    if(v._mapImages){
-      mapImages=v._mapImages;
-      [1,2].forEach(n=>{
-        const src=mapImages['img'+n];
-        if(src){
-          const prev=document.getElementById('mapImg'+n+'-preview');
-          if(prev){prev.src=src;prev.style.display='block';}
-        }
-      });
-    }
-  }catch(e){}
+
+function _applyData(v){
+  SCALAR_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el&&v[id]!==undefined)el.value=v[id];});
+  if(v._students&&v._students.length)students=v._students;
+  if(v._teachers&&v._teachers.length)teachers=v._teachers;
+  if(v._schedules&&v._schedules.length)schedules=v._schedules;
+  if(v._mapImages){
+    mapImages=v._mapImages;
+    [1,2].forEach(n=>{
+      const src=mapImages['img'+n];
+      if(src){const prev=document.getElementById('mapImg'+n+'-preview');if(prev){prev.src=src;prev.style.display='block';}}
+    });
+  }
   renderStudents();renderTeachers();renderSched();updatePreview();
 }
+
+function loadAll(){
+  // โหลด localStorage ก่อน (แสดงผลทันที)
+  try{
+    const local=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');
+    if(Object.keys(local).length)_applyData(local);
+  }catch(e){}
+
+  // โหลด Firestore (ข้อมูลล่าสุดจากทุกอุปกรณ์)
+  const ref=_fsDoc();
+  if(ref){
+    ref.get().then(doc=>{
+      if(doc.exists){
+        const v=doc.data();
+        // ดึงภาพจาก localStorage มาใส่ก่อน apply
+        try{const loc=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');if(loc._mapImages)v._mapImages=loc._mapImages;}catch(e){}
+        _applyData(v);
+        // อัปเดต localStorage ให้ตรงกับ Firestore
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(Object.assign({},v,{_mapImages:mapImages})));
+        _setSyncStatus('saved');
+      } else {
+        _setSyncStatus('local');
+      }
+    }).catch(()=>_setSyncStatus('local'));
+  }
+}
+
 function clearAll(){
-  if(!confirm('ล้างข้อมูลทั้งหมด?'))return;
+  if(!confirm('ล้างข้อมูลทั้งหมด? (ทุกอุปกรณ์)'))return;
   SCALAR_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   students=[{name:'',level:''}];teachers=[{name:'',subject:''}];
   schedules=[
@@ -1065,13 +1124,13 @@ function clearAll(){
   ];
   mapImages={img1:'',img2:''};
   [1,2].forEach(n=>{
-    const prev=document.getElementById('mapImg'+n+'-preview');
-    if(prev){prev.src='';prev.style.display='none';}
-    const inp=document.getElementById('mapImg'+n+'-input');
-    if(inp)inp.value='';
+    const prev=document.getElementById('mapImg'+n+'-preview');if(prev){prev.src='';prev.style.display='none';}
+    const inp=document.getElementById('mapImg'+n+'-input');if(inp)inp.value='';
   });
   localStorage.removeItem(STORAGE_KEY);
+  const ref=_fsDoc();if(ref)ref.delete().catch(()=>{});
   renderStudents();renderTeachers();renderSched();updatePreview();
+  _setSyncStatus('local');
 }
 
 /* ── Helpers ── */
@@ -1233,7 +1292,25 @@ SCALAR_FIELDS.forEach(id=>{
   if(el)el.addEventListener('input',markUnsaved);
 });
 
-loadAll();
+/* ── Init Firestore + load ── */
+(function(){
+  function tryInit(){
+    if(typeof firebase==='undefined'||!firebase.apps||!firebase.apps.length){
+      setTimeout(tryInit,100);return;
+    }
+    _db=firebase.firestore();
+    firebase.auth().onAuthStateChanged(function(user){
+      if(user){
+        _uid=user.uid;
+        loadAll();
+      } else {
+        // auth-guard จะ redirect ไป login แต่โหลด localStorage ไว้ก่อน
+        loadAll();
+      }
+    });
+  }
+  tryInit();
+})();
 </script>
 </body>
 </html>
