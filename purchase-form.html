@@ -311,23 +311,25 @@
 
         <!-- Section 2: Approval -->
         <div class="doc-section2">
-          <!-- เรียน — full width row -->
-          <div style="display:flex;align-items:baseline;gap:.3em;margin-bottom:0.5em;">
-            <span style="font-weight:700;white-space:nowrap;min-width:3.2em;flex-shrink:0;line-height:1.0;">เรียน</span>
-            <span id="pv-เรียนอนุมัติ" style="flex:1;word-break:break-word;line-height:1.0;color:#bbb;"></span>
-          </div>
-          <!-- 2-column: left=content, right=sign block (ตรงบรรทัดเดียวกัน) -->
-          <div style="display:flex;gap:1em;align-items:flex-start;">
-            <div style="flex:1;min-width:0;line-height:1.0;padding-left:3.5em;">
-              <div id="pv-appr-body"></div>
-              <div>
-                จำนวนเงิน .....&nbsp;<span id="pv-จำนวนเงิน2" style="color:#bbb;">............</span>&nbsp;บาท
-                &nbsp;คงเหลือ&nbsp;<span id="pv-คงเหลือ" style="color:#bbb;">............</span>&nbsp;บาท
-              </div>
+          <!-- เรียน + content: grid เพื่อให้ indent ตรงกันสมบูรณ์ -->
+          <div style="display:grid;grid-template-columns:3.5em 1fr;row-gap:0;column-gap:.3em;line-height:1.0;">
+            <span style="font-weight:700;">เรียน</span>
+            <span id="pv-เรียนอนุมัติ" style="color:#bbb;word-break:break-word;"></span>
+            <!-- เพื่อโปรด: col 2 only -->
+            <span></span>
+            <div id="pv-appr-body"></div>
+            <!-- จำนวนเงิน: col 2 only -->
+            <span></span>
+            <div>
+              จำนวนเงิน .....&nbsp;<span id="pv-จำนวนเงิน2" style="color:#bbb;">............</span>&nbsp;บาท
+              &nbsp;คงเหลือ&nbsp;<span id="pv-คงเหลือ" style="color:#bbb;">............</span>&nbsp;บาท
             </div>
-            <div class="doc-appr-sign">
+          </div>
+          <!-- sign block: right-aligned เหมือนผู้เสนอ -->
+          <div class="doc-sign-area" style="margin-top:0.5em;padding-right:4%;">
+            <div class="doc-sign-block">
               <div>อนุมัติ</div>
-              <div style="margin-top:1.5em;" id="pv-ผู้อนุมัติ">(ระบุชื่อผู้อนุมัติ)</div>
+              <div style="margin-top:1.5em;" id="pv-ผู้อนุมัติ" style="color:#bbb;">(ระบุชื่อผู้อนุมัติ)</div>
               <div id="pv-ตำแหน่งอนุมัติ1"></div>
               <div id="pv-ตำแหน่งอนุมัติ2"></div>
             </div>
