@@ -445,8 +445,8 @@ function updatePreview(){
 
   const committeeItems=committee.filter(m=>m.name||m.role);
   const committeeHTML=committeeItems.length
-    ? committeeItems.map((m,i)=>`<div style="line-height:1.85;padding-left:2.54cm;">${i+1}. ${escHtml(m.name||'...')} &nbsp;&nbsp; ${escHtml(m.role||'...')}</div>`).join('')
-    : `<div style="color:#bbb;padding-left:2.54cm;">1. ........................... &nbsp;&nbsp; .........</div>`;
+    ? committeeItems.map((m,i)=>`<div style="line-height:1.0;padding-left:2.5cm;">${i+1}. ${escHtml(m.name||'...')} &nbsp;&nbsp; ${escHtml(m.role||'...')}</div>`).join('')
+    : `<div style="color:#bbb;line-height:1.0;padding-left:2.5cm;">1. ........................... &nbsp;&nbsp; .........</div>`;
 
   const paraCommittee='พร้อมมีข้อแต่งตั้งคณะกรรมการตรวจรับ ดังรายนามต่อไปนี้';
 
