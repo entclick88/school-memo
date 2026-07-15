@@ -160,6 +160,7 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
       <div class="field">
         <label>ส่วนงาน/ฝ่าย (เจ้าของเรื่อง)</label>
         <input type="text" id="ส่วนงาน" placeholder="เช่น ฝ่ายวิชาการ">
+        <div class="hint">จะแสดงเป็น: [ส่วนงาน] โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี</div>
       </div>
       <div class="field">
         <label>เลขที่บันทึก</label>
@@ -1156,7 +1157,7 @@ function updatePreview(){
   const tcNames=teachers.filter(t=>t.name).map(t=>t.name).join(', ');
 
   /* ── หน้า 1: บันทึก ── */
-  pvSet('p1-ส่วนงาน',g('ส่วนงาน'));
+  pvSet('p1-ส่วนงาน', g('ส่วนงาน') ? g('ส่วนงาน')+' โรงเรียน มอ. วิทยานุสรณ์ สุราษฎร์ธานี' : '');
   pvSet('p1-เลขที่',g('เลขที่บันทึก'),'...........');
   pvSet('p1-วันที่',g('วันที่บันทึก')?thaiDate(g('วันที่บันทึก')):'','วัน เดือน ปี');
   // เรื่อง
