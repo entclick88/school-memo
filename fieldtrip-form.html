@@ -153,7 +153,34 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
 <!-- ═══════════════ FORM SIDE ═══════════════ -->
 <div class="form-side">
 
-  <!-- 1. ข้อมูลกิจกรรม (ใช้ร่วมกันทุกเอกสาร) -->
+  <!-- 1. บันทึกข้อความ -->
+  <div class="card">
+    <div class="section-title">📝 บันทึกข้อความ</div>
+    <div class="row2">
+      <div class="field">
+        <label>ส่วนงาน/ฝ่าย (เจ้าของเรื่อง)</label>
+        <input type="text" id="ส่วนงาน" placeholder="เช่น ฝ่ายวิชาการ">
+      </div>
+      <div class="field">
+        <label>เลขที่บันทึก</label>
+        <input type="text" id="เลขที่บันทึก" placeholder="เช่น 001/2569">
+      </div>
+    </div>
+    <div class="field">
+      <label>วันที่บันทึก</label>
+      <input type="date" id="วันที่บันทึก">
+    </div>
+    <div class="field">
+      <label>ชื่อ-สกุล ผู้ลงนามบันทึก</label>
+      <input type="text" id="ผู้ลงนามบันทึก" placeholder="ชื่อเต็ม">
+    </div>
+    <div class="field">
+      <label>ตำแหน่ง</label>
+      <input type="text" id="ตำแหน่งบันทึก" placeholder="เช่น ครู คศ.1">
+    </div>
+  </div>
+
+  <!-- 2. ข้อมูลกิจกรรม (ใช้ร่วมกันทุกเอกสาร) -->
   <div class="card">
     <div class="section-title">🎯 ข้อมูลกิจกรรม (ใช้ร่วมกันทุกเอกสาร)</div>
     <div class="field">
@@ -229,33 +256,6 @@ button.btn-danger{font-family:'Sarabun',sans-serif;font-size:.9rem;font-weight:6
     <div class="section-title">👩‍🏫 รายชื่อครูผู้ควบคุมดูแล</div>
     <div id="teacherList"></div>
     <button class="btn-add" onclick="addTeacher()">+ เพิ่มครูผู้ควบคุม</button>
-  </div>
-
-  <!-- 5. บันทึกข้อความ -->
-  <div class="card">
-    <div class="section-title">📝 บันทึกข้อความ</div>
-    <div class="row2">
-      <div class="field">
-        <label>ส่วนงาน/ฝ่าย (เจ้าของเรื่อง)</label>
-        <input type="text" id="ส่วนงาน" placeholder="เช่น ฝ่ายวิชาการ">
-      </div>
-      <div class="field">
-        <label>เลขที่บันทึก</label>
-        <input type="text" id="เลขที่บันทึก" placeholder="เช่น 001/2569">
-      </div>
-    </div>
-    <div class="field">
-      <label>วันที่บันทึก</label>
-      <input type="date" id="วันที่บันทึก">
-    </div>
-    <div class="field">
-      <label>ชื่อ-สกุล ผู้ลงนามบันทึก</label>
-      <input type="text" id="ผู้ลงนามบันทึก" placeholder="ชื่อเต็ม">
-    </div>
-    <div class="field">
-      <label>ตำแหน่ง</label>
-      <input type="text" id="ตำแหน่งบันทึก" placeholder="เช่น ครู คศ.1">
-    </div>
   </div>
 
   <!-- 6. คำสั่งโรงเรียน -->
