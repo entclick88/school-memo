@@ -384,8 +384,8 @@ function renderCommittee(){
     row.className='committee-row';
     row.innerHTML=`
       <span class="committee-num">${i+1}.</span>
-      <input type="text" placeholder="ชื่อ-สกุล" value="${escHtml(m.name)}" data-ci="${i}" data-field="name">
-      <input type="text" placeholder="ตำแหน่งในคณะ" style="max-width:180px;" value="${escHtml(m.role)}" data-ci="${i}" data-field="role">
+      <input type="text" placeholder="ชื่อ-สกุล" spellcheck="true" lang="th" value="${escHtml(m.name)}" data-ci="${i}" data-field="name">
+      <input type="text" placeholder="ตำแหน่งในคณะ" spellcheck="true" lang="th" style="max-width:180px;" value="${escHtml(m.role)}" data-ci="${i}" data-field="role">
       <button type="button" class="remove-btn" onclick="removeMember(${i})" title="ลบ">✕</button>
     `;
     container.appendChild(row);
@@ -597,6 +597,16 @@ document.getElementById('clearBtn').addEventListener('click',()=>{
   }
   tryInit();
 })();
+
+// Enable Thai spellcheck on text fields that contain Thai content
+[
+  'ส่วนงาน','สินค้า','ระดับชั้น','ร้านค้า','จำนวนเงินตัวอักษร',
+  'ลงชื่อผู้เสนอ','ตำแหน่งผู้เสนอ',
+  'เรียนอนุมัติ','ผู้อนุมัติ','ตำแหน่งอนุมัติ1','ตำแหน่งอนุมัติ2',
+].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el){el.spellcheck=true;el.lang='th';}
+});
 
 // Initial render
 renderCommittee();
