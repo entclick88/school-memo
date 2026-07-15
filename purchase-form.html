@@ -310,27 +310,27 @@
         </div>
 
         <!-- Section 2: Approval -->
-        <div class="doc-section2" style="display:flex;gap:1em;align-items:flex-start;">
-          <!-- left: approval text -->
-          <div style="flex:1;min-width:0;line-height:1.0;">
-            <div style="display:flex;align-items:baseline;gap:.3em;">
-              <span style="font-weight:700;white-space:nowrap;min-width:3.2em;flex-shrink:0;">เรียน</span>
-              <span id="pv-เรียนอนุมัติ" style="flex:1;word-break:break-word;color:#bbb;"></span>
-            </div>
-            <div style="padding-left:3.5em;line-height:1.0;">
+        <div class="doc-section2">
+          <!-- เรียน — full width row -->
+          <div style="display:flex;align-items:baseline;gap:.3em;margin-bottom:0.5em;">
+            <span style="font-weight:700;white-space:nowrap;min-width:3.2em;flex-shrink:0;line-height:1.0;">เรียน</span>
+            <span id="pv-เรียนอนุมัติ" style="flex:1;word-break:break-word;line-height:1.0;color:#bbb;"></span>
+          </div>
+          <!-- 2-column: left=content, right=sign block (ตรงบรรทัดเดียวกัน) -->
+          <div style="display:flex;gap:1em;align-items:flex-start;">
+            <div style="flex:1;min-width:0;line-height:1.0;padding-left:3.5em;">
               <div id="pv-appr-body"></div>
-              <div style="margin-top:2px;">
+              <div>
                 จำนวนเงิน .....&nbsp;<span id="pv-จำนวนเงิน2" style="color:#bbb;">............</span>&nbsp;บาท
                 &nbsp;คงเหลือ&nbsp;<span id="pv-คงเหลือ" style="color:#bbb;">............</span>&nbsp;บาท
               </div>
             </div>
-          </div>
-          <!-- right: sign block (ตรงบรรทัดกับ เรียน) -->
-          <div class="doc-appr-sign">
-            <div>อนุมัติ</div>
-            <div style="margin-top:1.5em;" id="pv-ผู้อนุมัติ" style="color:#bbb;">(ระบุชื่อผู้อนุมัติ)</div>
-            <div id="pv-ตำแหน่งอนุมัติ1"></div>
-            <div id="pv-ตำแหน่งอนุมัติ2"></div>
+            <div class="doc-appr-sign">
+              <div>อนุมัติ</div>
+              <div style="margin-top:1.5em;" id="pv-ผู้อนุมัติ">(ระบุชื่อผู้อนุมัติ)</div>
+              <div id="pv-ตำแหน่งอนุมัติ1"></div>
+              <div id="pv-ตำแหน่งอนุมัติ2"></div>
+            </div>
           </div>
         </div>
 
