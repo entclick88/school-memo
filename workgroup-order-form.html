@@ -72,6 +72,13 @@
   .btn-danger:hover{background:#fee2e2;}
   .btn-print{background:#f0fdf4; color:#166534; border:1.5px solid #bbf7d0;}
   .btn-print:hover{background:#dcfce7;}
+  .btn-add{background:#eff6ff; color:var(--accent); border:1.5px solid #bfdbfe; border-radius:8px; padding:8px 16px; font-size:.88rem; font-weight:600; cursor:pointer; width:100%; text-align:left;}
+  .btn-add:hover{background:#dbeafe;}
+  .wg-item{display:flex; gap:8px; align-items:flex-start; margin-bottom:10px;}
+  .wg-item textarea{flex:1; min-height:60px;}
+  .wg-item .btn-rem{background:#fef2f2; color:var(--danger); border:1.5px solid #fecaca; border-radius:8px; padding:6px 10px; font-size:.85rem; cursor:pointer; flex-shrink:0; align-self:flex-start; margin-top:0;}
+  .wg-item .btn-rem:hover{background:#fee2e2;}
+  .wg-num{font-size:.78rem; font-weight:700; color:var(--muted); margin-bottom:3px;}
 
   /* ── Preview side ── */
   .preview-side{
@@ -189,17 +196,10 @@
 
     <!-- ส่วนที่ 3: ภาคสั่งการ -->
     <div class="card">
-      <div class="section-title">📌 ภาคสั่งการ (รายชื่อผู้ได้รับแต่งตั้ง/รายละเอียด)</div>
-      <div class="hint" style="margin-bottom:10px;">ระบุผู้ได้รับการแต่งตั้ง หรือรายละเอียดคำสั่ง</div>
-
-      <div class="field">
-        <label>ย่อหน้าที่ 1</label>
-        <textarea id="ภาคสั่ง1" placeholder="กรณีที่สั่งแต่งตั้งให้ระบุรายชื่อตำแหน่งที่ได้รับมอบหมายได้เลย&#10;สมมุติว่า นาย ก. ปฏิบัติหน้าที่ ประธานกรรมการ..."></textarea>
-      </div>
-      <div class="field">
-        <label>ย่อหน้าที่ 2 (ถ้ามี)</label>
-        <textarea id="ภาคสั่ง2" placeholder="ย่อหน้าที่ 2 (ถ้ามี)"></textarea>
-      </div>
+      <div class="section-title">📌 ภาคสั่งการ (คณะทำงาน/ย่อหน้า)</div>
+      <div class="hint" style="margin-bottom:10px;">แต่ละย่อหน้าจะแสดงต่อกันในเอกสาร เพิ่มได้ไม่จำกัด</div>
+      <div id="workgroupList"></div>
+      <button type="button" class="btn-add" onclick="addWorkgroup()" style="margin-top:6px;">+ เพิ่มคณะทำงาน / ย่อหน้า</button>
     </div>
 
     <!-- ส่วนที่ 4: ทั้งนี้ตั้งแต่ / วันที่สั่ง -->
@@ -304,21 +304,18 @@
         <!-- เรื่อง -->
         <div class="doc-field" style="margin-bottom:.6em;">
           <span class="doc-field-lbl">เรื่อง</span>
-          <span class="doc-field-val empty" id="pv-เรื่อง"></span>
+          <span class="doc-field-val empty" id="pv-เรื่อง" style="font-weight:700;"></span>
         </div>
 
         <!-- เส้นคั่น -->
-        <div style="border-top:1px solid #555; margin: .4em 20% .6em 20%;"></div>
+        <div style="border-top:1px solid #555; margin: .4em 20% 1em 20%;"></div>
 
         <!-- ภาคเหตุ -->
         <div class="doc-para empty-line" id="pv-ภาคเหตุ1">กรอกภาคเหตุที่ 1 ทางซ้าย...</div>
         <div class="doc-para empty-line" id="pv-ภาคเหตุ2" style="display:none;"></div>
 
         <!-- ภาคสั่งการ -->
-        <div style="margin-top:.4em;">
-          <div class="doc-para empty-line" id="pv-ภาคสั่ง1">กรอกภาคสั่งการทางซ้าย...</div>
-          <div class="doc-para empty-line" id="pv-ภาคสั่ง2" style="display:none;"></div>
-        </div>
+        <div style="margin-top:.4em;" id="pv-ภาคสั่ง-container"></div>
 
         <!-- ทั้งนี้ตั้งแต่ / เป็นต้นไป -->
         <div style="margin-top:.6em; text-indent:2.54cm; font-size:1em; line-height:1.8;">
@@ -366,21 +363,18 @@
         <!-- เรื่อง -->
         <div class="doc-field" style="margin-bottom:.6em;">
           <span class="doc-field-lbl">เรื่อง</span>
-          <span class="doc-field-val empty" id="pv2-เรื่อง"></span>
+          <span class="doc-field-val empty" id="pv2-เรื่อง" style="font-weight:700;"></span>
         </div>
 
         <!-- เส้นคั่น -->
-        <div style="border-top:1px solid #555; margin: .4em 20% .6em 20%;"></div>
+        <div style="border-top:1px solid #555; margin: .4em 20% 1em 20%;"></div>
 
         <!-- ภาคเหตุ -->
         <div class="doc-para empty-line" id="pv2-ภาคเหตุ1">กรอกภาคเหตุที่ 1 ทางซ้าย...</div>
         <div class="doc-para empty-line" id="pv2-ภาคเหตุ2" style="display:none;"></div>
 
         <!-- ภาคสั่งการ -->
-        <div style="margin-top:.4em;">
-          <div class="doc-para empty-line" id="pv2-ภาคสั่ง1">กรอกภาคสั่งการทางซ้าย...</div>
-          <div class="doc-para empty-line" id="pv2-ภาคสั่ง2" style="display:none;"></div>
-        </div>
+        <div style="margin-top:.4em;" id="pv2-ภาคสั่ง-container"></div>
 
         <!-- ทั้งนี้ตั้งแต่ -->
         <div style="margin-top:.6em; text-indent:2.54cm; font-size:1em; line-height:1.8;">
@@ -439,7 +433,6 @@ const STORAGE_KEY = 'workgroupOrderFormData_v1';
 const FIELDS = [
   'เลขที่','วันที่','เรื่อง',
   'ภาคเหตุ1','ภาคเหตุ2',
-  'ภาคสั่ง1','ภาคสั่ง2',
   'ตั้งแต่','เป็นต้นไป','วันที่สั่ง',
   'ลงชื่อ','ตำแหน่ง',
   'สำเนา-ลงชื่อ','สำเนา-ตำแหน่ง',
@@ -460,6 +453,36 @@ function thaiDateParts(iso){
   return {d:String(d), m:MONTHS[m], y:String(y+543)};
 }
 
+/* ── dynamic workgroup paragraphs ── */
+let wgItems = [{text:''}];
+
+function renderWorkgroupList(){
+  const wrap = document.getElementById('workgroupList');
+  wrap.innerHTML = '';
+  wgItems.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'wg-item';
+    div.innerHTML = `<div style="flex:1"><div class="wg-num">ย่อหน้าที่ ${i+1}</div><textarea placeholder="กรอกรายชื่อคณะทำงาน หรือเนื้อหาย่อหน้าที่ ${i+1}" spellcheck="true" lang="th">${escHtml(item.text)}</textarea></div><button type="button" class="btn-rem" onclick="removeWorkgroup(${i})" title="ลบ">✕</button>`;
+    div.querySelector('textarea').addEventListener('input', e => {
+      wgItems[i].text = e.target.value;
+      markUnsaved();
+    });
+    wrap.appendChild(div);
+  });
+}
+function addWorkgroup(){
+  wgItems.push({text:''});
+  renderWorkgroupList();
+  markUnsaved();
+}
+function removeWorkgroup(i){
+  if(wgItems.length <= 1){ wgItems[0].text=''; renderWorkgroupList(); markUnsaved(); return; }
+  wgItems.splice(i, 1);
+  renderWorkgroupList();
+  markUnsaved();
+}
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
 /* สร้าง/อ่านค่าจาก localStorage */
 let saveTimer;
 function markUnsaved(){
@@ -475,6 +498,7 @@ function saveAll(){
     const el = document.getElementById(id);
     if(el) v[id] = el.value;
   });
+  v['__wgItems'] = wgItems;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(v));
   const b = document.getElementById('saveBadge');
   b.classList.remove('unsaved');
@@ -488,13 +512,19 @@ function loadAll(){
       const el = document.getElementById(id);
       if(el && v[id] !== undefined) el.value = v[id];
     });
+    if(v['__wgItems'] && Array.isArray(v['__wgItems']) && v['__wgItems'].length > 0){
+      wgItems = v['__wgItems'];
+    }
   }catch(e){}
+  renderWorkgroupList();
   updatePreview();
 }
 function clearAll(){
   if(!confirm('ล้างข้อมูลทั้งหมด?')) return;
   FIELDS.forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  wgItems = [{text:''}];
   localStorage.removeItem(STORAGE_KEY);
+  renderWorkgroupList();
   updatePreview();
 }
 
@@ -544,8 +574,22 @@ function updatePreview(){
   pvSet('pv-เรื่อง',    v['เรื่อง'],  '');
   pvPara('pv-ภาคเหตุ1', v['ภาคเหตุ1'], 'กรอกภาคเหตุที่ 1 ทางซ้าย...');
   pvPara('pv-ภาคเหตุ2', v['ภาคเหตุ2']);
-  pvPara('pv-ภาคสั่ง1', v['ภาคสั่ง1'], 'กรอกภาคสั่งการทางซ้าย...');
-  pvPara('pv-ภาคสั่ง2', v['ภาคสั่ง2']);
+  /* ภาคสั่งการ dynamic */
+  (function renderWG(containerId, isFirst){
+    const c = document.getElementById(containerId);
+    if(!c) return;
+    const filled = wgItems.filter(x=>x.text.trim());
+    if(filled.length === 0){
+      c.innerHTML = isFirst
+        ? '<div class="doc-para empty-line">กรอกภาคสั่งการทางซ้าย...</div>'
+        : '<div class="doc-para empty-line">กรอกภาคสั่งการทางซ้าย...</div>';
+    } else {
+      c.innerHTML = wgItems.map(x=>x.text.trim()
+        ? '<div class="doc-para filled">'+escHtml(x.text)+'</div>'
+        : ''
+      ).join('');
+    }
+  })('pv-ภาคสั่ง-container', true);
   pvSet('pv-ตั้งแต่',   partตั้งแต่,  'วัน/เดือน/ปี');
   pvSet('pv-เป็นต้นไป', v['เป็นต้นไป'] || 'เป็นต้นไป');
   pvSet('pv-วันที่สั่ง-วัน',   part.d, '.....');
@@ -559,8 +603,19 @@ function updatePreview(){
   pvSet('pv2-เรื่อง',   v['เรื่อง'], '');
   pvPara('pv2-ภาคเหตุ1', v['ภาคเหตุ1'], 'กรอกภาคเหตุที่ 1 ทางซ้าย...');
   pvPara('pv2-ภาคเหตุ2', v['ภาคเหตุ2']);
-  pvPara('pv2-ภาคสั่ง1', v['ภาคสั่ง1'], 'กรอกภาคสั่งการทางซ้าย...');
-  pvPara('pv2-ภาคสั่ง2', v['ภาคสั่ง2']);
+  (function renderWG2(){
+    const c = document.getElementById('pv2-ภาคสั่ง-container');
+    if(!c) return;
+    const filled = wgItems.filter(x=>x.text.trim());
+    if(filled.length === 0){
+      c.innerHTML = '<div class="doc-para empty-line">กรอกภาคสั่งการทางซ้าย...</div>';
+    } else {
+      c.innerHTML = wgItems.map(x=>x.text.trim()
+        ? '<div class="doc-para filled">'+escHtml(x.text)+'</div>'
+        : ''
+      ).join('');
+    }
+  })();
   pvSet('pv2-ตั้งแต่',  partตั้งแต่, 'วัน/เดือน/ปี');
   pvSet('pv2-เป็นต้นไป', v['เป็นต้นไป'] || 'เป็นต้นไป');
   pvSet('pv2-วันที่สั่ง-วัน',   part.d, '.....');
