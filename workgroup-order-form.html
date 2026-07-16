@@ -516,9 +516,9 @@ function renderWorkgroupList(){
     grp.items.forEach((item, i) => {
       const iRow = document.createElement('div');
       iRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:6px;padding-left:1.8em;';
-      iRow.innerHTML = `<span style="font-size:.8rem;color:var(--muted);min-width:2em;">${g+1}.${i+1}</span>
-        <input type="text" placeholder="ชื่อ-สกุล / ตำแหน่ง" spellcheck="true" lang="th" value="${escHtml(item.name)}" style="flex:2;">
-        <input type="text" placeholder="หน้าที่" spellcheck="true" lang="th" value="${escHtml(item.role)}" style="flex:1;">
+      iRow.innerHTML = `<span style="font-size:.8rem;color:var(--muted);min-width:2em;padding-top:6px;">${g+1}.${i+1}</span>
+        <textarea placeholder="ชื่อ-สกุล / ตำแหน่ง" spellcheck="true" lang="th" rows="2" style="flex:2;resize:none;min-height:2.8em;line-height:1.4;">${escHtml(item.name)}</textarea>
+        <input type="text" placeholder="หน้าที่" spellcheck="true" lang="th" value="${escHtml(item.role)}" style="flex:1;align-self:flex-start;">
         <button type="button" class="btn-rem" onclick="removeItem(${g},${i})" title="ลบ">✕</button>`;
       const [nameEl, roleEl] = iRow.querySelectorAll('input');
       nameEl.addEventListener('input', e => { wgGroups[g].items[i].name = e.target.value; markUnsaved(); });
