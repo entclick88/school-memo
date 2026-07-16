@@ -508,7 +508,7 @@ function renderWorkgroupList(){
       <input type="text" placeholder="คณะทำงานฝ่าย..." spellcheck="true" lang="th" value="${escHtml(grp.title)}" style="flex:1;">
       <button type="button" class="btn-rem" onclick="removeGroup(${g})" title="ลบกลุ่ม">✕ กลุ่ม</button>`;
     hRow.querySelector('input').addEventListener('input', e => {
-      wgGroups[g].title = e.target.value; markUnsaved();
+      wgGroups[g].title = e.target.value; markUnsaved(); updatePreview();
     });
     gDiv.appendChild(hRow);
 
@@ -525,8 +525,8 @@ function renderWorkgroupList(){
         <input type="text" placeholder="หน้าที่" spellcheck="true" lang="th" value="${escHtml(item.role)}" style="flex:1;">
         <button type="button" class="btn-rem" onclick="removeItem(${g},${i})" title="ลบ">✕</button>`;
       const [nameEl, roleEl] = iRow.querySelectorAll('input');
-      nameEl.addEventListener('input', e => { wgGroups[g].items[i].name = e.target.value; markUnsaved(); });
-      roleEl.addEventListener('input', e => { wgGroups[g].items[i].role = e.target.value; markUnsaved(); });
+      nameEl.addEventListener('input', e => { wgGroups[g].items[i].name = e.target.value; markUnsaved(); updatePreview(); });
+      roleEl.addEventListener('input', e => { wgGroups[g].items[i].role = e.target.value; markUnsaved(); updatePreview(); });
       iWrap.appendChild(iRow);
 
       // แถว 2: บรรทัดเสริม (optional)
@@ -534,7 +534,7 @@ function renderWorkgroupList(){
       iRow2.style.cssText = 'display:flex;gap:6px;margin-top:4px;padding-left:2em;';
       iRow2.innerHTML = `<input type="text" placeholder="บรรทัดที่ 2 (ถ้ามี)" spellcheck="true" lang="th" value="${escHtml(item.name2||'')}" style="flex:2;">
         <span style="flex:1;"></span><span style="min-width:2.4em;"></span>`;
-      iRow2.querySelector('input').addEventListener('input', e => { wgGroups[g].items[i].name2 = e.target.value; markUnsaved(); });
+      iRow2.querySelector('input').addEventListener('input', e => { wgGroups[g].items[i].name2 = e.target.value; markUnsaved(); updatePreview(); });
       iWrap.appendChild(iRow2);
 
       gDiv.appendChild(iWrap);
@@ -554,7 +554,7 @@ function renderWorkgroupList(){
     dutyRow.style.cssText = 'margin-top:10px;';
     dutyRow.innerHTML = `<label style="font-size:.82rem;font-weight:600;color:#445566;display:block;margin-bottom:4px;">มีหน้าที่</label><textarea placeholder="ระบุหน้าที่ของคณะทำงานกลุ่มนี้..." spellcheck="true" lang="th" style="width:100%;min-height:60px;">${escHtml(grp.duty||'')}</textarea>`;
     dutyRow.querySelector('textarea').addEventListener('input', e => {
-      wgGroups[g].duty = e.target.value; markUnsaved();
+      wgGroups[g].duty = e.target.value; markUnsaved(); updatePreview();
     });
     gDiv.appendChild(dutyRow);
 
