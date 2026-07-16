@@ -674,7 +674,7 @@ function updatePreview(){
         return `<div class="wg-sub"><span class="wg-snum">${gi+1}.${ii+1}</span><span class="wg-sname">${escHtml(it.name)}</span><span class="wg-srole">${escHtml(it.role)}</span></div>`;
       }).join('');
       const dutyHtml = grp.duty && grp.duty.trim()
-        ? `<div style="display:flex;gap:.5em;margin-top:.2em;line-height:1.5;">
+        ? `<div style="display:flex;gap:.5em;margin-top:.2em;line-height:1.5;padding-left:1em;">
             <span style="text-decoration:underline;font-weight:700;white-space:nowrap;flex-shrink:0;">มีหน้าที่</span>
             <span style="text-align:justify;white-space:pre-wrap;word-break:break-word;">${escHtml(grp.duty.trim())}</span>
            </div>` : '';
