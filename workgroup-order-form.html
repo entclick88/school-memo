@@ -157,12 +157,12 @@
   }
 
   @media print{
-    .topbar,.form-side,.preview-header,.preview-note,.form-actions,.doc-page-label,.doc-separator{display:none!important;}
+    @page{ margin:1.5cm 2cm 1.5cm 3cm; }
+    .topbar,.form-side,.preview-header,.preview-note,.form-actions,.doc-page-label,.doc-separator,.pg-break{display:none!important;}
     .main{display:block; max-width:100%;}
     .preview-side{padding:0; background:#fff; height:auto; position:static;}
-    .doc-wrap{box-shadow:none; border:none; width:210mm; min-height:297mm; page-break-after:always; border-radius:0;}
-    .doc-inner{padding:15mm 20mm 15mm 30mm; font-size:16pt; line-height:1.5;}
-    @page{margin-bottom:1.5cm;}
+    .doc-wrap{box-shadow:none; border:none; width:100%; min-height:auto; page-break-after:always; border-radius:0;}
+    .doc-inner{padding:0; font-size:16pt; line-height:1.5;}
   }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -754,8 +754,14 @@ function updatePageBreaks(){
   const wrap = document.getElementById('pv-page1');
   if(!wrap) return;
   wrap.querySelectorAll('.pg-break').forEach(el=>el.remove());
-  const pageH = wrap.clientWidth * 297 / 210;
-  const totalH = wrap.scrollHeight;
+
+  /* คำนวณ scale: preview width vs A4 จริง (210mm @ 96dpi = 793.7px) */
+  const A4_W_PX = 210 * 3.7795;   /* 793.7px */
+  const A4_H_PX = 297 * 3.7795;   /* 1122.5px */
+  const scale   = wrap.clientWidth / A4_W_PX;
+  const pageH   = A4_H_PX * scale; /* A4 height in preview pixels */
+
+  const totalH  = wrap.scrollHeight;
   for(let p=1; p*pageH < totalH; p++){
     const mk = document.createElement('div');
     mk.className = 'pg-break';
