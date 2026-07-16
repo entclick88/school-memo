@@ -93,12 +93,31 @@
   .doc-wrap{
     width:100%; background:#fff;
     border:1px solid #c8d4e3; box-shadow:0 4px 24px rgba(0,0,0,.12); border-radius:4px;
+    aspect-ratio:210/297; overflow:hidden; position:relative;
+  }
+  .doc-page-label{
+    position:absolute; top:6px; right:10px;
+    font-size:.65rem; color:#b0bec5; font-family:'Sarabun',sans-serif; pointer-events:none;
   }
   .doc-inner{
-    padding:6% 7% 6% 11%;
+    padding:6% 7% 5% 11%;
     font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
-    font-size:16px; line-height:1.5; color:#111;
+    font-size:15px; line-height:1.5; color:#111;
+    height:100%; overflow:hidden;
   }
+  .doc-separator{
+    text-align:center; font-size:.72rem; color:#94a3b8; letter-spacing:.1em;
+    margin:8px 0; display:flex; align-items:center; gap:8px;
+  }
+  .doc-separator::before,.doc-separator::after{content:''; flex:1; height:1px; background:#cbd5e1;}
+  /* ภาคสั่งการ list */
+  .wg-group{margin:.3em 0;}
+  .wg-group-title{display:flex; font-weight:700; line-height:1.6;}
+  .wg-gnum{min-width:2em; flex-shrink:0;}
+  .wg-sub{display:flex; padding-left:2em; line-height:1.6;}
+  .wg-snum{min-width:2.8em; flex-shrink:0;}
+  .wg-sname{flex:2;}
+  .wg-srole{flex:1; padding-left:.5em;}
 
   .doc-field{display:flex; align-items:baseline; gap:.3em; flex-wrap:wrap; margin-bottom:2px;}
   .doc-field-lbl{white-space:nowrap; font-weight:700; flex-shrink:0;}
@@ -129,11 +148,11 @@
   }
 
   @media print{
-    .topbar,.form-side,.preview-header,.preview-note,.form-actions{display:none!important;}
+    .topbar,.form-side,.preview-header,.preview-note,.form-actions,.doc-page-label,.doc-separator{display:none!important;}
     .main{display:block; max-width:100%;}
     .preview-side{padding:0; background:#fff; height:auto; position:static;}
-    .doc-wrap{box-shadow:none; border:none; width:210mm; min-height:297mm; page-break-after:always;}
-    .doc-inner{padding:15mm 20mm 15mm 30mm; font-size:16pt; line-height:1.5; overflow:visible;}
+    .doc-wrap{box-shadow:none; border:none; width:210mm; min-height:297mm; aspect-ratio:unset; overflow:visible; page-break-after:always; border-radius:0;}
+    .doc-inner{padding:15mm 20mm 15mm 30mm; font-size:16pt; line-height:1.5; overflow:visible; height:auto;}
   }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -283,6 +302,7 @@
 
     <!-- ── หน้า 1: ต้นฉบับ ── -->
     <div class="doc-wrap">
+      <div class="doc-page-label">หน้า 1</div>
       <div class="doc-inner">
 
         <!-- โลโก้ + ชื่อ (กึ่งกลาง) -->
@@ -302,13 +322,12 @@
         </div>
 
         <!-- เรื่อง -->
-        <div class="doc-field" style="margin-bottom:.6em;">
-          <span class="doc-field-lbl">เรื่อง</span>
-          <span class="doc-field-val empty" id="pv-เรื่อง" style="font-weight:700;"></span>
+        <div style="text-align:center; font-weight:700; margin-bottom:.5em; line-height:1.5; word-break:break-word;">
+          เรื่อง <span id="pv-เรื่อง" style="color:#bbb;">ระบุเรื่อง</span>
         </div>
 
         <!-- เส้นคั่น -->
-        <div style="border-top:1px solid #555; margin: .4em 20% 1em 20%;"></div>
+        <div style="border-top:1px solid #555; margin:.3em 20% 1em 20%;"></div>
 
         <!-- ภาคเหตุ -->
         <div class="doc-para empty-line" id="pv-ภาคเหตุ1">กรอกภาคเหตุที่ 1 ทางซ้าย...</div>
@@ -343,8 +362,11 @@
       </div>
     </div>
 
+    <!-- separator -->
+    <div class="doc-separator">หน้าถัดไป</div>
     <!-- ── หน้า 2: สำเนา ── -->
-    <div class="doc-wrap" style="margin-top:16px;">
+    <div class="doc-wrap" style="margin-top:0;">
+      <div class="doc-page-label">สำเนา</div>
       <div class="doc-inner">
 
         <!-- (สำเนา) -->
@@ -361,13 +383,12 @@
         </div>
 
         <!-- เรื่อง -->
-        <div class="doc-field" style="margin-bottom:.6em;">
-          <span class="doc-field-lbl">เรื่อง</span>
-          <span class="doc-field-val empty" id="pv2-เรื่อง" style="font-weight:700;"></span>
+        <div style="text-align:center; font-weight:700; margin-bottom:.5em; line-height:1.5; word-break:break-word;">
+          เรื่อง <span id="pv2-เรื่อง" style="color:#bbb;">ระบุเรื่อง</span>
         </div>
 
         <!-- เส้นคั่น -->
-        <div style="border-top:1px solid #555; margin: .4em 20% 1em 20%;"></div>
+        <div style="border-top:1px solid #555; margin:.3em 20% 1em 20%;"></div>
 
         <!-- ภาคเหตุ -->
         <div class="doc-para empty-line" id="pv2-ภาคเหตุ1">กรอกภาคเหตุที่ 1 ทางซ้าย...</div>
@@ -626,16 +647,9 @@ function updatePreview(){
     c.innerHTML = wgGroups.map((grp, gi) => {
       const rows = grp.items.map((it, ii) => {
         if(!it.name.trim() && !it.role.trim()) return '';
-        return `<div style="display:flex;gap:1em;line-height:1.6;padding-left:2em;">
-          <span style="min-width:2.5em;flex-shrink:0;">${gi+1}.${ii+1}</span>
-          <span style="flex:2;">${escHtml(it.name)}</span>
-          <span style="flex:1;text-align:left;">${escHtml(it.role)}</span>
-        </div>`;
+        return `<div class="wg-sub"><span class="wg-snum">${gi+1}.${ii+1}</span><span class="wg-sname">${escHtml(it.name)}</span><span class="wg-srole">${escHtml(it.role)}</span></div>`;
       }).join('');
-      return `<div style="margin-top:.3em;">
-        <div style="font-weight:700;line-height:1.6;">${gi+1}.&nbsp;&nbsp;${escHtml(grp.title||'คณะทำงานฝ่าย...')}</div>
-        ${rows}
-      </div>`;
+      return `<div class="wg-group"><div class="wg-group-title"><span class="wg-gnum">${gi+1}.</span><span>${escHtml(grp.title||'คณะทำงานฝ่าย...')}</span></div>${rows}</div>`;
     }).join('');
   }
   renderWGPreview('pv-ภาคสั่ง-container');
