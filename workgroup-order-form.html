@@ -109,6 +109,16 @@
     margin:8px 0; display:flex; align-items:center; gap:8px;
   }
   .doc-separator::before,.doc-separator::after{content:''; flex:1; height:1px; background:#cbd5e1;}
+  .pg-break{
+    position:absolute; left:0; right:0; pointer-events:none;
+    border-top:2px dashed #94a3b8;
+    display:flex; align-items:flex-start; justify-content:flex-end;
+    padding-right:8px; z-index:20;
+  }
+  .pg-break-label{
+    background:#e2e8f0; color:#64748b; font-size:.6rem; font-family:'Sarabun',sans-serif;
+    padding:1px 6px; border-radius:0 0 4px 4px; margin-top:0; line-height:1.6;
+  }
   /* ภาคสั่งการ list */
   .wg-group{margin:.4em 0;}
   .wg-group-title{display:flex; font-weight:700; line-height:1.0; margin-bottom:.2em;}
@@ -311,7 +321,7 @@
     </div>
 
     <!-- ── หน้า 1: ต้นฉบับ ── -->
-    <div class="doc-wrap">
+    <div class="doc-wrap" id="pv-page1">
       <div class="doc-page-label">หน้า 1</div>
       <div class="doc-inner">
 
@@ -737,7 +747,25 @@ function updatePreview(){
   pvSet('pv-สำเนา-ตำแหน่ง', v['สำเนา-ตำแหน่ง'], 'ระบุตำแหน่ง');
   pvSet('pv-ผู้ร่าง', v['ผู้ร่าง'], '.........');
   pvSet('pv-ผู้ทาน',  v['ผู้ทาน'],  '.........');
+  setTimeout(updatePageBreaks, 50);
 }
+
+function updatePageBreaks(){
+  const wrap = document.getElementById('pv-page1');
+  if(!wrap) return;
+  wrap.querySelectorAll('.pg-break').forEach(el=>el.remove());
+  const pageH = wrap.clientWidth * 297 / 210;
+  const totalH = wrap.scrollHeight;
+  for(let p=1; p*pageH < totalH; p++){
+    const mk = document.createElement('div');
+    mk.className = 'pg-break';
+    mk.style.top = (p*pageH)+'px';
+    mk.innerHTML = `<span class="pg-break-label">หน้า ${p+1}</span>`;
+    wrap.appendChild(mk);
+  }
+}
+
+window.addEventListener('resize', updatePageBreaks);
 
 /* listeners */
 FIELDS.forEach(id => {
