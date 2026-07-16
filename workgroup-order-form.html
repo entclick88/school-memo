@@ -221,6 +221,16 @@
       <button type="button" class="btn-add" onclick="addWorkgroup()" style="margin-top:6px;">+ เพิ่มกลุ่มคณะทำงาน</button>
     </div>
 
+    <!-- ส่วนที่ 3.5: ข้อความต่อหน้าถัดไป -->
+    <div class="card">
+      <div class="section-title">📄 ข้อความท้ายหน้า (ด้านขวาล่าง)</div>
+      <div class="field">
+        <label>ข้อความระบุหน้าถัดไป</label>
+        <input type="text" id="ข้อความต่อหน้า" placeholder="เช่น 2. คณะทำงาน...">
+        <div class="hint">จะแสดงเป็น /2. คณะทำงาน... ที่มุมขวาล่างของหน้า</div>
+      </div>
+    </div>
+
     <!-- ส่วนที่ 4: ทั้งนี้ตั้งแต่ / วันที่สั่ง -->
     <div class="card">
       <div class="section-title">📅 วันมีผลบังคับ / วันที่สั่ง</div>
@@ -344,15 +354,20 @@
         </div>
 
         <!-- สั่ง ณ วันที่ -->
-        <div style="font-size:1em; line-height:1.8;">
+        <div style="text-indent:2.5cm; font-size:1em; line-height:1.8;">
           <span style="font-weight:700;">สั่ง</span> ณ วันที่
           <span id="pv-วันที่สั่ง-วัน" style="color:#bbb;">.....</span>
           เดือน <span id="pv-วันที่สั่ง-เดือน" style="color:#bbb;">..........</span>
           <span style="padding-left:1em;">พ.ศ. <span id="pv-วันที่สั่ง-ปี" style="color:#bbb;">.........</span></span>
         </div>
 
+        <!-- ข้อความต่อหน้า (ขวาล่าง) -->
+        <div style="text-align:right; font-size:.95em; margin-top:1em; padding-right:1%;" id="pv-ข้อความต่อหน้า-wrap">
+          <span id="pv-ข้อความต่อหน้า" style="color:#bbb;"></span>
+        </div>
+
         <!-- ลายเซ็น (ขวา) -->
-        <div style="margin-top:4em; display:flex; justify-content:flex-end; padding-right:5%;">
+        <div style="margin-top:1em; display:flex; justify-content:flex-end; padding-right:5%;">
           <div class="doc-sign-block">
             <div>(<span id="pv-ลงชื่อ" style="color:#bbb;">.......................................</span>)</div>
             <div id="pv-ตำแหน่ง" style="color:#bbb;">ระบุตำแหน่ง</div>
@@ -405,7 +420,7 @@
         </div>
 
         <!-- สั่ง ณ วันที่ -->
-        <div style="font-size:1em; line-height:1.8;">
+        <div style="text-indent:2.5cm; font-size:1em; line-height:1.8;">
           <span style="font-weight:700;">สั่ง</span> ณ วันที่
           <span id="pv2-วันที่สั่ง-วัน" style="color:#bbb;">.....</span>
           เดือน <span id="pv2-วันที่สั่ง-เดือน" style="color:#bbb;">..........</span>
@@ -454,7 +469,7 @@ const STORAGE_KEY = 'workgroupOrderFormData_v1';
 const FIELDS = [
   'เลขที่','วันที่','เรื่อง',
   'ภาคเหตุ1','ภาคเหตุ2',
-  'ตั้งแต่','เป็นต้นไป','วันที่สั่ง',
+  'ตั้งแต่','เป็นต้นไป','วันที่สั่ง','ข้อความต่อหน้า',
   'ลงชื่อ','ตำแหน่ง',
   'สำเนา-ลงชื่อ','สำเนา-ตำแหน่ง',
   'ผู้ร่าง','ผู้ทาน',
@@ -477,7 +492,7 @@ function thaiDateParts(iso){
 /* ── dynamic workgroup groups ── */
 function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-let wgGroups = [{title:'', items:[{name:'',role:''}]}];
+let wgGroups = [{title:'', items:[{name:'',role:''}], duty:''}];
 
 function renderWorkgroupList(){
   const wrap = document.getElementById('workgroupList');
@@ -520,17 +535,26 @@ function renderWorkgroupList(){
     addBtn.onclick = () => addItem(g);
     gDiv.appendChild(addBtn);
 
+    // มีหน้าที่
+    const dutyRow = document.createElement('div');
+    dutyRow.style.cssText = 'margin-top:10px;';
+    dutyRow.innerHTML = `<label style="font-size:.82rem;font-weight:600;color:#445566;display:block;margin-bottom:4px;">มีหน้าที่</label><textarea placeholder="ระบุหน้าที่ของคณะทำงานกลุ่มนี้..." spellcheck="true" lang="th" style="width:100%;min-height:60px;">${escHtml(grp.duty||'')}</textarea>`;
+    dutyRow.querySelector('textarea').addEventListener('input', e => {
+      wgGroups[g].duty = e.target.value; markUnsaved();
+    });
+    gDiv.appendChild(dutyRow);
+
     wrap.appendChild(gDiv);
   });
 }
 
 function addWorkgroup(){
-  wgGroups.push({title:'', items:[{name:'',role:''}]});
+  wgGroups.push({title:'', items:[{name:'',role:''}], duty:''});
   renderWorkgroupList();
   markUnsaved();
 }
 function removeGroup(g){
-  if(wgGroups.length <= 1){ wgGroups[0]={title:'',items:[{name:'',role:''}]}; renderWorkgroupList(); markUnsaved(); return; }
+  if(wgGroups.length <= 1){ wgGroups[0]={title:'',items:[{name:'',role:''}],duty:''}; renderWorkgroupList(); markUnsaved(); return; }
   wgGroups.splice(g, 1);
   renderWorkgroupList();
   markUnsaved();
@@ -586,7 +610,7 @@ function loadAll(){
 function clearAll(){
   if(!confirm('ล้างข้อมูลทั้งหมด?')) return;
   FIELDS.forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
-  wgGroups = [{title:'', items:[{name:'',role:''}]}];
+  wgGroups = [{title:'', items:[{name:'',role:''}], duty:''}];
   localStorage.removeItem(STORAGE_KEY);
   renderWorkgroupList();
   updatePreview();
@@ -649,7 +673,12 @@ function updatePreview(){
         if(!it.name.trim() && !it.role.trim()) return '';
         return `<div class="wg-sub"><span class="wg-snum">${gi+1}.${ii+1}</span><span class="wg-sname">${escHtml(it.name)}</span><span class="wg-srole">${escHtml(it.role)}</span></div>`;
       }).join('');
-      return `<div class="wg-group"><div class="wg-group-title"><span class="wg-gnum">${gi+1}.</span><span>${escHtml(grp.title||'คณะทำงานฝ่าย...')}</span></div>${rows}</div>`;
+      const dutyHtml = grp.duty && grp.duty.trim()
+        ? `<div style="display:flex;gap:.5em;margin-top:.2em;line-height:1.5;">
+            <span style="text-decoration:underline;font-weight:700;white-space:nowrap;flex-shrink:0;">มีหน้าที่</span>
+            <span style="text-align:justify;white-space:pre-wrap;word-break:break-word;">${escHtml(grp.duty.trim())}</span>
+           </div>` : '';
+      return `<div class="wg-group"><div class="wg-group-title"><span class="wg-gnum">${gi+1}.</span><span>${escHtml(grp.title||'คณะทำงานฝ่าย...')}</span></div>${rows}${dutyHtml}</div>`;
     }).join('');
   }
   renderWGPreview('pv-ภาคสั่ง-container');
@@ -660,6 +689,15 @@ function updatePreview(){
   pvSet('pv-วันที่สั่ง-ปี',    part.y, '.........');
   pvSet('pv-ลงชื่อ',   v['ลงชื่อ'],  '...............................');
   pvSet('pv-ตำแหน่ง',  v['ตำแหน่ง'], 'ระบุตำแหน่ง');
+  /* ข้อความต่อหน้า */
+  (function(){
+    const el = document.getElementById('pv-ข้อความต่อหน้า');
+    const wrap = document.getElementById('pv-ข้อความต่อหน้า-wrap');
+    if(!el||!wrap) return;
+    const txt = v['ข้อความต่อหน้า'];
+    if(txt){ el.textContent = '/'+txt+'...'; el.style.color=''; wrap.style.visibility=''; }
+    else { el.textContent = ''; wrap.style.visibility='hidden'; }
+  })();
 
   /* หน้า 2 (สำเนา) — ซ้ำเนื้อหาเหมือนหน้า 1 */
   pvSet('pv2-เลขที่',    v['เลขที่'],  '...........');
