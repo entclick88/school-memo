@@ -199,7 +199,7 @@
       <div class="section-title">📌 ภาคสั่งการ (คณะทำงาน/ย่อหน้า)</div>
       <div class="hint" style="margin-bottom:10px;">แต่ละย่อหน้าจะแสดงต่อกันในเอกสาร เพิ่มได้ไม่จำกัด</div>
       <div id="workgroupList"></div>
-      <button type="button" class="btn-add" onclick="addWorkgroup()" style="margin-top:6px;">+ เพิ่มคณะทำงาน / ย่อหน้า</button>
+      <button type="button" class="btn-add" onclick="addWorkgroup()" style="margin-top:6px;">+ เพิ่มกลุ่มคณะทำงาน</button>
     </div>
 
     <!-- ส่วนที่ 4: ทั้งนี้ตั้งแต่ / วันที่สั่ง -->
@@ -453,35 +453,78 @@ function thaiDateParts(iso){
   return {d:String(d), m:MONTHS[m], y:String(y+543)};
 }
 
-/* ── dynamic workgroup paragraphs ── */
-let wgItems = [{text:''}];
+/* ── dynamic workgroup groups ── */
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+let wgGroups = [{title:'', items:[{name:'',role:''}]}];
 
 function renderWorkgroupList(){
   const wrap = document.getElementById('workgroupList');
   wrap.innerHTML = '';
-  wgItems.forEach((item, i) => {
-    const div = document.createElement('div');
-    div.className = 'wg-item';
-    div.innerHTML = `<div style="flex:1"><div class="wg-num">ย่อหน้าที่ ${i+1}</div><textarea placeholder="กรอกรายชื่อคณะทำงาน หรือเนื้อหาย่อหน้าที่ ${i+1}" spellcheck="true" lang="th">${escHtml(item.text)}</textarea></div><button type="button" class="btn-rem" onclick="removeWorkgroup(${i})" title="ลบ">✕</button>`;
-    div.querySelector('textarea').addEventListener('input', e => {
-      wgItems[i].text = e.target.value;
-      markUnsaved();
+  wgGroups.forEach((grp, g) => {
+    const gDiv = document.createElement('div');
+    gDiv.style.cssText = 'background:#f8faff;border:1.5px solid #bfdbfe;border-radius:10px;padding:14px 14px 10px;margin-bottom:14px;';
+
+    // group header row
+    const hRow = document.createElement('div');
+    hRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;';
+    hRow.innerHTML = `<span style="font-weight:700;color:var(--accent);min-width:1.6em;">${g+1}.</span>
+      <input type="text" placeholder="คณะทำงานฝ่าย..." spellcheck="true" lang="th" value="${escHtml(grp.title)}" style="flex:1;">
+      <button type="button" class="btn-rem" onclick="removeGroup(${g})" title="ลบกลุ่ม">✕ กลุ่ม</button>`;
+    hRow.querySelector('input').addEventListener('input', e => {
+      wgGroups[g].title = e.target.value; markUnsaved();
     });
-    wrap.appendChild(div);
+    gDiv.appendChild(hRow);
+
+    // sub-items
+    grp.items.forEach((item, i) => {
+      const iRow = document.createElement('div');
+      iRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:6px;padding-left:1.8em;';
+      iRow.innerHTML = `<span style="font-size:.8rem;color:var(--muted);min-width:2em;">${g+1}.${i+1}</span>
+        <input type="text" placeholder="ชื่อ-สกุล / ตำแหน่ง" spellcheck="true" lang="th" value="${escHtml(item.name)}" style="flex:2;">
+        <input type="text" placeholder="หน้าที่" spellcheck="true" lang="th" value="${escHtml(item.role)}" style="flex:1;">
+        <button type="button" class="btn-rem" onclick="removeItem(${g},${i})" title="ลบ">✕</button>`;
+      const [nameEl, roleEl] = iRow.querySelectorAll('input');
+      nameEl.addEventListener('input', e => { wgGroups[g].items[i].name = e.target.value; markUnsaved(); });
+      roleEl.addEventListener('input', e => { wgGroups[g].items[i].role = e.target.value; markUnsaved(); });
+      gDiv.appendChild(iRow);
+    });
+
+    // add item button
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'btn-add';
+    addBtn.style.cssText = 'margin-top:4px;padding:5px 12px;font-size:.82rem;';
+    addBtn.textContent = '+ เพิ่มรายการ';
+    addBtn.onclick = () => addItem(g);
+    gDiv.appendChild(addBtn);
+
+    wrap.appendChild(gDiv);
   });
 }
+
 function addWorkgroup(){
-  wgItems.push({text:''});
+  wgGroups.push({title:'', items:[{name:'',role:''}]});
   renderWorkgroupList();
   markUnsaved();
 }
-function removeWorkgroup(i){
-  if(wgItems.length <= 1){ wgItems[0].text=''; renderWorkgroupList(); markUnsaved(); return; }
-  wgItems.splice(i, 1);
+function removeGroup(g){
+  if(wgGroups.length <= 1){ wgGroups[0]={title:'',items:[{name:'',role:''}]}; renderWorkgroupList(); markUnsaved(); return; }
+  wgGroups.splice(g, 1);
   renderWorkgroupList();
   markUnsaved();
 }
-function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function addItem(g){
+  wgGroups[g].items.push({name:'',role:''});
+  renderWorkgroupList();
+  markUnsaved();
+}
+function removeItem(g, i){
+  if(wgGroups[g].items.length <= 1){ wgGroups[g].items[0]={name:'',role:''}; renderWorkgroupList(); markUnsaved(); return; }
+  wgGroups[g].items.splice(i, 1);
+  renderWorkgroupList();
+  markUnsaved();
+}
 
 /* สร้าง/อ่านค่าจาก localStorage */
 let saveTimer;
@@ -498,7 +541,7 @@ function saveAll(){
     const el = document.getElementById(id);
     if(el) v[id] = el.value;
   });
-  v['__wgItems'] = wgItems;
+  v['__wgGroups'] = wgGroups;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(v));
   const b = document.getElementById('saveBadge');
   b.classList.remove('unsaved');
@@ -512,8 +555,8 @@ function loadAll(){
       const el = document.getElementById(id);
       if(el && v[id] !== undefined) el.value = v[id];
     });
-    if(v['__wgItems'] && Array.isArray(v['__wgItems']) && v['__wgItems'].length > 0){
-      wgItems = v['__wgItems'];
+    if(v['__wgGroups'] && Array.isArray(v['__wgGroups']) && v['__wgGroups'].length > 0){
+      wgGroups = v['__wgGroups'];
     }
   }catch(e){}
   renderWorkgroupList();
@@ -522,7 +565,7 @@ function loadAll(){
 function clearAll(){
   if(!confirm('ล้างข้อมูลทั้งหมด?')) return;
   FIELDS.forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
-  wgItems = [{text:''}];
+  wgGroups = [{title:'', items:[{name:'',role:''}]}];
   localStorage.removeItem(STORAGE_KEY);
   renderWorkgroupList();
   updatePreview();
@@ -575,21 +618,27 @@ function updatePreview(){
   pvPara('pv-ภาคเหตุ1', v['ภาคเหตุ1'], 'กรอกภาคเหตุที่ 1 ทางซ้าย...');
   pvPara('pv-ภาคเหตุ2', v['ภาคเหตุ2']);
   /* ภาคสั่งการ dynamic */
-  (function renderWG(containerId, isFirst){
+  function renderWGPreview(containerId){
     const c = document.getElementById(containerId);
     if(!c) return;
-    const filled = wgItems.filter(x=>x.text.trim());
-    if(filled.length === 0){
-      c.innerHTML = isFirst
-        ? '<div class="doc-para empty-line">กรอกภาคสั่งการทางซ้าย...</div>'
-        : '<div class="doc-para empty-line">กรอกภาคสั่งการทางซ้าย...</div>';
-    } else {
-      c.innerHTML = wgItems.map(x=>x.text.trim()
-        ? '<div class="doc-para filled">'+escHtml(x.text)+'</div>'
-        : ''
-      ).join('');
-    }
-  })('pv-ภาคสั่ง-container', true);
+    const hasAny = wgGroups.some(g => g.title.trim() || g.items.some(it=>it.name.trim()||it.role.trim()));
+    if(!hasAny){ c.innerHTML='<div class="doc-para empty-line" style="text-indent:0;">กรอกภาคสั่งการทางซ้าย...</div>'; return; }
+    c.innerHTML = wgGroups.map((grp, gi) => {
+      const rows = grp.items.map((it, ii) => {
+        if(!it.name.trim() && !it.role.trim()) return '';
+        return `<div style="display:flex;gap:1em;line-height:1.6;padding-left:2em;">
+          <span style="min-width:2.5em;flex-shrink:0;">${gi+1}.${ii+1}</span>
+          <span style="flex:2;">${escHtml(it.name)}</span>
+          <span style="flex:1;text-align:left;">${escHtml(it.role)}</span>
+        </div>`;
+      }).join('');
+      return `<div style="margin-top:.3em;">
+        <div style="font-weight:700;line-height:1.6;">${gi+1}.&nbsp;&nbsp;${escHtml(grp.title||'คณะทำงานฝ่าย...')}</div>
+        ${rows}
+      </div>`;
+    }).join('');
+  }
+  renderWGPreview('pv-ภาคสั่ง-container');
   pvSet('pv-ตั้งแต่',   partตั้งแต่,  'วัน/เดือน/ปี');
   pvSet('pv-เป็นต้นไป', v['เป็นต้นไป'] || 'เป็นต้นไป');
   pvSet('pv-วันที่สั่ง-วัน',   part.d, '.....');
@@ -603,19 +652,7 @@ function updatePreview(){
   pvSet('pv2-เรื่อง',   v['เรื่อง'], '');
   pvPara('pv2-ภาคเหตุ1', v['ภาคเหตุ1'], 'กรอกภาคเหตุที่ 1 ทางซ้าย...');
   pvPara('pv2-ภาคเหตุ2', v['ภาคเหตุ2']);
-  (function renderWG2(){
-    const c = document.getElementById('pv2-ภาคสั่ง-container');
-    if(!c) return;
-    const filled = wgItems.filter(x=>x.text.trim());
-    if(filled.length === 0){
-      c.innerHTML = '<div class="doc-para empty-line">กรอกภาคสั่งการทางซ้าย...</div>';
-    } else {
-      c.innerHTML = wgItems.map(x=>x.text.trim()
-        ? '<div class="doc-para filled">'+escHtml(x.text)+'</div>'
-        : ''
-      ).join('');
-    }
-  })();
+  renderWGPreview('pv2-ภาคสั่ง-container');
   pvSet('pv2-ตั้งแต่',  partตั้งแต่, 'วัน/เดือน/ปี');
   pvSet('pv2-เป็นต้นไป', v['เป็นต้นไป'] || 'เป็นต้นไป');
   pvSet('pv2-วันที่สั่ง-วัน',   part.d, '.....');
