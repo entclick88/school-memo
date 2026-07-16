@@ -492,7 +492,7 @@ function thaiDateParts(iso){
 /* ── dynamic workgroup groups ── */
 function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-let wgGroups = [{title:'', items:[{name:'',role:''}], duty:''}];
+let wgGroups = [{title:'', items:[{name:'',name2:'',role:''}], duty:''}];
 
 function renderWorkgroupList(){
   const wrap = document.getElementById('workgroupList');
@@ -514,16 +514,30 @@ function renderWorkgroupList(){
 
     // sub-items
     grp.items.forEach((item, i) => {
+      const iWrap = document.createElement('div');
+      iWrap.style.cssText = 'margin-bottom:6px;padding-left:1.8em;';
+
+      // แถว 1: เลข + ชื่อบรรทัด 1 + หน้าที่ + ✕
       const iRow = document.createElement('div');
-      iRow.style.cssText = 'display:flex;align-items:center;gap:6px;margin-bottom:6px;padding-left:1.8em;';
+      iRow.style.cssText = 'display:flex;align-items:center;gap:6px;';
       iRow.innerHTML = `<span style="font-size:.8rem;color:var(--muted);min-width:2em;">${g+1}.${i+1}</span>
-        <input type="text" placeholder="ชื่อ-สกุล / ตำแหน่ง" spellcheck="true" lang="th" value="${escHtml(item.name)}" style="flex:2;">
+        <input type="text" placeholder="ชื่อ-สกุล / ตำแหน่ง บรรทัด 1" spellcheck="true" lang="th" value="${escHtml(item.name)}" style="flex:2;">
         <input type="text" placeholder="หน้าที่" spellcheck="true" lang="th" value="${escHtml(item.role)}" style="flex:1;">
         <button type="button" class="btn-rem" onclick="removeItem(${g},${i})" title="ลบ">✕</button>`;
       const [nameEl, roleEl] = iRow.querySelectorAll('input');
       nameEl.addEventListener('input', e => { wgGroups[g].items[i].name = e.target.value; markUnsaved(); });
       roleEl.addEventListener('input', e => { wgGroups[g].items[i].role = e.target.value; markUnsaved(); });
-      gDiv.appendChild(iRow);
+      iWrap.appendChild(iRow);
+
+      // แถว 2: บรรทัดเสริม (optional)
+      const iRow2 = document.createElement('div');
+      iRow2.style.cssText = 'display:flex;gap:6px;margin-top:4px;padding-left:2em;';
+      iRow2.innerHTML = `<input type="text" placeholder="บรรทัดที่ 2 (ถ้ามี)" spellcheck="true" lang="th" value="${escHtml(item.name2||'')}" style="flex:2;">
+        <span style="flex:1;"></span><span style="min-width:2.4em;"></span>`;
+      iRow2.querySelector('input').addEventListener('input', e => { wgGroups[g].items[i].name2 = e.target.value; markUnsaved(); });
+      iWrap.appendChild(iRow2);
+
+      gDiv.appendChild(iWrap);
     });
 
     // add item button
@@ -549,7 +563,7 @@ function renderWorkgroupList(){
 }
 
 function addWorkgroup(){
-  wgGroups.push({title:'', items:[{name:'',role:''}], duty:''});
+  wgGroups.push({title:'', items:[{name:'',name2:'',role:''}], duty:''});
   renderWorkgroupList();
   markUnsaved();
 }
@@ -560,12 +574,12 @@ function removeGroup(g){
   markUnsaved();
 }
 function addItem(g){
-  wgGroups[g].items.push({name:'',role:''});
+  wgGroups[g].items.push({name:'',name2:'',role:''});
   renderWorkgroupList();
   markUnsaved();
 }
 function removeItem(g, i){
-  if(wgGroups[g].items.length <= 1){ wgGroups[g].items[0]={name:'',role:''}; renderWorkgroupList(); markUnsaved(); return; }
+  if(wgGroups[g].items.length <= 1){ wgGroups[g].items[0]={name:'',name2:'',role:''}; renderWorkgroupList(); markUnsaved(); return; }
   wgGroups[g].items.splice(i, 1);
   renderWorkgroupList();
   markUnsaved();
@@ -610,7 +624,7 @@ function loadAll(){
 function clearAll(){
   if(!confirm('ล้างข้อมูลทั้งหมด?')) return;
   FIELDS.forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
-  wgGroups = [{title:'', items:[{name:'',role:''}], duty:''}];
+  wgGroups = [{title:'', items:[{name:'',name2:'',role:''}], duty:''}];
   localStorage.removeItem(STORAGE_KEY);
   renderWorkgroupList();
   updatePreview();
@@ -671,7 +685,10 @@ function updatePreview(){
     c.innerHTML = wgGroups.map((grp, gi) => {
       const rows = grp.items.map((it, ii) => {
         if(!it.name.trim() && !it.role.trim()) return '';
-        return `<div class="wg-sub"><span class="wg-snum">${gi+1}.${ii+1}</span><span class="wg-sname">${escHtml(it.name)}</span><span class="wg-srole">${escHtml(it.role)}</span></div>`;
+        const line2 = (it.name2||'').trim()
+          ? `<div class="wg-sub"><span class="wg-snum"></span><span class="wg-sname">${escHtml(it.name2.trim())}</span><span class="wg-srole"></span></div>`
+          : '';
+        return `<div class="wg-sub"><span class="wg-snum">${gi+1}.${ii+1}</span><span class="wg-sname">${escHtml(it.name)}</span><span class="wg-srole">${escHtml(it.role)}</span></div>${line2}`;
       }).join('');
       const dutyHtml = grp.duty && grp.duty.trim()
         ? `<div style="display:flex;gap:.5em;margin-top:.2em;line-height:1.5;padding-left:1em;">
