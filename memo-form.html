@@ -117,8 +117,8 @@
 
   /* Header: logo absolute-left, title centered on full width */
   .doc-header-row{
-    position:relative; text-align:center; margin-bottom:4px;
-    min-height:3.5em; display:flex; align-items:center;
+    position:relative; text-align:center; margin-bottom:2.38%;
+    min-height:3.5em; display:flex; align-items:flex-start;
   }
   .doc-logo{
     position:absolute; left:0; top:0;
@@ -130,7 +130,7 @@
   }
 
   /* Field rows */
-  .doc-field{display:flex; align-items:baseline; line-height:1.5; gap:.3em; flex-wrap:wrap;}
+  .doc-field{display:flex; align-items:baseline; line-height:1.15; gap:.3em; flex-wrap:wrap;}
   .doc-field-lbl{white-space:nowrap; font-size:1em; font-weight:700; flex-shrink:0;}
   .doc-field-val{
     flex:1; border-bottom:1px dotted #aaa;
@@ -212,6 +212,7 @@
       overflow:visible;
     }
     .doc-logo{ width:auto; height:1.5cm; }
+    .doc-header-row{ margin-bottom:5mm; align-items:flex-start; }
     .doc-para{ text-indent:2.5cm; }
     .doc-close{ text-indent:2.5cm; }
     .doc-title{font-size:28pt;}
