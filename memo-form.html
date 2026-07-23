@@ -130,7 +130,7 @@
   }
 
   /* Field rows */
-  .doc-field{display:flex; align-items:baseline; line-height:1.85; gap:.3em; flex-wrap:wrap;}
+  .doc-field{display:flex; align-items:baseline; line-height:1.5; gap:.3em; flex-wrap:wrap;}
   .doc-field-lbl{white-space:nowrap; font-size:1em; font-weight:700; flex-shrink:0;}
   .doc-field-val{
     flex:1; border-bottom:1px dotted #aaa;
@@ -147,7 +147,7 @@
   .doc-divider{border:none; border-top:1px solid #222; margin:3px 0 2px;}
 
   /* Body paragraphs */
-  .doc-body{margin-top:2px;}
+  .doc-body{margin-top:1.5em;}
   .doc-para{
     text-indent:15.625%;
     text-align:justify; text-justify:distribute;
@@ -570,7 +570,7 @@ function updatePreview(){
   const signRow=document.getElementById('pvSignRow');
   const renderSigner = s => `<div class="doc-sign-block">
     <div class="doc-sign-center">(${escHtml(s?.name)||'พิมพ์ชื่อเต็ม'})</div>
-    <div class="doc-sign-center">(${escHtml(s?.pos)||'ตำแหน่ง'})</div>
+    <div class="doc-sign-center">${escHtml(s?.pos)||'ตำแหน่ง'}</div>
   </div>`;
   if(signers.length===0){
     signRow.innerHTML = renderSigner(null);
