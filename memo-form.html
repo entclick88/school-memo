@@ -194,13 +194,14 @@
   .btn-print:hover{background:#dcfce7;}
 
   @media print{
+    @page{ margin:0; }
     .topbar,.form-side,.preview-header,.preview-note,
     .form-actions,#genStatus{display:none!important;}
     .main{display:block; max-width:100%;}
     .preview-side{padding:0; background:#fff; height:auto; position:static;}
     .doc-wrap{
       box-shadow:none; border:none;
-      aspect-ratio:auto; width:210mm; height:297mm;
+      aspect-ratio:auto; width:210mm; min-height:297mm;
       page-break-after:always;
     }
     .doc-inner{
