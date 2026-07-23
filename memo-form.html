@@ -115,17 +115,16 @@
     color:#111;
   }
 
-  /* Header: logo absolute-left, title centered on full width */
+  /* Header: 3-column grid — logo | title | spacer */
   .doc-header-row{
-    position:relative; text-align:center; margin-bottom:2.38%;
-    min-height:3.5em; display:flex; align-items:flex-start;
+    display:grid; grid-template-columns:7.14% 1fr 7.14%;
+    align-items:center; margin-bottom:2.38%;
   }
   .doc-logo{
-    position:absolute; left:0; top:0;
-    width:7.14%; height:auto; object-fit:contain;
+    width:100%; height:auto; object-fit:contain; display:block;
   }
   .doc-title{
-    width:100%; font-weight:700; font-size:1.75em; line-height:1.2;
+    text-align:center; font-weight:700; font-size:1.75em; line-height:1.2;
     font-family:'DB ChuanPim PSU Light','Sarabun',sans-serif;
   }
 
@@ -212,7 +211,7 @@
       overflow:visible;
     }
     .doc-logo{ width:auto; height:1.5cm; }
-    .doc-header-row{ margin-bottom:5mm; align-items:flex-start; }
+    .doc-header-row{ margin-bottom:5mm; grid-template-columns:1.5cm 1fr 1.5cm; }
     .doc-para{ text-indent:2.5cm; }
     .doc-close{ text-indent:2.5cm; }
     .doc-title{font-size:28pt;}
@@ -415,6 +414,7 @@
         <div class="doc-header-row">
           <img src="./logo.png" class="doc-logo" alt="logo">
           <div class="doc-title">บันทึกข้อความ</div>
+          <div></div>
         </div>
 
         <!-- ส่วนงาน (full width dotted) -->
