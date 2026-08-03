@@ -4,14 +4,14 @@
 
 const STAFF_LIST = [
   // ── ผู้บริหาร ──
-  { name: 'ผู้อำนวยการโรงเรียน',         email: 'director@psuwitsurat.ac.th',  role: 'director'    },
+  { name: 'ผู้อำนวยการโรงเรียน',         email: 'entclick88@gmail.com',        role: 'director'    },
   { name: 'ผู้ลงนามแทน (ผู้รับใบอนุญาต)', email: 'authorized@psuwitsurat.ac.th', role: 'authorized'  },
 
   // ── หัวหน้าฝ่าย ──
   { name: 'หัวหน้าฝ่ายวิชาการ',              email: 'academic_head@psuwitsurat.ac.th', role: 'head_dept' },
   { name: 'หัวหน้าฝ่ายพัฒนาผู้เรียน',       email: 'student_head@psuwitsurat.ac.th',  role: 'head_dept' },
   { name: 'หัวหน้าฝ่ายนโยบายและบริหาร',     email: 'policy_head@psuwitsurat.ac.th',   role: 'head_dept' },
-  { name: 'หัวหน้าฝ่ายสารสนเทศและเทคโนโลยี', email: 'tech_head@psuwitsurat.ac.th',   role: 'head_dept' },
+  { name: 'หัวหน้าฝ่ายสารสนเทศและเทคโนโลยี', email: 'prasert.c@psuwitsurat.ac.th',  role: 'head_dept' },
   { name: 'หัวหน้าฝ่ายบริการ',              email: 'service_head@psuwitsurat.ac.th',  role: 'head_dept' },
 
   // ── งานสารบรรณ/ธุรการ ──
